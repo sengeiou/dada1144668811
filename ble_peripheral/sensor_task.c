@@ -184,8 +184,8 @@ long SOFT_IRON_MATRIX[] = {1073741824,0,0,0,1073741824,0,0,0,1073741824};
 char tst[INV_TST_LEN] = { 0 };
 
 //test_r
-//#define MAX_BUF_LENGTH  (18)
-#define MAX_BUF_LENGTH  (19)
+#define MAX_BUF_LENGTH  (18)
+//#define MAX_BUF_LENGTH  (19)
 
 enum packet_type_e {
 	PACKET_TYPE_ACCEL,
@@ -253,10 +253,12 @@ void send_data_packet(char packet_type, void *data)
 	//test_r
 	if(length>0)
 	{
+	        /*
 		buf[length]=0;
 		#if defined(RBLE_UART_DEBUG)
 		printf(buf);	
 		#endif
+		*/
 	}
 	
 	#else
