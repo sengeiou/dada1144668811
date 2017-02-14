@@ -34,7 +34,7 @@
 
 
 #define MEMS_20648
-#define RBLE_UART_DEBUG
+////#define RBLE_UART_DEBUG
 
 #define dg_configPOWER_EXT_1V8_PERIPHERALS      (1)
 

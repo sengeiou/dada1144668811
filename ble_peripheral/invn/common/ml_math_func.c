@@ -738,7 +738,9 @@ void inv_rotation_to_quaternion(float *Rcb, long *Qcb_fp)
 	}
 	else
 	{
+	#if defined(RBLE_UART_DEBUG)
 		//printf('coding error\n'); //error
+	#endif	
 	}
 
 	Qcb_fp[0] = (long)(Qcb[0] * 1073741824.0f);
@@ -1373,7 +1375,7 @@ long inv_fast_sqrt(long x0)
 long inv_one_over_x(long x0, int*pow)
 {
 	//% NR for 1/x in the neighborhood of log(2) => x => log(4)
-	//%    y(k+1)=y(k)*(2 – x0*y(k))
+	//%    y(k+1)=y(k)*(2 ?x0*y(k))
 	//% with y(0) = 1 as the starting value for NR
 
 	long two, xx;
@@ -2346,7 +2348,9 @@ void inv_rotation_to_quaternion_fxp(long *Rcb, long *Qcb)
 	}
 	else
 	{
+	#if defined(RBLE_UART_DEBUG)
 		// printf('coding error\n'); //error
+	#endif	
 		Qcb[0] = 1L << 30;
 		Qcb[1] = 0L;
 		Qcb[2] = 0L;

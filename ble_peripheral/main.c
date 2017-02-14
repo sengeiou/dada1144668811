@@ -164,7 +164,9 @@ static void prvTemplateTask2( void *pvParameters )
                         //test_r
                         //b=test_math();
                         c=sin(b/2);
-                        printf("test_r b=%d",c);
+						#if defined(RBLE_UART_DEBUG)
+                        //printf("test_r b=%d",c);
+                        #endif
 
 					#if 1
 						if(rble_led1_opend)

@@ -21,8 +21,8 @@
 
 //#include "invn/common/mlmath.h"
 
-#include "../../qfplib/qfplib.h"
-#include "../../qfplib/qfpio.h"
+#include "qfplib/qfplib.h"
+#include "qfplib/qfpio.h"
 
 
 /**
@@ -254,7 +254,9 @@ void send_data_packet(char packet_type, void *data)
 	if(length>0)
 	{
 		buf[length]=0;
+		#if defined(RBLE_UART_DEBUG)
 		printf(buf);	
+		#endif
 	}
 	
 	#else
@@ -276,7 +278,10 @@ void print_data_console(char * str)
 
 #if 1
 //test_r
+#if defined(RBLE_UART_DEBUG)
+
 	printf(str);
+#endif
 #else
 	while (str[i])
 	{
@@ -298,7 +303,10 @@ void print_command_console(char * str)
 
 #if 1
 //test_r
+#if defined(RBLE_UART_DEBUG)
+
 	printf(str);
+#endif
 #else
 	while (str[i])
 	{
@@ -768,20 +776,35 @@ void process_sensor_output()
 			if (self_test_result && (accel_accuracy == 0)) //self-test is done already
 				accel_accuracy = 1; //accuracy reaches intermediate level after one-axis factory cal--yd
 			//INV_SPRINTF(tst, INV_TST_LEN, "Accel Data\t %8.5f, %8.5f, %8.5f, %d, %lld\r\n", accel_float[0], accel_float[1], accel_float[2], accel_accuracy, ts); print_command_console(tst);
-/*
+
+			
 			memset(print_float_str,0,RBLE_FLOAT_STR_LENTH);
 			qfp_float2str(accel_float[0],print_float_str,0);
+
+			#if 1 //defined(RBLE_UART_DEBUG)
 			printf("acl0:");
 			printf(print_float_str);
+			fflush(stdout);
+			#endif
+
+			memset(print_float_str,0,RBLE_FLOAT_STR_LENTH);
 			
 			qfp_float2str(accel_float[1],print_float_str,0);
+			#if 1 //defined(RBLE_UART_DEBUG)
 			printf("acl1:");
 			printf(print_float_str);
+			fflush(stdout);
+			#endif
 
+			memset(print_float_str,0,RBLE_FLOAT_STR_LENTH);
 			qfp_float2str(accel_float[2],print_float_str,0);
+
+			#if 1 //defined(RBLE_UART_DEBUG)
 			printf("acl2:");
 			printf(print_float_str);
-			*/
+			fflush(stdout);
+			#endif
+			
 			accel_data_was_set = 0;
 		}
 	}
@@ -1124,7 +1147,7 @@ void fifo_handler()
 
 
 
-#if defined(RBLE_QUAT6_SWITCH)
+#if 1 //defined(RBLE_QUAT6_SWITCH)
 				//test_r
 
 
@@ -1187,7 +1210,7 @@ void fifo_handler()
 #if defined MEMS_AUGMENTED_SENSORS
                                         if(hal.report & PRINT_ORIENT){
 
-										#if 0	
+										#if 1	
                                           inv_convert_rotation_vector_1(long_quat, temp_orientationQ16);
 										
                                           inv_mems_augmented_sensors_get_orientation(orientationQ16, temp_orientationQ16);
@@ -1211,7 +1234,7 @@ void fifo_handler()
 										orientationQ16[2]=262144;
 										#endif
 
-										#if 0
+										#if 1
 										
 										
                                           orientationFloat[0] = inv_q16_to_float(orientationQ16[0]);
@@ -1219,11 +1242,12 @@ void fifo_handler()
                                           orientationFloat[2] = inv_q16_to_float(orientationQ16[2]);
 										#endif
 										  
-											#if 0 //defined(RBLE_UART_DEBUG)
+											#if 1 //defined(RBLE_UART_DEBUG)
 												 // printf("fifo_handler,orientationFloat=%d,%d,%d\n",orientationFloat[0],orientationFloat[1],orientationFloat[2]);
 											memset(print_float_str,0,RBLE_FLOAT_STR_LENTH);
 											qfp_float2str(orientationFloat[1],print_float_str,0);
 											printf(print_float_str);
+											fflush(stdout);
 											#endif
                                         }
 #endif
@@ -1255,7 +1279,7 @@ void fifo_handler()
 //////////test_r dump
 
   ///test_r dump                              
-#if 0  //(MEMS_CHIP == HW_ICM20645e) || (MEMS_CHIP == HW_ICM20648) 
+#if (MEMS_CHIP == HW_ICM20645e) || (MEMS_CHIP == HW_ICM20648) 
 				/* Activity recognition sample available from DMP FIFO */
 
 
@@ -1700,6 +1724,8 @@ float d=3.f;
 
 	c=a+b;
 
+#if defined(RBLE_UART_DEBUG)
+
 	if(c>7.f)
 	{
 	        printf("RbleSensorControlInit c>7.f\n");
@@ -1710,7 +1736,8 @@ float d=3.f;
 	}
 
 	fflush(stdout);
-	
+#endif
+
 	RbleReadAccId();
 
 
@@ -1773,8 +1800,9 @@ void RbleSensorControlTask( void *pvParameters )
 
 #if 1
 
-#if defined(RBLE_UART_DEBUG)
+#if 1  //defined(RBLE_UART_DEBUG)
 		printf("RbleSensorControlTask aa\n");
+	fflush(stdout);
 
 #endif
 
@@ -1847,7 +1875,7 @@ void RbleSensorControlTask( void *pvParameters )
 					fifo_handler();
 					
 					
-		#if 1
+		#if defined(RBLE_UART_DEBUG)
                         printf("#");
 						printf("*");
 						printf("8");
