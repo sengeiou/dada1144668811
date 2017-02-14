@@ -1,0 +1,15 @@
+eclipse.preferences.version=1
+encoding//common/inv_mems_drv_hook.h=UTF-8
+encoding//dmp3a/dmp3Driver.h=UTF-8
+encoding//dmp3a/inv_mems_interface_mapping.c=UTF-8
+encoding//dmp3a/inv_mems_interface_mapping.h=UTF-8
+encoding//driver/inv_mems_augmented_sensors.c=UTF-8
+encoding//driver/inv_mems_augmented_sensors.h=UTF-8
+encoding//driver/inv_mems_base_control.c=UTF-8
+encoding//driver/inv_mems_base_driver.c=UTF-8
+encoding//driver/inv_mems_defines.h=UTF-8
+encoding//driver/inv_mems_load_firmware.c=UTF-8
+encoding//driver/inv_mems_mpu_fifo_control.c=UTF-8
+encoding//driver/inv_mems_mpu_selftest.c=UTF-8
+encoding//driver/inv_mems_slave_compass.c=UTF-8
+encoding//driver/inv_mems_transport.c=UTF-8
