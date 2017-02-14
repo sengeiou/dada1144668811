@@ -16,7 +16,7 @@
 #include "../../qfplib/qfplib.h"
 #include "../../qfplib/qfpio.h"
 
-#define RBLE_FLOAT_MATH_QFBLIB
+//#define RBLE_FLOAT_MATH_QFBLIB
 
 
 double ml_asin(double x)
