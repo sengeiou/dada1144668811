@@ -13,10 +13,15 @@
 
 #include <math.h>
 
+
+//test_r
+#if defined(RBLE_FLOAT_MATH_QFBLIB)
+
 #include "../../qfplib/qfplib.h"
 #include "../../qfplib/qfpio.h"
+#endif
 
-//#define RBLE_FLOAT_MATH_QFBLIB
+
 
 
 double ml_asin(double x)

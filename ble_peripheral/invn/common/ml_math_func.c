@@ -24,7 +24,15 @@ $
 #include "mlmath.h" 
 #include "ml_math_func.h"
 #include <string.h>
-   
+
+//test_r
+//test_r
+#if defined(RBLE_FLOAT_MATH_QFBLIB)
+
+#include "../../qfplib/qfplib.h"
+#include "../../qfplib/qfpio.h"
+#endif
+
 /** @internal
 * Does the cross product of compass by gravity, then converts that
 * to the world frame using the quaternion, then computes the angle that
@@ -56,7 +64,14 @@ float inv_compass_angle(const long *compass, const long *grav, const float *quat
 		return 0.f;
 
 	// This is the unfiltered heading correction
+
+	//test_r
+#if defined(RBLE_FLOAT_MATH_QFBLIB)
+	angW = -qfp_fatan2(q2[2], q2[1]);
+#else
 	angW = -atan2f(q2[2], q2[1]);
+#endif
+
 	return angW;
 }
 
@@ -403,7 +418,14 @@ void inv_q_normalizef(float *q)
 void inv_q_norm4(float *q)
 {
 	float mag;
+
+	//test_r
+#if defined(RBLE_FLOAT_MATH_QFBLIB)
+	mag = qfp_fsqrt(q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3] * q[3]);
+#else
 	mag = sqrtf(q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3] * q[3]);
+#endif
+
 	if (mag) {
 		q[0] /= mag;
 		q[1] /= mag;
@@ -451,13 +473,28 @@ void inv_triad(long *accel_body, long *compass_body, long accel_fs, long *Qbi_fp
 	mag[2] = (float)compass_body[2] / ((float)(1 << 16));
 
 	//Z = accel/norm(accel);
+	//test_r
+#if defined(RBLE_FLOAT_MATH_QFBLIB)
+	an = qfp_fsqrt(acc[0] * acc[0] + acc[1] * acc[1] + acc[2] * acc[2]); //acc norm
+
+#else
 	an = sqrtf(acc[0] * acc[0] + acc[1] * acc[1] + acc[2] * acc[2]); //acc norm
+#endif
+
 	Z[0] = acc[0] / an;
 	Z[1] = acc[1] / an;
 	Z[2] = acc[2] / an;
 
 	//compass = compass/norm(compass);
+
+	//test_r
+#if defined(RBLE_FLOAT_MATH_QFBLIB)
+	mn = qfp_fsqrt(mag[0] * mag[0] + mag[1] * mag[1] + mag[2] * mag[2]); //mag norm
+
+#else
 	mn = sqrtf(mag[0] * mag[0] + mag[1] * mag[1] + mag[2] * mag[2]); //mag norm
+#endif
+
 	mag[0] = mag[0] / mn;
 	mag[1] = mag[1] / mn;
 	mag[2] = mag[2] / mn;
@@ -468,7 +505,14 @@ void inv_triad(long *accel_body, long *compass_body, long accel_fs, long *Qbi_fp
 	X[2] = -mag[1] * Z[0] + mag[0] * Z[1];
 
 	//X = X/norm(X);
+
+	//test_r
+#if defined(RBLE_FLOAT_MATH_QFBLIB)
+	Xn = qfp_fsqrt(X[0] * X[0] + X[1] * X[1] + X[2] * X[2]); //X norm
+#else
 	Xn = sqrtf(X[0] * X[0] + X[1] * X[1] + X[2] * X[2]); //X norm
+#endif
+
 	X[0] = X[0] / Xn;
 	X[1] = X[1] / Xn;
 	X[2] = X[2] / Xn;
@@ -707,10 +751,20 @@ void inv_rotation_to_quaternion(float *Rcb, long *Qcb_fp)
 	if (Qcb[1] < 0.0f) Qcb[1] = 0.0f;
 	if (Qcb[2] < 0.0f) Qcb[2] = 0.0f;
 	if (Qcb[3] < 0.0f) Qcb[3] = 0.0f;
+
+//test_r
+#if defined(RBLE_FLOAT_MATH_QFBLIB)
+	Qcb[0] = qfp_fsqrt(Qcb[0]);
+	Qcb[1] = qfp_fsqrt(Qcb[1]);
+	Qcb[2] = qfp_fsqrt(Qcb[2]);
+	Qcb[3] = qfp_fsqrt(Qcb[3]);
+
+#else
 	Qcb[0] = sqrtf(Qcb[0]);
 	Qcb[1] = sqrtf(Qcb[1]);
 	Qcb[2] = sqrtf(Qcb[2]);
 	Qcb[3] = sqrtf(Qcb[3]);
+#endif
 
 	if (Qcb[0] >= Qcb[1] && Qcb[0] >= Qcb[2] && Qcb[0] >= Qcb[3]) //Qcb[0] is max
 	{
@@ -1668,8 +1722,16 @@ void inv_compute_quat_from_accel(const long *accel, long *quat)
 	cosine(ang1) = accel[2] / magnitude(accel);
 	To compute cs and sn above.
 	*/
+
+	//test_r
+#if defined(RBLE_FLOAT_MATH_QFBLIB)
+	mg = qfp_fsqrt((float)accel[0] * accel[0] +
+		(float)accel[1] * accel[1] + (float)accel[2] * accel[2]);
+
+#else
 	mg = sqrtf((float)accel[0] * accel[0] +
 		(float)accel[1] * accel[1] + (float)accel[2] * accel[2]);
+#endif
 
 	if (mg <= 1) {
 		quat[0] = 1L << 30;
@@ -1680,9 +1742,20 @@ void inv_compute_quat_from_accel(const long *accel, long *quat)
 	else {
 
 		csd = accel[2] / mg;
+
+		//test_r
+#if defined(RBLE_FLOAT_MATH_QFBLIB)
+		sn = qfp_fsqrt(MAX((1.f - csd), 0) / 2.f);
+		cs = qfp_fsqrt(MAX((1.f + csd), 0) / 2.f);
+		mg = qfp_fsqrt((float)accel[0] * accel[0] + (float)accel[1] * accel[1]);
+
+#else
+
 		sn = sqrtf(MAX((1.f - csd), 0) / 2.f);
 		cs = sqrtf(MAX((1.f + csd), 0) / 2.f);
 		mg = sqrtf((float)accel[0] * accel[0] + (float)accel[1] * accel[1]);
+#endif
+
 		if (mg <= 1) {
 			quat[0] = 1L << 30;
 			quat[1] = 0;
@@ -2391,13 +2464,27 @@ void inv_triad2(const long *accel_body, const long *compass_body, long accel_fs,
 	mag[2] = (float)compass_body[2] / ((float)(1 << 16));
 
 	//Z = accel/norm(accel);
+	//test_r
+#if defined(RBLE_FLOAT_MATH_QFBLIB)
+	an = qfp_fsqrt(acc[0] * acc[0] + acc[1] * acc[1] + acc[2] * acc[2]); //acc norm
+#else
+
 	an = sqrtf(acc[0] * acc[0] + acc[1] * acc[1] + acc[2] * acc[2]); //acc norm
+#endif
+
 	Z[0] = acc[0] / an;
 	Z[1] = acc[1] / an;
 	Z[2] = acc[2] / an;
 
 	//compass = compass/norm(compass);
+
+	//test_r
+#if defined(RBLE_FLOAT_MATH_QFBLIB)
+	mn = qfp_fsqrt(mag[0] * mag[0] + mag[1] * mag[1] + mag[2] * mag[2]); //mag norm
+#else
 	mn = sqrtf(mag[0] * mag[0] + mag[1] * mag[1] + mag[2] * mag[2]); //mag norm
+#endif
+
 	mag[0] = mag[0] / mn;
 	mag[1] = mag[1] / mn;
 	mag[2] = mag[2] / mn;
@@ -2408,7 +2495,15 @@ void inv_triad2(const long *accel_body, const long *compass_body, long accel_fs,
 	Y[2] = Z[0] * mag[1] - Z[1] * mag[0];
 
 	//Y = Y/norm(Y);
+
+	//test_r
+#if defined(RBLE_FLOAT_MATH_QFBLIB)
+	Yn = qfp_fsqrt(Y[0] * Y[0] + Y[1] * Y[1] + Y[2] * Y[2]); //X norm
+
+#else
 	Yn = sqrtf(Y[0] * Y[0] + Y[1] * Y[1] + Y[2] * Y[2]); //X norm
+#endif
+
 	Y[0] = Y[0] / Yn;
 	Y[1] = Y[1] / Yn;
 	Y[2] = Y[2] / Yn;

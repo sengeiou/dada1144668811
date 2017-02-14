@@ -42,7 +42,7 @@
 
 #define MEMS_AUGMENTED_SENSORS
 
-
+#define RBLE_FLOAT_MATH_QFBLIB
 
 
 #define CONFIG_USE_BLE

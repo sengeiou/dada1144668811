@@ -44,7 +44,7 @@ extern double rble_atan2(double x, double y);
 #define sinf(x)      rble_sin(x)
 #define atan2f(x,y)  rble_atan2(x,y)
 #define sqrtf(x)     rble_sqrt(x)
-#elif 0
+#elif defined(RBLE_FLOAT_MATH_QFBLIB)
 /* stubs for float version of math functions */
 #define cosf(x)      ml_cos(x)
 #define sinf(x)      ml_sin(x)

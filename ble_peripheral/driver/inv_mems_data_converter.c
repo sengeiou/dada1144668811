@@ -21,6 +21,14 @@
 //test_r
 #include "math.h"
 
+//test_r
+//test_r
+#if defined(RBLE_FLOAT_MATH_QFBLIB)
+
+#include "../qfplib/qfplib.h"
+#include "../qfplib/qfpio.h"
+#endif
+
 
 #define INV_TWO_POWER_NEG_30 9.313225746154785e-010f
 
@@ -154,12 +162,24 @@ void inv_set_chip_to_body_axis_quaternion(signed char *accel_gyro_matrix, float 
     qcb[3] = -qcb[3];
 
     // Now rotate by angle, negate angle to rotate other way
-    q_adjust[0] = (long)((1L<<30) * cosf(-angle*(float)M_PI/180.f/2.f));
+
+//test_r
+#if defined(RBLE_FLOAT_MATH_QFBLIB)
+	q_adjust[0] = (long)((1L<<30) * qfp_fcos(-angle*(float)M_PI/180.f/2.f));
+#else
+	q_adjust[0] = (long)((1L<<30) * cosf(-angle*(float)M_PI/180.f/2.f));
+#endif    
+	
     q_adjust[1] = 0;
 
 	//test_r
+
+	//test_r
+#if defined(RBLE_FLOAT_MATH_QFBLIB)
+    q_adjust[2] = (long)((1L<<30)*qfp_fsin(-angle*(float)M_PI/180.f/2.f));
+#else
     q_adjust[2] = (long)((1L<<30)*sinf(-angle*(float)M_PI/180.f/2.f));
-    ///q_adjust[2] = (long)((1L<<30)*sin(-angle*(float)M_PI/180.f/2.f));
+#endif
 	
     q_adjust[3] = 0;
     inv_q_mult(q_adjust, qcb, q_all);
