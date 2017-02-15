@@ -99,15 +99,19 @@
 #define dg_configPRECHARGING_TIMEOUT            (30 * 60 * 100)  // N x 10msec
 
 #define dg_configUSE_SOC                        1
+#define dg_configBATTERY_ADAPTER 1
 /* Uncomment the following line to enable State-of-Charge debugging or performance test */
 //#define DEBUG_SOC
 #if defined(DEBUG_SOC)
         #define CONFIG_RETARGET
 #endif
 
-#define dg_configUSE_USB                        1
-#define dg_configUSE_USB_CHARGER                1
-#define dg_configALLOW_CHARGING_NOT_ENUM        1
+//#define dg_configUSE_USB                        1
+//#define dg_configUSE_USB_CHARGER                1
+//#define dg_configALLOW_CHARGING_NOT_ENUM        1
+#define dg_configUSE_USB                        0
+#define dg_configUSE_USB_CHARGER                0
+#define dg_configALLOW_CHARGING_NOT_ENUM        0
 #define dg_configUSE_NOT_ENUM_CHARGING_TIMEOUT  0
 
 #define dg_configUSE_ProDK                      (1)
@@ -212,7 +216,7 @@
         #endif
 
 #elif (dg_configCODE_LOCATION == NON_VOLATILE_IS_FLASH)
-        #define CODE_SIZE     (128 * 1024)
+        #define CODE_SIZE     (172 * 1024)
         //#define CODE_SIZE     (256 * 1024)
 
 		#if 1

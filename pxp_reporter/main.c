@@ -183,7 +183,7 @@ static void prvTemplateTask2( void *pvParameters )
 static void system_init( void *pvParameters )
 {
         OS_TASK handle;
-
+OS_TASK task_template = NULL;
 #if defined CONFIG_RETARGET
         extern void retarget_init(void);
 #endif

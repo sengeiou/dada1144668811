@@ -28,7 +28,11 @@ RM := rm -rf
 -include sdk/FreeRTOS/portable/MemMang/subdir.mk
 -include sdk/FreeRTOS/portable/GCC/ARM_CM0/subdir.mk
 -include sdk/FreeRTOS/subdir.mk
--include qfplib/src/subdir.mk
+-include qfplib/subdir.mk
+-include invn/common/subdir.mk
+-include driver/subdir.mk
+-include dmp3a/subdir.mk
+-include common/subdir.mk
 -include subdir.mk
 -include objects.mk
 
@@ -64,7 +68,7 @@ main-build: pxp_reporter.elf secondary-outputs
 pxp_reporter.elf: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross ARM C Linker'
-	arm-none-eabi-gcc -mcpu=cortex-m0 -mthumb -Og -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -Wall  -g3 -T "E:\wang\dialogp\DA1468x_SDK_BTLE_v_1.0.8.1050\projects\dk_apps\demos\pxp_reporter/DA14681-01-Debug_QSPI/mem.ld" -T "E:\wang\dialogp\DA1468x_SDK_BTLE_v_1.0.8.1050\projects\dk_apps\demos\pxp_reporter/DA14681-01-Debug_QSPI/sections.ld" -Xlinker --gc-sections -L"../../../../../sdk/interfaces/ble_stack//DA14681-01-Debug" -L"E:\wang\dialogp\DA1468x_SDK_BTLE_v_1.0.8.1050\sdk\bsp\misc" -Wl,-Map,"pxp_reporter.map" --specs=nano.specs --specs=nosys.specs -o "pxp_reporter.elf" $(OBJS) $(USER_OBJS) $(LIBS)
+	arm-none-eabi-gcc -mcpu=cortex-m0 -mthumb -Og -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -Wall  -g3 -T "E:\wang\dialogp\hy_ble\pxp_reporter/DA14681-01-Debug_QSPI/mem.ld" -T "E:\wang\dialogp\hy_ble\pxp_reporter/DA14681-01-Debug_QSPI/sections.ld" -Xlinker --gc-sections -L"E:\wang\dialogp\hy_ble\sdk\bsp\misc" -L../../sdk/interfaces/ble_stack/DA14681-01-Debug -Wl,-Map,"pxp_reporter.map" --specs=nano.specs --specs=nosys.specs -o "pxp_reporter.elf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -87,7 +91,7 @@ clean:
 
 pre-build:
 	-@echo 'Generate linker scripts.'
-	-make generate_ldscripts IC_REV=A IC_STEP=E APP_CONFIG_H="E:\wang\dialogp\DA1468x_SDK_BTLE_v_1.0.8.1050\projects\dk_apps\demos\pxp_reporter\config\custom_config_qspi.h" CC="arm-none-eabi-gcc" BSP_CONFIG_DIR="E:\wang\dialogp\DA1468x_SDK_BTLE_v_1.0.8.1050\sdk\bsp\config"
+	-make generate_ldscripts IC_REV=A IC_STEP=E APP_CONFIG_H="E:\wang\dialogp\hy_ble\pxp_reporter\config\custom_config_qspi.h" CC="arm-none-eabi-gcc" BSP_CONFIG_DIR="E:\wang\dialogp\hy_ble\sdk\bsp\config"
 	-@echo ' '
 
 secondary-outputs: $(SECONDARY_FLASH) $(SECONDARY_SIZE)

@@ -17,8 +17,12 @@ C_DEPS :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
+common \
+dmp3a \
+driver \
+invn/common \
 . \
-qfplib/src \
+qfplib \
 sdk/FreeRTOS \
 sdk/FreeRTOS/portable/GCC/ARM_CM0 \
 sdk/FreeRTOS/portable/MemMang \
