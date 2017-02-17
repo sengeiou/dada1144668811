@@ -247,7 +247,7 @@ static void system_init( void *pvParameters )
 
 		//test_r
 				/* Start sensor task. */
-#if 1
+#if 0
 				OS_TASK_CREATE("RBLE Sensor",				 /* The text name assigned to the task, for
 																   debug only; not used by the kernel. */
 							   RbleSensorControlTask,			  /* The function that implements the task. */
@@ -259,7 +259,7 @@ static void system_init( void *pvParameters )
 				OS_ASSERT(rble_sensor_handle);
 #endif
 
-#if 0
+#if 1
 
         /* Start the BLE Peripheral application task. */
         OS_TASK_CREATE("BLE Peripheral",                /* The text name assigned to the task, for
@@ -274,7 +274,7 @@ static void system_init( void *pvParameters )
 #endif
 
  
-#if 1
+#if 0
 		OS_TASK_CREATE( "Template", 		   /* The text name assigned to the task, for
 															debug only; not used by the kernel. */
 						 prvTemplateTask2,				  /* The function that implements the task. */

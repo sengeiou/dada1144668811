@@ -192,7 +192,7 @@
         #endif
 
 #elif (dg_configCODE_LOCATION == NON_VOLATILE_IS_FLASH)
-        #define CODE_SIZE     (128 * 1024)
+        #define CODE_SIZE     (172 * 1024)
         //#define CODE_SIZE     (256 * 1024)
 
 		#if 1

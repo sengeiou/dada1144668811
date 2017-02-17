@@ -35,7 +35,8 @@
 #include "cts.h"
 #include "dis.h"
 #include "scps.h"
-
+#include "test.h"
+static ble_service_t *test_service;
 /*
  * Notification bits reservation
  * bit #0 is always assigned to BLE event queue notification
@@ -312,8 +313,93 @@ static void handle_evt_gap_adv_completed(ble_evt_gap_adv_completed_t *evt)
         ble_gap_adv_start(GAP_CONN_MODE_UNDIRECTED);
 }
 
+typedef struct test_data
+{
+        //common properties
+        uint8_t                 id1;
+        uint8_t                 id2;
+        //properties specific to this sensor
+        int16_t                 val_x;
+        int16_t                 val_y;
+        int16_t                 val_z;
+} test_data ;
+
+static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t *value,
+        uint16_t length)
+{
+        printf("wzb %s,rec len=%x\r\n", __func__,length);
+        //printf("value=%x,length=%x\r\n", *value, length);
+        uint8_t temp_buff[sizeof(length)];
+        memset(temp_buff, 0, sizeof(temp_buff));
+        memcpy(temp_buff, &value, length - 1);
+        int i;
+        for (i = 0; i < length; i++){
+                printf("%x\r\n",*(value+i));
+        }
+
+        float sin_v=qfp_fsin((*(value+1))*2*3.14159/180);
+        printf("sin_v=%d\r\n",(int)((sin_v+0.001)*4));
+
+        float test_e=1.52587890625e-005f;
+        float test_e_e=test_e*3.14;
+
+        //test_tx_data(svc, conn_idx, value, length);
+        float sin_f=(*(value+1)*3.522);
+        printf("sin_f aaa=%d\r\n",(int)sin_f);
+        test_data td;
+        td.id1=0x12;
+        td.id2=0xa1;
+        td.val_x=0xff;
+        td.val_y=0xfd;
+        td.val_z=0xfc;
+        test_tx_data(svc, conn_idx, (uint8_t *)&td, sizeof(td));
+        //test_tx_data(svc, NULL, (uint8_t *)&td, sizeof(td));
+        //add by wzb for test
+#if 0
+        for (;;) {
+                OS_TICK_TIME xNextWakeTime;
+                static uint32_t test_counter = 0;
+
+                /* Initialise xNextWakeTime - this only needs to be done once. */
+                xNextWakeTime = OS_GET_TICK_COUNT();
+                test_counter++;
+                vTaskDelayUntil(&xNextWakeTime, mainCOUNTER_FREQUENCY_MS);
+                if (test_counter % (1000 / OS_TICKS_2_MS(mainCOUNTER_FREQUENCY_MS)) == 0) {
+                        printf("#");
+                        test_tx_data(svc, conn_idx, value, length);
+                        fflush(stdout);
+                }
+        }
+#endif
+}
+
+
+static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t length)
+{
+        printf("wzb test_tx_done_cb\r\n");
+}
+
+static void test_set_flow_control_cb(ble_service_t *svc, uint16_t conn_idx,
+        test_flow_control_t value)
+{
+        printf("wzb test_set_flow_control_cb\r\n");
+        test_set_flow_control(svc, conn_idx, value);
+}
+
+static test_callbacks_t test_callbacks = {
+        .rx_data = test_rx_data_cb,
+        .tx_done = test_tx_done_cb,
+        .set_flow_control = test_set_flow_control_cb,
+};
+
+
 void ble_peripheral_task(void *params)
 {
+       int i=0;
+       for(i=0;i<5;i++){
+               printf("wzb\r\n");
+       }
+
         int8_t wdog_id;
 #if CFG_CTS
         ble_service_t *cts;
@@ -341,7 +427,7 @@ void ble_peripheral_task(void *params)
         ble_peripheral_start();
         ble_register_app();
 
-        ble_gap_device_name_set("Dialog Peripheral", ATT_PERM_READ);
+        ble_gap_device_name_set("wzb", ATT_PERM_READ);
 
 #if CFG_DEBUG_SERVICE
         /* register debug service */
@@ -403,6 +489,10 @@ void ble_peripheral_task(void *params)
         ble_service_add(scps);
 #endif
 
+        //add test service by wzb
+        test_service = test_init(&test_callbacks);
+        ble_service_add(test_service);
+
 #if CFG_CTS
         /* create timer for CTS, this will be used to update current time every second */
         cts_timer = OS_TIMER_CREATE("cts", portCONVERT_MS_2_TICKS(1000), OS_TIMER_SUCCESS,
@@ -413,7 +503,7 @@ void ble_peripheral_task(void *params)
 
         ble_gap_adv_data_set(sizeof(adv_data), adv_data, 0, NULL);
         ble_gap_adv_start(GAP_CONN_MODE_UNDIRECTED);
-
+        printf("wzb for(;;)\r\n");
         for (;;) {
                 OS_BASE_TYPE ret;
                 uint32_t notif;
@@ -446,7 +536,7 @@ void ble_peripheral_task(void *params)
                         if (ble_service_handle_event(hdr)) {
                                 goto handled;
                         }
-
+                        printf("wzb hdr->evt_code=%d\r\n", hdr->evt_code);
                         switch (hdr->evt_code) {
                         case BLE_EVT_GAP_CONNECTED:
                                 handle_evt_gap_connected((ble_evt_gap_connected_t *) hdr);
