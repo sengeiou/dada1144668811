@@ -41,7 +41,7 @@
 
 #define mainTEMPLATE_TASK_PRIORITY		( OS_TASK_PRIORITY_NORMAL )
 
-#define mainCOUNTER_FREQUENCY_MS                OS_MS_2_TICKS(200)
+#define rble_mainCOUNTER_FREQUENCY_MS                OS_MS_2_TICKS(200)
 
 
 /* The configCHECK_FOR_STACK_OVERFLOW setting in FreeRTOSConifg can be used to
@@ -73,7 +73,7 @@ static void periph_init(void);
 static void periph_setup(void);
 
 //test_r
-#if 0 //defined CONFIG_RETARGET
+#if defined CONFIG_RETARGET
         extern void retarget_init(void);
 #endif
 
@@ -155,10 +155,10 @@ static void prvTemplateTask2( void *pvParameters )
                    The block time is specified in ticks, the constant used converts ticks
                    to ms.  While in the Blocked state this task will not consume any CPU
                    time. */
-                vTaskDelayUntil( &xNextWakeTime, mainCOUNTER_FREQUENCY_MS );
+                vTaskDelayUntil( &xNextWakeTime, rble_mainCOUNTER_FREQUENCY_MS );
                 test_counter++;
 
-                if (test_counter % (1000 / OS_TICKS_2_MS(mainCOUNTER_FREQUENCY_MS)) == 0) {
+                if (test_counter % (1000 / OS_TICKS_2_MS(rble_mainCOUNTER_FREQUENCY_MS)) == 0) {
 
 
                         //test_r
@@ -247,12 +247,12 @@ static void system_init( void *pvParameters )
 
 		//test_r
 				/* Start sensor task. */
-#if 0
+#if 1
 				OS_TASK_CREATE("RBLE Sensor",				 /* The text name assigned to the task, for
 																   debug only; not used by the kernel. */
 							   RbleSensorControlTask,			  /* The function that implements the task. */
 							   NULL,							/* The parameter passed to the task. */
-							   1536 * OS_STACK_WORD_SIZE,		/* The number of bytes to allocate to the
+							   512 * OS_STACK_WORD_SIZE,		/* The number of bytes to allocate to the
 																   stack of the task. */
 							   RBLE_SENSOR_TASK_PRIORITY,/* The priority assigned to the task. */
 							   rble_sensor_handle); 						/* The task handle. */
@@ -274,7 +274,7 @@ static void system_init( void *pvParameters )
 #endif
 
  
-#if 0
+#if 1
 		OS_TASK_CREATE( "Template", 		   /* The text name assigned to the task, for
 															debug only; not used by the kernel. */
 						 prvTemplateTask2,				  /* The function that implements the task. */
@@ -304,6 +304,9 @@ int main( void )
         cm_clk_init_low_level();                            /* Basic clock initializations. */
 
 
+#if defined(RBLE_DATA_STORAGE_IN_FLASH)
+	ad_nvms_init();
+#endif
 
         /* Start SysInit task. */
         status = OS_TASK_CREATE("SysInit",                /* The text name assigned to the task, for

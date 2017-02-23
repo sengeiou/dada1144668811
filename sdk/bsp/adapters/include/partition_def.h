@@ -33,6 +33,12 @@ typedef enum {
         NVMS_FW_UPDATE_PART             = 18,
         NVMS_PRODUCT_HEADER_PART        = 19,
         NVMS_IMAGE_HEADER_PART          = 20,
+
+#if defined(RBLE_DATA_STORAGE_IN_FLASH)
+	NVMS_IMAGE_DATA_STORAGE_PART          = 21,
+
+#endif
+		
 } nvms_partition_id_t;
 
 /**

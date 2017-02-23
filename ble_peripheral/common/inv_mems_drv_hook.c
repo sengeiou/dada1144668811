@@ -71,6 +71,7 @@ int inv_serial_interface_read_hook(uint16_t reg, uint32_t length, uint8_t *data)
 /**
  *  @brief  Sleep function.
 **/
+
 void inv_sleep(unsigned long mSecs)
 {
 	OS_TICK_TIME xNextWakeTime;
@@ -107,7 +108,7 @@ long inv_get_tick_count(void)
     unsigned long count;
 
     //get_tick_count(&count);
-	count=OS_GET_TICK_COUNT();
+	count=(unsigned long)(OS_GET_TICK_COUNT());
 
     return (long)count;
 }

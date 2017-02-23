@@ -24,6 +24,9 @@
 #include "qfplib/qfplib.h"
 #include "qfplib/qfpio.h"
 
+#if defined(RBLE_DATA_STORAGE_IN_FLASH)
+#include "ad_nvms.h"
+#endif
 
 /**
  * @brief Template task increases a counter every mainCOUNTER_FREQUENCY_MS ms
@@ -31,6 +34,17 @@
 
 #define RBLE_FLOAT_STR_LENTH   64
 char print_float_str[RBLE_FLOAT_STR_LENTH];
+
+
+#if defined(RBLE_DATA_STORAGE_IN_FLASH)
+
+nvms_t nvms_rble_storage_handle;
+uint32_t rble_data_addr_offset=0;
+uint8_t rble_sample_data[RBLE_DATA_BUF_LENGTH]={0};
+int rble_smp_count=0;
+#endif
+
+OS_TIMER rble_sample_timer_id;
 
 
 RbleSensorControlStruct_t rble_sensor_control_env;
@@ -153,7 +167,10 @@ uint8_t tilt_state = 0;
 long bac_ts = 0;
 uint16_t flip_pickup = 0;
 uint8_t step_detected = 0;
-float current_output_rate = 5;
+//float current_output_rate = 5;
+//float current_output_rate = 100;
+float current_output_rate = 50;
+
 
 /** @brief Set of flags for BAC state */
 #define BAC_DRIVE	0x01
@@ -779,32 +796,50 @@ void process_sensor_output()
 				accel_accuracy = 1; //accuracy reaches intermediate level after one-axis factory cal--yd
 			//INV_SPRINTF(tst, INV_TST_LEN, "Accel Data\t %8.5f, %8.5f, %8.5f, %d, %lld\r\n", accel_float[0], accel_float[1], accel_float[2], accel_accuracy, ts); print_command_console(tst);
 
-			
+			#if 1 //defined(RBLE_UART_DEBUG)
 			memset(print_float_str,0,RBLE_FLOAT_STR_LENTH);
 			qfp_float2str(accel_float[0],print_float_str,0);
 
-			#if 1 //defined(RBLE_UART_DEBUG)
+			//printf("tk:%d",inv_get_tick_count());
 			printf("acl0:");
 			printf(print_float_str);
 			fflush(stdout);
 			#endif
 
+			#if 1 //defined(RBLE_UART_DEBUG)
 			memset(print_float_str,0,RBLE_FLOAT_STR_LENTH);
 			
 			qfp_float2str(accel_float[1],print_float_str,0);
-			#if 1 //defined(RBLE_UART_DEBUG)
+			
 			printf("acl1:");
 			printf(print_float_str);
 			fflush(stdout);
 			#endif
 
+			#if 1 //defined(RBLE_UART_DEBUG)
 			memset(print_float_str,0,RBLE_FLOAT_STR_LENTH);
 			qfp_float2str(accel_float[2],print_float_str,0);
 
-			#if 1 //defined(RBLE_UART_DEBUG)
+			
 			printf("acl2:");
 			printf(print_float_str);
+			printf("\n");
 			fflush(stdout);
+			#endif
+
+			
+			#if defined(RBLE_DATA_STORAGE_IN_FLASH)
+				memset(rble_sample_data,0,RBLE_DATA_BUF_LENGTH);
+				rble_smp_count=0;
+				//rble_sample_data[rble_smp_count]=RBLE_DATA_ACCEL_LABLE;
+				//rble_smp_count++;
+				memcpy(rble_sample_data,RBLE_DATA_ACCEL_LABLE,RBLE_DATA_LABLE_LENGTH);
+				rble_smp_count+=RBLE_DATA_LABLE_LENGTH;
+					
+				memcpy((rble_sample_data+rble_smp_count),accel_float,(3*RBLE_FLOAT_SIZE));
+				rble_smp_count+=(3*RBLE_FLOAT_SIZE);
+				ad_nvms_write(nvms_rble_storage_handle, rble_data_addr_offset, rble_sample_data,rble_smp_count);
+				rble_data_addr_offset+=rble_smp_count;
 			#endif
 			
 			accel_data_was_set = 0;
@@ -816,6 +851,55 @@ void process_sensor_output()
 			if (self_test_result && (gyro_accuracy == 0)) //self-test is done already
 				gyro_accuracy = 1; //accuracy reaches intermediate level after one-axis factory cal--yd
                         INV_SPRINTF(tst, INV_TST_LEN, "Gyro Data\t %7.5f, %7.5f, %7.5f, %d, %lld\r\n", gyro_float[0], gyro_float[1], gyro_float[2], gyro_accuracy, ts); print_command_console(tst);
+
+			#if 1 //defined(RBLE_UART_DEBUG)
+			memset(print_float_str,0,RBLE_FLOAT_STR_LENTH);
+						qfp_float2str(gyro_float[0],print_float_str,0);
+			
+			
+						//printf("tk:%d",inv_get_tick_count());
+						printf("gyro0:");
+						printf(print_float_str);
+						//printf("\n");
+						fflush(stdout);
+			#endif
+
+			#if 1 //defined(RBLE_UART_DEBUG)
+						memset(print_float_str,0,RBLE_FLOAT_STR_LENTH);
+						
+						qfp_float2str(gyro_float[1],print_float_str,0);
+			
+						printf("gyro1:");
+						printf(print_float_str);
+						//printf("\n");
+						fflush(stdout);
+			#endif
+
+			#if 1 //defined(RBLE_UART_DEBUG)
+						memset(print_float_str,0,RBLE_FLOAT_STR_LENTH);
+						qfp_float2str(gyro_float[2],print_float_str,0);
+			
+			
+						printf("gyro2:");
+						printf(print_float_str);
+						printf("\n");
+						fflush(stdout);
+			#endif
+
+			#if defined(RBLE_DATA_STORAGE_IN_FLASH)
+				memset(rble_sample_data,0,RBLE_DATA_BUF_LENGTH);
+				rble_smp_count=0;
+				
+				memcpy(rble_sample_data,RBLE_DATA_GYRO_LABLE,RBLE_DATA_LABLE_LENGTH);
+				rble_smp_count+=RBLE_DATA_LABLE_LENGTH;
+					
+				memcpy((rble_sample_data+rble_smp_count),gyro_float,(3*RBLE_FLOAT_SIZE));
+				rble_smp_count+=(3*RBLE_FLOAT_SIZE);
+				ad_nvms_write(nvms_rble_storage_handle, rble_data_addr_offset, rble_sample_data,rble_smp_count);
+				rble_data_addr_offset+=rble_smp_count;
+			#endif
+
+
 			gyro_data_was_set = 0;
 		}
 	}
@@ -859,6 +943,51 @@ void process_sensor_output()
         if (hal.report & PRINT_COMPASS) {
 		if (compass_data_was_set == 1) {
 			INV_SPRINTF(tst, INV_TST_LEN, "Compass Data\t %7.5f, %7.5f, %7.5f,\t%d, %lld\r\n", compass_float[0], compass_float[1], compass_float[2], compass_accuracy, ts); print_command_console(tst);
+
+
+		#if 1 //defined(RBLE_UART_DEBUG)
+
+			memset(print_float_str,0,RBLE_FLOAT_STR_LENTH);
+					qfp_float2str(compass_float[0],print_float_str,0);
+					//printf("tk:%d",inv_get_tick_count());
+					printf("cps0:");
+					printf(print_float_str);
+					//printf("\n");
+					fflush(stdout);
+		#endif
+
+		#if 1 //defined(RBLE_UART_DEBUG)
+					memset(print_float_str,0,RBLE_FLOAT_STR_LENTH);
+					qfp_float2str(compass_float[1],print_float_str,0);
+					printf("cps1:");
+					printf(print_float_str);
+					//printf("\n");
+					fflush(stdout);
+		#endif
+
+		#if 1 //defined(RBLE_UART_DEBUG)
+					memset(print_float_str,0,RBLE_FLOAT_STR_LENTH);
+					qfp_float2str(compass_float[2],print_float_str,0);
+					printf("cps2:");
+					printf(print_float_str);
+					printf("\n");
+					fflush(stdout);
+		#endif
+
+		
+		#if defined(RBLE_DATA_STORAGE_IN_FLASH)
+			memset(rble_sample_data,0,RBLE_DATA_BUF_LENGTH);
+			rble_smp_count=0;
+			
+			memcpy(rble_sample_data,RBLE_DATA_COMPS_LABLE,RBLE_DATA_LABLE_LENGTH);
+			rble_smp_count+=RBLE_DATA_LABLE_LENGTH;
+				
+			memcpy((rble_sample_data+rble_smp_count),compass_float,(3*RBLE_FLOAT_SIZE));
+			rble_smp_count+=(3*RBLE_FLOAT_SIZE);
+			ad_nvms_write(nvms_rble_storage_handle, rble_data_addr_offset, rble_sample_data,rble_smp_count);
+			rble_data_addr_offset+=rble_smp_count;
+		#endif
+
 			compass_data_was_set = 0;
 		}
 	}
@@ -892,8 +1021,40 @@ void process_sensor_output()
 			print_data_console(tst);
 			*/
 			
-			#if defined(RBLE_UART_DEBUG)
-					printf("ori pr\n");
+			#if 1 //defined(RBLE_UART_DEBUG)
+				 // printf("fifo_handler,orientationFloat=%d,%d,%d\n",orientationFloat[0],orientationFloat[1],orientationFloat[2]);
+				memset(print_float_str,0,RBLE_FLOAT_STR_LENTH);
+				qfp_float2str(orientationFloat[0],print_float_str,0);
+				printf("ori0:");
+				printf(print_float_str);
+				fflush(stdout);
+				
+				memset(print_float_str,0,RBLE_FLOAT_STR_LENTH);
+				qfp_float2str(orientationFloat[1],print_float_str,0);
+				printf("ori1:");
+				printf(print_float_str);
+				fflush(stdout);
+				
+				memset(print_float_str,0,RBLE_FLOAT_STR_LENTH);
+				qfp_float2str(orientationFloat[2],print_float_str,0);
+				printf("ori2:");
+				printf(print_float_str);
+				printf("\n");
+				fflush(stdout);
+			#endif
+  
+			
+			#if defined(RBLE_DATA_STORAGE_IN_FLASH)
+				memset(rble_sample_data,0,RBLE_DATA_BUF_LENGTH);
+				rble_smp_count=0;
+				
+				memcpy(rble_sample_data,RBLE_DATA_ORI_LABLE,RBLE_DATA_LABLE_LENGTH);
+				rble_smp_count+=RBLE_DATA_LABLE_LENGTH;
+					
+				memcpy((rble_sample_data+rble_smp_count),orientationFloat,(3*RBLE_FLOAT_SIZE));
+				rble_smp_count+=(3*RBLE_FLOAT_SIZE);
+				ad_nvms_write(nvms_rble_storage_handle, rble_data_addr_offset, rble_sample_data,rble_smp_count);
+				rble_data_addr_offset+=rble_smp_count;
 			#endif
 		}
 		quat9_data_was_set = 0;
@@ -992,13 +1153,18 @@ void fifo_handler()
 	unsigned short sample_cnt_array[GENERAL_SENSORS_MAX] = { 0 };
 
 
-#if defined(RBLE_UART_DEBUG)
-		printf("fifo_handler\n");
-#endif
 
 		
 	// Process Incoming INT and Get/Pack FIFO Data
 	inv_identify_interrupt(&int_read_back);
+
+
+#if 1//defined(RBLE_UART_DEBUG)
+		printf("fifo=0x%x\n",int_read_back);
+	fflush(stdout);
+
+#endif
+
 #if (MEMS_CHIP != HW_ICM20609)
 	if (int_read_back & (BIT_MSG_DMP_INT | BIT_MSG_DMP_INT_0 | BIT_MSG_DMP_INT_2 | BIT_MSG_DMP_INT_5)) 
 #else
@@ -1016,9 +1182,36 @@ void fifo_handler()
                           break;
 
 			
-				#if defined(RBLE_UART_DEBUG)
-					printf("fifo_handler data_left=%d,total_cnt=%d,array[3]=%d\n",data_left_in_fifo,total_sample_cnt,sample_cnt_array[3]);
+				#if 1 //defined(RBLE_UART_DEBUG)
+					printf("dleft=%d,tal_cnt=%d,arr[3]=%d\n",data_left_in_fifo,total_sample_cnt,sample_cnt_array[3]);
 				#endif
+
+			
+#if defined(RBLE_DATA_STORAGE_IN_FLASH)
+{
+		long tmp_tick=0;
+		tmp_tick=inv_get_tick_count();
+		
+					memset(rble_sample_data,0,RBLE_DATA_BUF_LENGTH);
+					rble_smp_count=0;
+					//rble_sample_data[rble_smp_count]=RBLE_DATA_TK_LABLE;
+					memcpy(rble_sample_data,RBLE_DATA_TK_LABLE,RBLE_DATA_LABLE_LENGTH);
+					rble_smp_count+=RBLE_DATA_LABLE_LENGTH;
+					
+					memcpy((rble_sample_data+rble_smp_count),&tmp_tick,RBLE_LONG_SIZE);
+					rble_smp_count+=RBLE_LONG_SIZE;
+
+					memcpy((rble_sample_data+rble_smp_count),RBLE_DATA_CNT_LABLE,RBLE_DATA_LABLE_LENGTH);
+					rble_smp_count+=RBLE_DATA_LABLE_LENGTH;
+										
+					memcpy((rble_sample_data+rble_smp_count),&total_sample_cnt,RBLE_CNT_SIZE);
+					rble_smp_count+=RBLE_CNT_SIZE;
+
+					
+					ad_nvms_write(nvms_rble_storage_handle, rble_data_addr_offset, rble_sample_data,rble_smp_count);
+					rble_data_addr_offset+=rble_smp_count;
+}
+#endif
 						
 			if (lastIrqTimeUs != 0)
 				ts = (currentIrqTimeUs - lastIrqTimeUs) / total_sample_cnt;
@@ -1029,7 +1222,7 @@ void fifo_handler()
 					break;
 
 			#if defined(RBLE_UART_DEBUG)
-					printf("fifo_handler header=0x%x,header2=0x%x\n",header,header2);
+					printf("hd=0x%x,hd2=0x%x\n",header,header2);
 			#endif
 
 
@@ -1154,14 +1347,19 @@ void fifo_handler()
 
 
 				if (header & QUAT6_SET) {
+
+#if defined MEMS_AUGMENTED_SENSORS
+			long gravityQ16[3], temp_gravityQ16[3];
+			long linAccQ16[3];
+			long accelQ16[3];
+#endif
+					
 					quat6_data_was_set = 1;
 					
 					dmp_get_6quaternion(long_quat);
                                         inv_convert_rotation_vector(long_quat, grv_float);
 #if defined MEMS_AUGMENTED_SENSORS
-                                        long gravityQ16[3], temp_gravityQ16[3];
-					long linAccQ16[3];
-					long accelQ16[3];
+
                                         /*Calculate Gravity*/
                                           inv_convert_rotation_vector_1(long_quat, temp_gravityQ16);
                                           inv_mems_augmented_sensors_get_gravity(gravityQ16, temp_gravityQ16);
@@ -1218,10 +1416,6 @@ void fifo_handler()
                                           inv_mems_augmented_sensors_get_orientation(orientationQ16, temp_orientationQ16);
 										#endif  
 
-#if 0			
-		//test_r dump													
-		return;
-#endif
 
 
 											
@@ -1244,12 +1438,42 @@ void fifo_handler()
                                           orientationFloat[2] = inv_q16_to_float(orientationQ16[2]);
 										#endif
 										  
-											#if 1 //defined(RBLE_UART_DEBUG)
+											#if 0 //defined(RBLE_UART_DEBUG)
 												 // printf("fifo_handler,orientationFloat=%d,%d,%d\n",orientationFloat[0],orientationFloat[1],orientationFloat[2]);
 											memset(print_float_str,0,RBLE_FLOAT_STR_LENTH);
-											qfp_float2str(orientationFloat[1],print_float_str,0);
+											qfp_float2str(orientationFloat[0],print_float_str,0);
+											printf("ori0:");
 											printf(print_float_str);
 											fflush(stdout);
+
+											memset(print_float_str,0,RBLE_FLOAT_STR_LENTH);
+											qfp_float2str(orientationFloat[1],print_float_str,0);
+											printf("ori1:");
+											printf(print_float_str);
+											fflush(stdout);
+
+											memset(print_float_str,0,RBLE_FLOAT_STR_LENTH);
+											qfp_float2str(orientationFloat[2],print_float_str,0);
+											printf("ori2:");
+											printf(print_float_str);
+											printf("\n");
+											fflush(stdout);
+											#endif
+
+											#if 0 //defined(RBLE_ORI_GET_ACCEL)
+												inv_accel_read_hw_reg_data(rble_accel_raw);
+
+												#if 1 //defined(RBLE_UART_DEBUG)
+													printf("accel raw:%d,%d,%d\n",rble_accel_raw[0],
+													rble_accel_raw[1],rble_accel_raw[2]);
+												#endif
+
+												inv_gyro_read_hw_reg_data(rble_gyro_raw);
+
+												#if 1 //defined(RBLE_UART_DEBUG)
+													printf("accel raw:%d,%d,%d\n",rble_gyro_raw[0],
+													rble_gyro_raw[1],rble_gyro_raw[2]);
+												#endif
 											#endif
                                         }
 #endif
@@ -1756,9 +1980,56 @@ float d=3.f;
 }
 
 
+#if defined(RBLE_SAMPLE_TIMER_SWITCH)
+
+void rble_sample_timer_cb(OS_TIMER timer)
+{
+	
+	OS_TASK task = (OS_TASK) OS_TIMER_GET_TIMER_ID(timer);
+	
+	
+
+	#if defined(RBLE_UART_DEBUG)
+		//printf("tmr tick=%d\n",tmp_tick);
+		printf("timer");
+		fflush(stdout);	
+	#endif
+
+	
+
+    OS_TASK_NOTIFY(task, RBLE_SAMPLE_TIMER_NOTIF, OS_NOTIFY_SET_BITS);
+        
+}
 
 
+void rble_sample_timer_enable(bool enabled)
+{
+        if (enabled) {
+                OS_TIMER_START(rble_sample_timer_id, OS_TIMER_FOREVER);
+        } else {
+                OS_TIMER_STOP(rble_sample_timer_id, OS_TIMER_FOREVER);
+        }
+}
 
+
+void rble_sample_start_timer(void)
+{
+
+	TickType_t period_tick= 51;         //51 (100ms);
+	//10 / OS_PERIOD_MS; ///500;   ////      10 / OS_PERIOD_MS;   //
+
+	#if 1 //defined(RBLE_UART_DEBUG)
+			printf("period_tick=%d\n",period_tick);
+			fflush(stdout); 
+	#endif
+
+	rble_sample_timer_id = OS_TIMER_CREATE("rblesampletimer", period_tick, OS_TIMER_SUCCESS,
+                                                (void *) OS_GET_CURRENT_TASK(), rble_sample_timer_cb);
+
+	rble_sample_timer_enable(true);
+}
+
+#endif
 
 void RbleSensorControlTask( void *pvParameters )
 {
@@ -1800,6 +2071,15 @@ void RbleSensorControlTask( void *pvParameters )
 	//RbleSensorControlInit();
 	//RbleTest();
 
+
+#if defined(RBLE_DATA_STORAGE_IN_FLASH)
+	nvms_rble_storage_handle=ad_nvms_open(NVMS_IMAGE_DATA_STORAGE_PART);
+
+#endif
+
+
+
+
 #if 1
 
 #if 1  //defined(RBLE_UART_DEBUG)
@@ -1830,13 +2110,21 @@ void RbleSensorControlTask( void *pvParameters )
 #endif
 
 
-	handle_char_input(c);
+	//handle_char_input(c);
+
+	handle_char_input('a');
+	handle_char_input('g');
+	handle_char_input('c');
+
+	handle_char_input('o');
+
 
 #if defined(RBLE_UART_DEBUG)
 		printf("RbleSensorControlTask cccx\n");
 #endif
 
 //test_r
+#if 0
 	if(0)  ////(0)//(1)// (hal.new_gyro == 1)
 	{
 		hal.new_gyro = 0;
@@ -1849,6 +2137,7 @@ void RbleSensorControlTask( void *pvParameters )
 		
 		fifo_handler();
 	}
+#endif
 
 
 #if defined(RBLE_UART_DEBUG)
@@ -1857,8 +2146,59 @@ void RbleSensorControlTask( void *pvParameters )
 
 #endif
 
+#if defined(RBLE_SAMPLE_TIMER_SWITCH)
+rble_sample_start_timer();
+#endif
 
-#if 1
+#if defined(RBLE_SAMPLE_TIMER_SWITCH)
+for (;;) {
+                OS_BASE_TYPE ret;
+                uint32_t notif;
+
+                /* notify watchdog on each loop */
+                sys_watchdog_notify(wdog_id);
+
+                /* suspend watchdog while blocking on OS_TASK_NOTIFY_WAIT() */
+                sys_watchdog_suspend(wdog_id);
+
+                /*
+                 * Wait on any of the notification bits, then clear them all
+                 */
+                ret = OS_TASK_NOTIFY_WAIT(0, OS_TASK_NOTIFY_ALL_BITS, &notif, OS_TASK_NOTIFY_FOREVER);
+                OS_ASSERT(ret == OS_OK);
+
+                /* resume watchdog */
+                sys_watchdog_notify_and_resume(wdog_id);
+
+                /* Notified from BLE Manager? */
+                
+
+                
+                
+
+                if (notif & RBLE_SAMPLE_TIMER_NOTIF) {
+					long tmp_tick=0;
+
+					
+						#if 1 //defined(RBLE_UART_DEBUG)
+						tmp_tick=inv_get_tick_count();
+						   printf("tick=%d\n",tmp_tick);
+						   //printf("timer");
+						   fflush(stdout); 
+						#endif
+
+                       fifo_handler();
+                    
+
+					   
+                }
+
+                
+        }
+
+
+#else
+
 
         /* Initialise xNextWakeTime - this only needs to be done once. */
         xNextWakeTime = OS_GET_TICK_COUNT();
@@ -1871,7 +2211,8 @@ void RbleSensorControlTask( void *pvParameters )
                 vTaskDelayUntil( &xNextWakeTime, mainCOUNTER_FREQUENCY_MS );
                 test_counter++;
 
-                if (test_counter % (1000 / OS_TICKS_2_MS(mainCOUNTER_FREQUENCY_MS)) == 0) {
+                if (test_counter % (1000 / OS_TICKS_2_MS(mainCOUNTER_FREQUENCY_MS)) == 0) 
+				{
 
 					//RbleSensorControlInit();
 					fifo_handler();

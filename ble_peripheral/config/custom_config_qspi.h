@@ -31,12 +31,17 @@
 
 #define CONFIG_RETARGET
 #define CONFIG_RETARGET_UART    HW_UART1
+#define CONFIG_RETARGET_UART_BAUDRATE    HW_UART_BAUDRATE_1000000
 
+#define dg_configUSE_BOD                (0)
 
 #define MEMS_20648
 ////#define RBLE_UART_DEBUG
 
-#define dg_configPOWER_EXT_1V8_PERIPHERALS      (1)
+//#define dg_configPOWER_EXT_1V8_PERIPHERALS      (1)
+
+#define dg_configPOWER_1V8P			(1)
+
 
 #define MEMS_SECONDARY_DEVICE
 
@@ -44,7 +49,11 @@
 
 #define RBLE_FLOAT_MATH_QFBLIB
 
+#define RBLE_DATA_STORAGE_IN_FLASH
+#define USE_PARTITION_TABLE_512K
 
+#define RBLE_SAMPLE_TIMER_SWITCH
+  
 #define CONFIG_USE_BLE
 
 #define dg_configTESTMODE_MEASURE_SLEEP_CURRENT (0)
