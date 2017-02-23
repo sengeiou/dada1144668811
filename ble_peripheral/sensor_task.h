@@ -40,7 +40,7 @@
 #define RBLE_LONG_SIZE   4
 #define RBLE_CNT_SIZE   2
 
-
+#define RBLE_DATA_PATITION_SIZE  (0x02E000)
 
 #define RBLE_SAMPLE_TIMER_NOTIF (1 << 2) 
 

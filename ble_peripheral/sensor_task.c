@@ -42,6 +42,10 @@ nvms_t nvms_rble_storage_handle;
 uint32_t rble_data_addr_offset=0;
 uint8_t rble_sample_data[RBLE_DATA_BUF_LENGTH]={0};
 int rble_smp_count=0;
+
+bool rble_data_patition_not_full=true;
+
+
 #endif
 
 OS_TIMER rble_sample_timer_id;
@@ -785,6 +789,33 @@ int handle_char_input(char c)
 	return 1;
 }
 
+#if defined(RBLE_DATA_STORAGE_IN_FLASH)
+
+/*
+int rble_write_sample_data(nvms_t handle, uint32_t addr, const uint8_t *buf, uint32_t size)
+{
+	if()
+	ad_nvms_write( handle,  addr,   *buf,  size);
+}*/
+
+bool rble_could_write_data_to_patition(uint32_t addr_offset,int count)
+{
+	if((addr_offset+count)<RBLE_DATA_PATITION_SIZE)
+	{
+		rble_data_patition_not_full=true;
+		
+	}
+	else
+	{
+		rble_data_patition_not_full=false;
+		
+	}
+
+	return rble_data_patition_not_full;
+}
+	
+#endif
+
 void process_sensor_output()
 {
 	
@@ -829,17 +860,24 @@ void process_sensor_output()
 
 			
 			#if defined(RBLE_DATA_STORAGE_IN_FLASH)
-				memset(rble_sample_data,0,RBLE_DATA_BUF_LENGTH);
-				rble_smp_count=0;
-				//rble_sample_data[rble_smp_count]=RBLE_DATA_ACCEL_LABLE;
-				//rble_smp_count++;
-				memcpy(rble_sample_data,RBLE_DATA_ACCEL_LABLE,RBLE_DATA_LABLE_LENGTH);
-				rble_smp_count+=RBLE_DATA_LABLE_LENGTH;
-					
-				memcpy((rble_sample_data+rble_smp_count),accel_float,(3*RBLE_FLOAT_SIZE));
-				rble_smp_count+=(3*RBLE_FLOAT_SIZE);
-				ad_nvms_write(nvms_rble_storage_handle, rble_data_addr_offset, rble_sample_data,rble_smp_count);
-				rble_data_addr_offset+=rble_smp_count;
+				if(rble_data_patition_not_full)
+				{
+					memset(rble_sample_data,0,RBLE_DATA_BUF_LENGTH);
+					rble_smp_count=0;
+					//rble_sample_data[rble_smp_count]=RBLE_DATA_ACCEL_LABLE;
+					//rble_smp_count++;
+					memcpy(rble_sample_data,RBLE_DATA_ACCEL_LABLE,RBLE_DATA_LABLE_LENGTH);
+					rble_smp_count+=RBLE_DATA_LABLE_LENGTH;
+						
+					memcpy((rble_sample_data+rble_smp_count),accel_float,(3*RBLE_FLOAT_SIZE));
+					rble_smp_count+=(3*RBLE_FLOAT_SIZE);
+
+					if(rble_could_write_data_to_patition())
+					{
+						ad_nvms_write(nvms_rble_storage_handle, rble_data_addr_offset, rble_sample_data,rble_smp_count);
+						rble_data_addr_offset+=rble_smp_count;
+					}
+				}
 			#endif
 			
 			accel_data_was_set = 0;
@@ -887,6 +925,8 @@ void process_sensor_output()
 			#endif
 
 			#if defined(RBLE_DATA_STORAGE_IN_FLASH)
+			if(rble_data_patition_not_full)
+			{
 				memset(rble_sample_data,0,RBLE_DATA_BUF_LENGTH);
 				rble_smp_count=0;
 				
@@ -895,8 +935,13 @@ void process_sensor_output()
 					
 				memcpy((rble_sample_data+rble_smp_count),gyro_float,(3*RBLE_FLOAT_SIZE));
 				rble_smp_count+=(3*RBLE_FLOAT_SIZE);
-				ad_nvms_write(nvms_rble_storage_handle, rble_data_addr_offset, rble_sample_data,rble_smp_count);
-				rble_data_addr_offset+=rble_smp_count;
+
+				if(rble_could_write_data_to_patition())
+				{
+					ad_nvms_write(nvms_rble_storage_handle, rble_data_addr_offset, rble_sample_data,rble_smp_count);
+					rble_data_addr_offset+=rble_smp_count;
+				}
+			}
 			#endif
 
 
@@ -976,6 +1021,8 @@ void process_sensor_output()
 
 		
 		#if defined(RBLE_DATA_STORAGE_IN_FLASH)
+		if(rble_data_patition_not_full)
+		{
 			memset(rble_sample_data,0,RBLE_DATA_BUF_LENGTH);
 			rble_smp_count=0;
 			
@@ -984,8 +1031,12 @@ void process_sensor_output()
 				
 			memcpy((rble_sample_data+rble_smp_count),compass_float,(3*RBLE_FLOAT_SIZE));
 			rble_smp_count+=(3*RBLE_FLOAT_SIZE);
-			ad_nvms_write(nvms_rble_storage_handle, rble_data_addr_offset, rble_sample_data,rble_smp_count);
-			rble_data_addr_offset+=rble_smp_count;
+			if(rble_could_write_data_to_patition())
+			{
+				ad_nvms_write(nvms_rble_storage_handle, rble_data_addr_offset, rble_sample_data,rble_smp_count);
+				rble_data_addr_offset+=rble_smp_count;
+			}
+		}
 		#endif
 
 			compass_data_was_set = 0;
@@ -1045,6 +1096,8 @@ void process_sensor_output()
   
 			
 			#if defined(RBLE_DATA_STORAGE_IN_FLASH)
+			if(rble_data_patition_not_full)
+			{
 				memset(rble_sample_data,0,RBLE_DATA_BUF_LENGTH);
 				rble_smp_count=0;
 				
@@ -1053,8 +1106,13 @@ void process_sensor_output()
 					
 				memcpy((rble_sample_data+rble_smp_count),orientationFloat,(3*RBLE_FLOAT_SIZE));
 				rble_smp_count+=(3*RBLE_FLOAT_SIZE);
-				ad_nvms_write(nvms_rble_storage_handle, rble_data_addr_offset, rble_sample_data,rble_smp_count);
-				rble_data_addr_offset+=rble_smp_count;
+
+				if(rble_could_write_data_to_patition())
+				{
+					ad_nvms_write(nvms_rble_storage_handle, rble_data_addr_offset, rble_sample_data,rble_smp_count);
+					rble_data_addr_offset+=rble_smp_count;
+				}
+			}
 			#endif
 		}
 		quat9_data_was_set = 0;
@@ -1190,7 +1248,10 @@ void fifo_handler()
 #if defined(RBLE_DATA_STORAGE_IN_FLASH)
 {
 		long tmp_tick=0;
-		tmp_tick=inv_get_tick_count();
+
+		if(rble_data_patition_not_full)
+		{
+			tmp_tick=inv_get_tick_count();
 		
 					memset(rble_sample_data,0,RBLE_DATA_BUF_LENGTH);
 					rble_smp_count=0;
@@ -1207,9 +1268,12 @@ void fifo_handler()
 					memcpy((rble_sample_data+rble_smp_count),&total_sample_cnt,RBLE_CNT_SIZE);
 					rble_smp_count+=RBLE_CNT_SIZE;
 
-					
+				if(rble_could_write_data_to_patition())
+				{
 					ad_nvms_write(nvms_rble_storage_handle, rble_data_addr_offset, rble_sample_data,rble_smp_count);
 					rble_data_addr_offset+=rble_smp_count;
+				}
+		}
 }
 #endif
 						
