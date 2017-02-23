@@ -872,7 +872,7 @@ void process_sensor_output()
 					memcpy((rble_sample_data+rble_smp_count),accel_float,(3*RBLE_FLOAT_SIZE));
 					rble_smp_count+=(3*RBLE_FLOAT_SIZE);
 
-					if(rble_could_write_data_to_patition())
+					if(rble_could_write_data_to_patition(rble_data_addr_offset,rble_smp_count))
 					{
 						ad_nvms_write(nvms_rble_storage_handle, rble_data_addr_offset, rble_sample_data,rble_smp_count);
 						rble_data_addr_offset+=rble_smp_count;
@@ -936,7 +936,7 @@ void process_sensor_output()
 				memcpy((rble_sample_data+rble_smp_count),gyro_float,(3*RBLE_FLOAT_SIZE));
 				rble_smp_count+=(3*RBLE_FLOAT_SIZE);
 
-				if(rble_could_write_data_to_patition())
+				if(rble_could_write_data_to_patition(rble_data_addr_offset,rble_smp_count))
 				{
 					ad_nvms_write(nvms_rble_storage_handle, rble_data_addr_offset, rble_sample_data,rble_smp_count);
 					rble_data_addr_offset+=rble_smp_count;
@@ -1031,7 +1031,7 @@ void process_sensor_output()
 				
 			memcpy((rble_sample_data+rble_smp_count),compass_float,(3*RBLE_FLOAT_SIZE));
 			rble_smp_count+=(3*RBLE_FLOAT_SIZE);
-			if(rble_could_write_data_to_patition())
+			if(rble_could_write_data_to_patition(rble_data_addr_offset,rble_smp_count))
 			{
 				ad_nvms_write(nvms_rble_storage_handle, rble_data_addr_offset, rble_sample_data,rble_smp_count);
 				rble_data_addr_offset+=rble_smp_count;
@@ -1107,7 +1107,7 @@ void process_sensor_output()
 				memcpy((rble_sample_data+rble_smp_count),orientationFloat,(3*RBLE_FLOAT_SIZE));
 				rble_smp_count+=(3*RBLE_FLOAT_SIZE);
 
-				if(rble_could_write_data_to_patition())
+				if(rble_could_write_data_to_patition(rble_data_addr_offset,rble_smp_count))
 				{
 					ad_nvms_write(nvms_rble_storage_handle, rble_data_addr_offset, rble_sample_data,rble_smp_count);
 					rble_data_addr_offset+=rble_smp_count;
@@ -1268,7 +1268,7 @@ void fifo_handler()
 					memcpy((rble_sample_data+rble_smp_count),&total_sample_cnt,RBLE_CNT_SIZE);
 					rble_smp_count+=RBLE_CNT_SIZE;
 
-				if(rble_could_write_data_to_patition())
+				if(rble_could_write_data_to_patition(rble_data_addr_offset,rble_smp_count))
 				{
 					ad_nvms_write(nvms_rble_storage_handle, rble_data_addr_offset, rble_sample_data,rble_smp_count);
 					rble_data_addr_offset+=rble_smp_count;
