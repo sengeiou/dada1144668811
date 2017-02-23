@@ -2036,6 +2036,7 @@ void RbleSensorControlTask( void *pvParameters )
 
         OS_TICK_TIME xNextWakeTime;
         static uint32_t test_counter=0;
+		int8_t wdog_id;
 
         float a=3.14159265;
         //float b= sin(a/6);
