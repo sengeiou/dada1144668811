@@ -35,6 +35,7 @@
 #define RBLE_FLOAT_STR_LENTH   64
 char print_float_str[RBLE_FLOAT_STR_LENTH];
 
+extern int rble_led_flash_delay;
 
 #if defined(RBLE_DATA_STORAGE_IN_FLASH)
 
@@ -807,6 +808,7 @@ bool rble_could_write_data_to_patition(uint32_t addr_offset,int count)
 	}
 	else
 	{
+		rble_led_flash_delay=1000;
 		rble_data_patition_not_full=false;
 		
 	}
@@ -1257,6 +1259,7 @@ void fifo_handler()
 			if (inv_mems_fifo_swmirror(&data_left_in_fifo, &total_sample_cnt, sample_cnt_array))
                           break;
 
+			rble_led_flash_delay=400;
 			
 				#if 1 //defined(RBLE_UART_DEBUG)
 					printf("dleft=%d,tal_cnt=%d,arr[3]=%d\n",data_left_in_fifo,total_sample_cnt,sample_cnt_array[3]);

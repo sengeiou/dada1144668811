@@ -43,6 +43,8 @@
 
 #define rble_mainCOUNTER_FREQUENCY_MS                OS_MS_2_TICKS(200)
 
+int rble_led_flash_delay=1000;
+
 
 /* The configCHECK_FOR_STACK_OVERFLOW setting in FreeRTOSConifg can be used to
 check task stacks for overflows.  It does not however check the stack used by
@@ -158,7 +160,7 @@ static void prvTemplateTask2( void *pvParameters )
                 vTaskDelayUntil( &xNextWakeTime, rble_mainCOUNTER_FREQUENCY_MS );
                 test_counter++;
 
-                if (test_counter % (1000 / OS_TICKS_2_MS(rble_mainCOUNTER_FREQUENCY_MS)) == 0) {
+                if (test_counter % (rble_led_flash_delay / OS_TICKS_2_MS(rble_mainCOUNTER_FREQUENCY_MS)) == 0) {
 
 
                         //test_r
