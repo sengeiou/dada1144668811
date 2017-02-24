@@ -78,35 +78,9 @@ static uint8_t inv_mems_get_lpen_control(void)
 inv_error_t inv_set_chip_power_state(unsigned char func, unsigned char on_off)
 {
 	inv_error_t status = 0;
-
-uint8_t data_tmp=0;
-uint8_t data_tmpb=0;
-
-
 #if defined(RBLE_UART_DEBUG)
 	//printf("inv_set_chip_power_state func=%d,on_off=%d,wake_state=0x%x,pwr_mgmt_1=0x%x\n",func,on_off,base_state.wake_state,base_state.pwr_mgmt_1);
 #endif
-
-/////////////
-//inv_serial_interface_read_hook(REG_PWR_MGMT_1,1,&data_tmp);
-#if defined(RBLE_UART_DEBUG)
-	//printf("inv_set_chip_power_state aa bc data_tmp=0x%x\n",data_tmp);
-#endif
-
-#if 0
-//test_r
-return status;
-#endif
-
-//data_tmp=0;
-
-//inv_serial_interface_read_hook(REG_PWR_MGMT_1,1,&data_tmp);
-#if defined(RBLE_UART_DEBUG)
-	//printf("inv_set_chip_power_state dd data_tmp=0x%x\n",data_tmp);
-#endif
-
-/////////////
-
 
 	switch(func) {
 
@@ -155,21 +129,9 @@ return status;
 
 	}// end switch
 
-
-
-	/////////////
-	//data_tmp=0;
-	//data_tmpb=0x21;
-	//////////inv_serial_interface_write_hook(REG_PWR_MGMT_1, 1, &data_tmpb);
-	//inv_serial_interface_read_hook(REG_PWR_MGMT_1,1,&data_tmp);
 #if defined(RBLE_UART_DEBUG)
 		//printf("inv_set_chip_power_state cc data_tmp=0x%x\n",data_tmp);
 #endif
-	
-	/////////////
-
-
-
 	return status;
 }
 
@@ -280,7 +242,7 @@ inv_error_t inv_initialize_lower_driver(enum MEMS_SERIAL_INTERFACE type, const u
 
 
 //test_r
-//    result |= inv_read_mems_reg(REG_USER_CTRL, 1, &base_state.user_ctrl);
+    result |= inv_read_mems_reg(REG_USER_CTRL, 1, &base_state.user_ctrl);
 
 #if defined(RBLE_UART_DEBUG)	
 		printf("inv_initialize_lower_driver user_ctrl=%d\n",base_state.user_ctrl);
@@ -288,11 +250,10 @@ inv_error_t inv_initialize_lower_driver(enum MEMS_SERIAL_INTERFACE type, const u
 
 
 	//test_r
- //   result |= inv_wakeup_mems();
+    result |= inv_wakeup_mems();
 
     result |= inv_read_mems_reg(REG_WHO_AM_I, 1, &data);
-	//result |= inv_read_mems_reg(0x00, 1, &data);
-
+    
 
 #if defined(RBLE_UART_DEBUG)
 	printf("inv_initialize_lower_driver REG_WHO_AM_I=0x%x\n",REG_WHO_AM_I);
