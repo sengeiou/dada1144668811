@@ -37,6 +37,8 @@ char print_float_str[RBLE_FLOAT_STR_LENTH];
 
 extern int rble_led_flash_delay;
 
+OS_TASK task_sensor_sample;
+
 #if defined(RBLE_DATA_STORAGE_IN_FLASH)
 
 nvms_t nvms_rble_storage_handle;
@@ -809,6 +811,12 @@ bool rble_could_write_data_to_patition(uint32_t addr_offset,int count)
 	else
 	{
 		rble_led_flash_delay=1000;
+		#if defined(RBLE_SENSOR_CTRL_BY_APP)
+			#if 1 //defined(RBLE_SAMPLE_TIMER_SWITCH)
+				rble_sample_timer_enable(false);
+			#endif
+			rble_data_addr_offset=0;
+		#endif
 		rble_data_patition_not_full=false;
 		
 	}
@@ -2136,6 +2144,7 @@ void RbleSensorControlTask( void *pvParameters )
 		//char c ='o';
 		
 			////'p';
+		task_sensor_sample=OS_GET_CURRENT_TASK();
 
 			//e=rble_sin(a/6);
 			//e=qfp_fsin(3.14159265/6);
@@ -2196,6 +2205,8 @@ void RbleSensorControlTask( void *pvParameters )
 #endif
 
 
+#if defined(RBLE_SENSOR_CTRL_BY_APP)
+#else
 	//handle_char_input(c);
 
 	handle_char_input('a');
@@ -2203,7 +2214,7 @@ void RbleSensorControlTask( void *pvParameters )
 	handle_char_input('c');
 
 	handle_char_input('o');
-
+#endif
 
 #if defined(RBLE_UART_DEBUG)
 		printf("RbleSensorControlTask cccx\n");
@@ -2232,8 +2243,14 @@ void RbleSensorControlTask( void *pvParameters )
 
 #endif
 
-#if defined(RBLE_SAMPLE_TIMER_SWITCH)
-rble_sample_start_timer();
+
+#if 1 //defined(RBLE_SAMPLE_TIMER_SWITCH)
+rble_sample_create_timer();
+
+#if !defined(RBLE_SENSOR_CTRL_BY_APP)
+
+rble_sample_timer_enable(true);
+#endif
 #endif
 
 #if defined(RBLE_SAMPLE_TIMER_SWITCH)
@@ -2278,6 +2295,31 @@ for (;;) {
 
 					   
                 }
+				
+				#if defined(RBLE_SENSOR_CTRL_BY_APP)
+				if (notif & RBLE_SENSOR_START_SAMPLE_NOTIF) {
+					
+
+					
+						#if 1 //defined(RBLE_UART_DEBUG)
+						
+						   printf("START SAMPLE=%d\n");
+						  
+						   fflush(stdout); 
+						#endif
+						handle_char_input('a');
+						handle_char_input('g');
+
+                       
+						#if 1 //defined(RBLE_SAMPLE_TIMER_SWITCH)
+					   		rble_sample_timer_enable(true);
+						#endif
+                       
+                    
+
+					   
+                }
+				#endif
 
                 
         }

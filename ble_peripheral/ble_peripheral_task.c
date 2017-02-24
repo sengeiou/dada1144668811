@@ -36,6 +36,8 @@
 #include "dis.h"
 #include "scps.h"
 #include "test.h"
+#include "ad_nvms.h"
+#include "sensor_task.h"
 static ble_service_t *test_service;
 /*
  * Notification bits reservation
@@ -44,13 +46,27 @@ static ble_service_t *test_service;
 #define CTS_SET_TIME_NOTIF (1 << 2)
 #define BCS_TIMER_NOTIF (1 << 3)
 
+
+#if defined(RBLE_SENSOR_CTRL_BY_APP)
+extern OS_TASK task_sensor_sample;
+#endif
 /*
  * BLE peripheral advertising data
  */
+
+#if 1
+//test_r
+static const uint8_t adv_data[] = {
+        0x12, GAP_DATA_TYPE_LOCAL_NAME,
+        'T', 'e', 's', 't', '_', 'r', ' ', 'P', 'e', 'r', 'i', 'p', 'h', 'e', 'r', 'a', 'l'
+};
+
+#else
 static const uint8_t adv_data[] = {
         0x12, GAP_DATA_TYPE_LOCAL_NAME,
         'D', 'i', 'a', 'l', 'o', 'g', ' ', 'P', 'e', 'r', 'i', 'p', 'h', 'e', 'r', 'a', 'l'
 };
+#endif
 
 static OS_TASK ble_peripheral_task_handle;
 
@@ -324,15 +340,32 @@ typedef struct test_data
         int16_t                 val_z;
 } test_data ;
 
+//extern nvms_t nvms_rble_storage_handle;
+//extern uint32_t rble_data_addr_offset;
+bool start_collect_data=false;
 static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t *value,
         uint16_t length)
 {
         printf("wzb %s,rec len=%x\r\n", __func__,length);
-        //printf("value=%x,length=%x\r\n", *value, length);
+        printf("value=%x,length=%x\r\n", *value, length);
         uint8_t temp_buff[sizeof(length)];
+        nvms_t nvms_rble_storage_handle;
+		uint32_t rble_data_addr_offset=0;
+		uint8_t rble_sample_data[10]={0};
+		nvms_rble_storage_handle=ad_nvms_open(NVMS_IMAGE_DATA_STORAGE_PART);
+		uint32_t value_h;
+		uint32_t value_cmd;
+
         memset(temp_buff, 0, sizeof(temp_buff));
-        memcpy(temp_buff, &value, length - 1);
+        memcpy(temp_buff, *value, length - 1);
+
+        printf("temp_buff =%x,length=%x\r\n", temp_buff, length);
+        memset(rble_sample_data, 0, sizeof(rble_sample_data));
         int i;
+		value_h = *(value);
+		value_cmd = *(value+1);
+		printf("%x\r\n",value_h);
+		printf("%x\r\n",value_cmd);
         for (i = 0; i < length; i++){
                 printf("%x\r\n",*(value+i));
         }
@@ -352,9 +385,27 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
         td.val_x=0xff;
         td.val_y=0xfd;
         td.val_z=0xfc;
-        test_tx_data(svc, conn_idx, (uint8_t *)&td, sizeof(td));
+
+	   ad_nvms_read(nvms_rble_storage_handle, rble_data_addr_offset, rble_sample_data, sizeof(rble_sample_data));
+
+	   printf("rble_sample_data=%s\r\n",rble_sample_data);
+       //test_tx_data(svc, conn_idx, (uint8_t *)&td, sizeof(rble_sample_data));
+	  // test_tx_data(svc, conn_idx, rble_sample_data, sizeof(rble_sample_data));
         //test_tx_data(svc, NULL, (uint8_t *)&td, sizeof(td));
         //add by wzb for test
+
+	  #if 1
+	  		value_h = *(value);
+			value_cmd = *(value+1);
+			if((value_h==RBLE_RECEIVE_DATA_HEADER) && (value_cmd ==RBLE_RECEIVE_DATA_CMD))
+				{
+					start_collect_data =true;
+					
+				#if defined(RBLE_SENSOR_CTRL_BY_APP)
+					OS_TASK_NOTIFY(task_sensor_sample, RBLE_SENSOR_START_SAMPLE_NOTIF, OS_NOTIFY_SET_BITS);
+				#endif
+			}
+	  #endif
 #if 0
         for (;;) {
                 OS_TICK_TIME xNextWakeTime;
@@ -374,8 +425,26 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
 }
 
 
+uint32_t rble_read_data_addr_offset=0;
 static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t length)
 {
+        nvms_t nvms_rble_storage_handle;
+        uint32_t rble_data_addr_offset=0;
+        uint8_t rble_sample_data[20]={0};
+        nvms_rble_storage_handle=ad_nvms_open(NVMS_IMAGE_DATA_STORAGE_PART);
+        memset(rble_sample_data, 0, sizeof(rble_sample_data));
+
+        ad_nvms_read(nvms_rble_storage_handle, rble_read_data_addr_offset, rble_sample_data, sizeof(rble_sample_data));
+        rble_read_data_addr_offset+=sizeof(rble_sample_data);
+        if(rble_data_addr_offset<RBLE_DATA_PATITION_SIZE)
+                {
+                     test_tx_data(svc, conn_idx, rble_sample_data, sizeof(rble_sample_data));
+                }
+       else
+               {
+                       return;
+                }
+
         printf("wzb test_tx_done_cb\r\n");
 }
 

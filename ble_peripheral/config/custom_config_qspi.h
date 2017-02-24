@@ -35,6 +35,8 @@
 
 #define dg_configUSE_BOD                (0)
 
+#define RBLE_SENSOR_CTRL_BY_APP
+
 #define MEMS_20648
 ////#define RBLE_UART_DEBUG
 

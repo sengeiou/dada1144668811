@@ -43,7 +43,11 @@
 #define RBLE_DATA_PATITION_SIZE  (0x02E000)
 
 #define RBLE_SAMPLE_TIMER_NOTIF (1 << 2) 
+#define RBLE_SENSOR_START_SAMPLE_NOTIF (1 << 3) 
 
+
+#define RBLE_RECEIVE_DATA_HEADER (0x5A)
+#define RBLE_RECEIVE_DATA_CMD (0x0F)
 
 typedef struct RbleSensorControlStruct
 {
