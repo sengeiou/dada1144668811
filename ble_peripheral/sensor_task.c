@@ -813,9 +813,9 @@ bool rble_could_write_data_to_patition(uint32_t addr_offset,int count)
 		rble_led_flash_delay=1000;
 		#if defined(RBLE_SENSOR_CTRL_BY_APP)
 			#if 1 //defined(RBLE_SAMPLE_TIMER_SWITCH)
-				rble_sample_timer_enable(false);
+				//rble_sample_timer_enable(false);
 			#endif
-			rble_data_addr_offset=0;
+			//rble_data_addr_offset=0;
 		#endif
 		rble_data_patition_not_full=false;
 		
@@ -2244,10 +2244,10 @@ void RbleSensorControlTask( void *pvParameters )
 #endif
 
 
-#if 1 //defined(RBLE_SAMPLE_TIMER_SWITCH)
-rble_sample_create_timer();
+#if defined(RBLE_SAMPLE_TIMER_SWITCH)
 
 #if !defined(RBLE_SENSOR_CTRL_BY_APP)
+rble_sample_create_timer();
 
 rble_sample_timer_enable(true);
 #endif
@@ -2312,7 +2312,9 @@ for (;;) {
 
                        
 						#if 1 //defined(RBLE_SAMPLE_TIMER_SWITCH)
-					   		rble_sample_timer_enable(true);
+					   		//rble_sample_timer_enable(true);
+					   		
+							rble_sample_create_timer();
 						#endif
                        
                     
