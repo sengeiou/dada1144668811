@@ -68,6 +68,17 @@ static const uint8_t adv_data[] = {
 };
 #endif
 
+typedef struct ble_task_env{
+    OS_TASK ble_task_p;
+    uint16_t conn_idx;              ///< Connection index
+    uint16_t conn_intv;             ///< Connection interval
+    uint16_t mtu; 
+    uint8_t ble2app_id;
+      
+}ble_task_env_t;
+
+PRIVILEGED_DATA static ble_task_env_t ble_task_env;
+
 static OS_TASK ble_peripheral_task_handle;
 
 #if CFG_DEBUG_SERVICE
@@ -321,6 +332,9 @@ static void handle_evt_gap_connected(ble_evt_gap_connected_t *evt)
         /**
          * Manage connection information
          */
+        ble_task_env.conn_idx=evt->conn_idx;
+        ble_task_env.conn_intv=evt->conn_params.interval_max;
+        
 }
 
 static void handle_evt_gap_adv_completed(ble_evt_gap_adv_completed_t *evt)
@@ -339,6 +353,15 @@ typedef struct test_data
         int16_t                 val_y;
         int16_t                 val_z;
 } test_data ;
+
+typedef struct ble2app_data
+{
+        //common properties
+        uint8_t                 id1;
+        uint8_t                 id2;
+        uint8_t                 id3;
+} ble2app_data ;
+
 
 static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t *value,
         uint16_t length)
@@ -380,7 +403,17 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
 			else if((value_h==RBLE_RECEIVE_DATA_HEADER) && (value_cmd ==RBLE_RECEIVE_DATA_SEND))
 				{
 					test_tx_data(svc, conn_idx, (uint8_t *)&td, sizeof(td));
+                    ble_task_env.ble2app_id=0x02;//read all test data
 				}
+            else if((value_h==RBLE_RECEIVE_DATA_HEADER) && value_cmd == 0xff){
+                if(length==3 && (*(value+2)==0x01)){
+                    ble2app_data bd;
+                    bd.id1=bd.id2=0xff;
+                    bd.id3=0x00;//start flag
+                    test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
+                    ble_task_env.ble2app_id=0x03;
+                }
+            }
 	  #endif
 
 }
@@ -389,6 +422,8 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
 uint32_t rble_read_data_addr_offset=0;
 static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t length)
 {
+
+    if(ble_task_env.ble2app_id==0x02){
         nvms_t nvms_rble_storage_handle;
         //uint32_t rble_data_addr_offset=0;
         uint8_t rble_sample_data[20]={0};
@@ -399,14 +434,18 @@ static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t leng
 		 if(rble_read_data_addr_offset<RBLE_DATA_PATITION_SIZE)
 				 {
 					  test_tx_data(svc, conn_idx, rble_sample_data, sizeof(rble_sample_data));
-					  
+					  ble_task_env.ble2app_id=0x02;//read all test data
 					  rble_read_data_addr_offset+=sizeof(rble_sample_data);
 				 }
 		else
 				{
 						rble_read_data_addr_offset=0;
-						return;
+						//return;
 				 }
+        }
+        else if(ble_task_env.ble2app_id==0x03){
+            //send result to app
+        }
 
         printf("wzb test_tx_done_cb\r\n");
 }
@@ -453,6 +492,11 @@ void ble_peripheral_task(void *params)
         wdog_id = sys_watchdog_register(false);
 
         ble_peripheral_task_handle = OS_GET_CURRENT_TASK();
+        
+        /* Initialize environmental variables */
+        ble_task_env.ble_task_p=OS_GET_CURRENT_TASK();
+        ble_task_env.conn_idx=BLE_CONN_IDX_INVALID;
+        ble_task_env.ble2app_id=0xff;
 
         srand(time(NULL));
 
