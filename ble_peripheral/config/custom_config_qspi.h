@@ -40,9 +40,9 @@
 #define MEMS_20648
 ////#define RBLE_UART_DEBUG
 
-#define dg_configPOWER_EXT_1V8_PERIPHERALS      (1)
+//#define dg_configPOWER_EXT_1V8_PERIPHERALS      (1)
 
-//#define dg_configPOWER_1V8P			(1)
+#define dg_configPOWER_1V8P			(1)
 
 
 #define MEMS_SECONDARY_DEVICE
@@ -54,6 +54,7 @@
 #define RBLE_DATA_STORAGE_IN_FLASH
 #define USE_PARTITION_TABLE_512K
 
+#define RBLE_DMP_REPEAT_WRITE
 #define RBLE_SAMPLE_TIMER_SWITCH
   
 #define CONFIG_USE_BLE
