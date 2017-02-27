@@ -340,54 +340,29 @@ typedef struct test_data
         int16_t                 val_z;
 } test_data ;
 
-//extern nvms_t nvms_rble_storage_handle;
-//extern uint32_t rble_data_addr_offset;
-bool start_collect_data=false;
 static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t *value,
         uint16_t length)
 {
         printf("wzb %s,rec len=%x\r\n", __func__,length);
-        printf("value=%x,length=%x\r\n", *value, length);
-        uint8_t temp_buff[sizeof(length)];
         nvms_t nvms_rble_storage_handle;
-		uint32_t rble_data_addr_offset=0;
-		uint8_t rble_sample_data[10]={0};
-		nvms_rble_storage_handle=ad_nvms_open(NVMS_IMAGE_DATA_STORAGE_PART);
+        //uint32_t rble_data_addr_offset=0;
+        //uint8_t rble_sample_data[20]={0};
+        nvms_rble_storage_handle=ad_nvms_open(NVMS_IMAGE_DATA_STORAGE_PART);
+        //printf("value=%x,length=%x\r\n", *value, length);
+
 		uint32_t value_h;
 		uint32_t value_cmd;
-
-        memset(temp_buff, 0, sizeof(temp_buff));
-        memcpy(temp_buff, *value, length - 1);
-
-        printf("temp_buff =%x,length=%x\r\n", temp_buff, length);
-        memset(rble_sample_data, 0, sizeof(rble_sample_data));
         int i;
-		value_h = *(value);
-		value_cmd = *(value+1);
-		printf("%x\r\n",value_h);
-		printf("%x\r\n",value_cmd);
         for (i = 0; i < length; i++){
                 printf("%x\r\n",*(value+i));
         }
 
-        float sin_v=qfp_fsin((*(value+1))*2*3.14159/180);
-        printf("sin_v=%d\r\n",(int)((sin_v+0.001)*4));
-
-        float test_e=1.52587890625e-005f;
-        float test_e_e=test_e*3.14;
-
         //test_tx_data(svc, conn_idx, value, length);
-        float sin_f=(*(value+1)*3.522);
-        printf("sin_f aaa=%d\r\n",(int)sin_f);
         test_data td;
         td.id1=0x00;
 
-// ad_nvms_read(nvms_rble_storage_handle, rble_data_addr_offset, rble_sample_data, sizeof(rble_sample_data));
-
-	   printf("rble_sample_data=%s\r\n",rble_sample_data);
-       //test_tx_data(svc, conn_idx, (uint8_t *)&td, sizeof(td));
-	  // test_tx_data(svc, conn_idx, rble_sample_data, sizeof(rble_sample_data));
-        //test_tx_data(svc, NULL, (uint8_t *)&td, sizeof(td));
+        //tx_counter=0;
+       // test_tx_data(svc, conn_idx, (uint8_t *)&td, sizeof(td));
         //add by wzb for test
 
 	  #if 1
@@ -396,8 +371,8 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
 			if((value_h==RBLE_RECEIVE_DATA_HEADER) && (value_cmd ==RBLE_RECEIVE_DATA_CMD))
 				{
 					//start_collect_data =true;
-				ad_nvms_erase_region(nvms_rble_storage_handle,0, RBLE_DATA_PATITION_SIZE);
-					
+			        ad_nvms_erase_region(nvms_rble_storage_handle,0, RBLE_DATA_PATITION_SIZE);
+
 				#if defined(RBLE_SENSOR_CTRL_BY_APP)
 					OS_TASK_NOTIFY(task_sensor_sample, RBLE_SENSOR_START_SAMPLE_NOTIF, OS_NOTIFY_SET_BITS);
 				#endif
@@ -405,24 +380,9 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
 			else if((value_h==RBLE_RECEIVE_DATA_HEADER) && (value_cmd ==RBLE_RECEIVE_DATA_SEND))
 				{
 					test_tx_data(svc, conn_idx, (uint8_t *)&td, sizeof(td));
-			}
+				}
 	  #endif
-#if 0
-        for (;;) {
-                OS_TICK_TIME xNextWakeTime;
-                static uint32_t test_counter = 0;
 
-                /* Initialise xNextWakeTime - this only needs to be done once. */
-                xNextWakeTime = OS_GET_TICK_COUNT();
-                test_counter++;
-                vTaskDelayUntil(&xNextWakeTime, mainCOUNTER_FREQUENCY_MS);
-                if (test_counter % (1000 / OS_TICKS_2_MS(mainCOUNTER_FREQUENCY_MS)) == 0) {
-                        printf("#");
-                        test_tx_data(svc, conn_idx, value, length);
-                        fflush(stdout);
-                }
-        }
-#endif
 }
 
 
@@ -430,25 +390,25 @@ uint32_t rble_read_data_addr_offset=0;
 static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t length)
 {
         nvms_t nvms_rble_storage_handle;
+        //uint32_t rble_data_addr_offset=0;
         uint8_t rble_sample_data[20]={0};
         nvms_rble_storage_handle=ad_nvms_open(NVMS_IMAGE_DATA_STORAGE_PART);
         memset(rble_sample_data, 0, sizeof(rble_sample_data));
 
         ad_nvms_read(nvms_rble_storage_handle, rble_read_data_addr_offset, rble_sample_data, sizeof(rble_sample_data));
-	 if(rble_read_data_addr_offset<RBLE_DATA_PATITION_SIZE)
+		 if(rble_read_data_addr_offset<RBLE_DATA_PATITION_SIZE)
 				 {
 					  test_tx_data(svc, conn_idx, rble_sample_data, sizeof(rble_sample_data));
 					  
 					  rble_read_data_addr_offset+=sizeof(rble_sample_data);
 				 }
+		else
+				{
+						rble_read_data_addr_offset=0;
+						return;
+				 }
 
-	else
-		{
-			 rble_read_data_addr_offset=0;
-			 printf("wzb test_tx_done_cb\r\n");
-		}
-		
-
+        printf("wzb test_tx_done_cb\r\n");
 }
 
 static void test_set_flow_control_cb(ble_service_t *svc, uint16_t conn_idx,
