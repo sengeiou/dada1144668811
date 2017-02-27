@@ -40,9 +40,9 @@
 #define MEMS_20648
 ////#define RBLE_UART_DEBUG
 
-//#define dg_configPOWER_EXT_1V8_PERIPHERALS      (1)
+#define dg_configPOWER_EXT_1V8_PERIPHERALS      (1)
 
-#define dg_configPOWER_1V8P			(1)
+//#define dg_configPOWER_1V8P			(1)
 
 
 #define MEMS_SECONDARY_DEVICE
