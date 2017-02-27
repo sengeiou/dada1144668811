@@ -380,16 +380,12 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
         float sin_f=(*(value+1)*3.522);
         printf("sin_f aaa=%d\r\n",(int)sin_f);
         test_data td;
-        td.id1=0x12;
-        td.id2=0xa1;
-        td.val_x=0xff;
-        td.val_y=0xfd;
-        td.val_z=0xfc;
+        td.id1=0x00;
 
-	   ad_nvms_read(nvms_rble_storage_handle, rble_data_addr_offset, rble_sample_data, sizeof(rble_sample_data));
+// ad_nvms_read(nvms_rble_storage_handle, rble_data_addr_offset, rble_sample_data, sizeof(rble_sample_data));
 
 	   printf("rble_sample_data=%s\r\n",rble_sample_data);
-       //test_tx_data(svc, conn_idx, (uint8_t *)&td, sizeof(rble_sample_data));
+       //test_tx_data(svc, conn_idx, (uint8_t *)&td, sizeof(td));
 	  // test_tx_data(svc, conn_idx, rble_sample_data, sizeof(rble_sample_data));
         //test_tx_data(svc, NULL, (uint8_t *)&td, sizeof(td));
         //add by wzb for test
@@ -399,11 +395,16 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
 			value_cmd = *(value+1);
 			if((value_h==RBLE_RECEIVE_DATA_HEADER) && (value_cmd ==RBLE_RECEIVE_DATA_CMD))
 				{
-					start_collect_data =true;
+					//start_collect_data =true;
+				ad_nvms_erase_region(nvms_rble_storage_handle,0, RBLE_DATA_PATITION_SIZE);
 					
 				#if defined(RBLE_SENSOR_CTRL_BY_APP)
 					OS_TASK_NOTIFY(task_sensor_sample, RBLE_SENSOR_START_SAMPLE_NOTIF, OS_NOTIFY_SET_BITS);
 				#endif
+				}
+			else if((value_h==RBLE_RECEIVE_DATA_HEADER) && (value_cmd ==RBLE_RECEIVE_DATA_SEND))
+				{
+					test_tx_data(svc, conn_idx, (uint8_t *)&td, sizeof(td));
 			}
 	  #endif
 #if 0
@@ -429,23 +430,25 @@ uint32_t rble_read_data_addr_offset=0;
 static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t length)
 {
         nvms_t nvms_rble_storage_handle;
-        uint32_t rble_data_addr_offset=0;
         uint8_t rble_sample_data[20]={0};
         nvms_rble_storage_handle=ad_nvms_open(NVMS_IMAGE_DATA_STORAGE_PART);
         memset(rble_sample_data, 0, sizeof(rble_sample_data));
 
         ad_nvms_read(nvms_rble_storage_handle, rble_read_data_addr_offset, rble_sample_data, sizeof(rble_sample_data));
-        rble_read_data_addr_offset+=sizeof(rble_sample_data);
-        if(rble_data_addr_offset<RBLE_DATA_PATITION_SIZE)
-                {
-                     test_tx_data(svc, conn_idx, rble_sample_data, sizeof(rble_sample_data));
-                }
-       else
-               {
-                       return;
-                }
+	 if(rble_read_data_addr_offset<RBLE_DATA_PATITION_SIZE)
+				 {
+					  test_tx_data(svc, conn_idx, rble_sample_data, sizeof(rble_sample_data));
+					  
+					  rble_read_data_addr_offset+=sizeof(rble_sample_data);
+				 }
 
-        printf("wzb test_tx_done_cb\r\n");
+	else
+		{
+			 rble_read_data_addr_offset=0;
+			 printf("wzb test_tx_done_cb\r\n");
+		}
+		
+
 }
 
 static void test_set_flow_control_cb(ble_service_t *svc, uint16_t conn_idx,
