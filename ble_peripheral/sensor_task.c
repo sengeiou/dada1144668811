@@ -2177,7 +2177,7 @@ void RbleSensorControlTask( void *pvParameters )
 
 #if 1
 
-#if 1  //defined(RBLE_UART_DEBUG)
+#if 0  //defined(RBLE_UART_DEBUG)
 		printf("RbleSensorControlTask aa\n");
 	fflush(stdout);
 
