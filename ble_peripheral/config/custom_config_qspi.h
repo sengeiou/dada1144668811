@@ -44,6 +44,8 @@
 
 #define dg_configPOWER_1V8P			(1)
 
+#define RBLE_PCB_B01_CUSTOM
+
 
 #define MEMS_SECONDARY_DEVICE
 

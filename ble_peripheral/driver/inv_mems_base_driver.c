@@ -318,7 +318,13 @@ inv_error_t inv_initialize_lower_driver(enum MEMS_SERIAL_INTERFACE type, const u
 	inv_set_gyro_divider(FIFO_DIVIDER);       //Initial sampling rate 1125Hz/10+1 = 102Hz.
     inv_set_accel_divider(FIFO_DIVIDER);      //Initial sampling rate 1125Hz/10+1 = 102Hz.
 	result |= inv_set_gyro_fullscale(MPU_FS_2000dps);
+
+#if defined(RBLE_PCB_B01_CUSTOM)
+	//test_r
+	result |= inv_set_accel_fullscale(MPU_FS_4G);	
+#else
 	result |= inv_set_accel_fullscale(MPU_FS_2G);
+#endif
 
     // FIFO Setup.
     result |= inv_write_single_mems_reg(REG_FIFO_CFG, BIT_SINGLE_FIFO_CFG); // FIFO Config. fixme do once? burst write?
