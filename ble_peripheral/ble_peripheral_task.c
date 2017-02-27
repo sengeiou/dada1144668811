@@ -430,9 +430,10 @@ static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t leng
         nvms_rble_storage_handle=ad_nvms_open(NVMS_IMAGE_DATA_STORAGE_PART);
         memset(rble_sample_data, 0, sizeof(rble_sample_data));
 
-        ad_nvms_read(nvms_rble_storage_handle, rble_read_data_addr_offset, rble_sample_data, sizeof(rble_sample_data));
+
 		 if(rble_read_data_addr_offset<RBLE_DATA_PATITION_SIZE)
 				 {
+	         ad_nvms_read(nvms_rble_storage_handle, rble_read_data_addr_offset, rble_sample_data, sizeof(rble_sample_data));
 					  test_tx_data(svc, conn_idx, rble_sample_data, sizeof(rble_sample_data));
 					  ble_task_env.ble2app_id=0x02;//read all test data
 					  rble_read_data_addr_offset+=sizeof(rble_sample_data);
