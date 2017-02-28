@@ -9,8 +9,8 @@
 float a_xyz_old=0;
 float a_xyz_new=0;
 
-float min_a_xyz=11;
-float max_a_xyz=19.6;
+float min_a_xyz=19.6f;//11;
+float max_a_xyz=100.0f;//35.0f;//19.6;
 
 // time tick 51 == 100ms
 long time_of_last_peak=0L;
@@ -166,16 +166,16 @@ void detect_new_step(float values)
 
             if((time_of_now - time_of_last_peak)*TICK_TO_MS >=150
                 && (peak_wave-valley_wave)>=thread_value
-                && (time_of_now-time_of_last_peak)*TICK_TO_MS <= 2000 ){
+                /*&& (time_of_now-time_of_last_peak)*TICK_TO_MS <= 2000*/ ){
 
                 time_of_this_peak=time_of_now;
                 //step +1;
                 current_step++;
                 
                 //run
-                if((time_of_this_peak-time_of_last_peak)*TICK_TO_MS<250){
+                if((time_of_this_peak-time_of_last_peak)*TICK_TO_MS<200){
                     current_dash_count++;
-                }else if((time_of_this_peak-time_of_last_peak)*TICK_TO_MS<400){
+                }else if((time_of_this_peak-time_of_last_peak)*TICK_TO_MS<300){
                     current_run_count++;
                 }
 
