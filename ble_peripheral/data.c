@@ -27,13 +27,11 @@ float initial_value=1.7;
 float thread_value=2.0f;
 
 
-//static long current_step=0;
-//static long current_run_count=0;
-//static long current_dash_count=0;
+static long current_step=0;
+static long current_run_count=0;
+static long current_dash_count=0;
 
-static int current_step=0;
-static int current_run_count=0;
-static int current_dash_count=0;
+
 
 
 #define VALUE_NUM 5
@@ -128,7 +126,7 @@ static float peak_valley_thread(float value)
 }
 
 
-static void write_to_flash(int step,int run,int dash)
+static void write_to_flash(long step,long run,long dash)
 {
     nvms_rble_result_storage_handle=ad_nvms_open(NVMS_IMAGE_RESULT_DATA_STORAGE_PART);
     
@@ -137,19 +135,19 @@ static void write_to_flash(int step,int run,int dash)
     memcpy(rble_sample_result_data,RBLE_RESULT_DATA_LABLE_SC,RBLE_RESULT_DATA_LABLE_LENGTH);
 	rble_smp_reslut_count+=RBLE_RESULT_DATA_LABLE_LENGTH;
 
-    memcpy(rble_sample_result_data+rble_smp_reslut_count,step,RBLE_RESULT_INT_SIZE);
+    memcpy(rble_sample_result_data+rble_smp_reslut_count,&step,RBLE_RESULT_INT_SIZE);
     rble_smp_reslut_count+=RBLE_RESULT_INT_SIZE;
 
     memcpy(rble_sample_result_data+rble_smp_reslut_count,RBLE_RESULT_DATA_LABLE_RC,RBLE_RESULT_DATA_LABLE_LENGTH);
 	rble_smp_reslut_count+=RBLE_RESULT_DATA_LABLE_LENGTH;
     
-    memcpy(rble_sample_result_data+rble_smp_reslut_count,run,RBLE_RESULT_INT_SIZE);
+    memcpy(rble_sample_result_data+rble_smp_reslut_count,&run,RBLE_RESULT_INT_SIZE);
     rble_smp_reslut_count+=RBLE_RESULT_INT_SIZE;
 
     memcpy(rble_sample_result_data+rble_smp_reslut_count,RBLE_RESULT_DATA_LABLE_DC,RBLE_RESULT_DATA_LABLE_LENGTH);
 	rble_smp_reslut_count+=RBLE_RESULT_DATA_LABLE_LENGTH;
     
-    memcpy(rble_sample_result_data+rble_smp_reslut_count,dash,RBLE_RESULT_INT_SIZE);
+    memcpy(rble_sample_result_data+rble_smp_reslut_count,&dash,RBLE_RESULT_INT_SIZE);
     rble_smp_reslut_count+=RBLE_RESULT_INT_SIZE;
 
     ad_nvms_write(nvms_rble_result_storage_handle, rble_result_data_addr_offset, rble_sample_result_data,rble_smp_reslut_count);
