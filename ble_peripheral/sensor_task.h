@@ -14,7 +14,7 @@
 
 #include <ad_i2c.h>
 
-
+#include "data.h"
 
 
 
@@ -40,7 +40,7 @@
 #define RBLE_LONG_SIZE   4
 #define RBLE_CNT_SIZE   2
 
-#define RBLE_DATA_PATITION_SIZE  (0x02E000)
+#define RBLE_DATA_PATITION_SIZE  (0x029000)
 
 #define RBLE_SAMPLE_TIMER_NOTIF (1 << 2) 
 #define RBLE_SENSOR_START_SAMPLE_NOTIF (1 << 3) 

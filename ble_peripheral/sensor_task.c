@@ -868,7 +868,15 @@ void process_sensor_output()
 			fflush(stdout);
 			#endif
 
-			
+
+
+            //step test
+            #if 1
+            float average=qfp_fsqrt(accel_float[0]*accel_float[0]+accel_float[1]*accel_float[1]+accel_float[2]*accel_float[2]);
+            detect_new_step(average);
+            #endif
+            //end
+            
 			#if defined(RBLE_DATA_STORAGE_IN_FLASH)
 				if(rble_data_patition_not_full)
 				{

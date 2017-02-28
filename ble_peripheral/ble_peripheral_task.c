@@ -38,6 +38,7 @@
 #include "test.h"
 #include "ad_nvms.h"
 #include "sensor_task.h"
+#include "data.h"
 static ble_service_t *test_service;
 /*
  * Notification bits reservation
@@ -420,6 +421,8 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
 
 
 uint32_t rble_read_data_addr_offset=0;
+uint32_t rble_read_result_data_addr_offset=0;
+
 static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t length)
 {
 
@@ -433,8 +436,8 @@ static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t leng
 
 		 if(rble_read_data_addr_offset<RBLE_DATA_PATITION_SIZE)
 				 {
-	         ad_nvms_read(nvms_rble_storage_handle, rble_read_data_addr_offset, rble_sample_data, sizeof(rble_sample_data));
-					  test_tx_data(svc, conn_idx, rble_sample_data, sizeof(rble_sample_data));
+                      ad_nvms_read(nvms_rble_storage_handle, rble_read_data_addr_offset, rble_sample_data, sizeof(rble_sample_data));
+                      test_tx_data(svc, conn_idx, rble_sample_data, sizeof(rble_sample_data));
 					  ble_task_env.ble2app_id=0x02;//read all test data
 					  rble_read_data_addr_offset+=sizeof(rble_sample_data);
 				 }
@@ -446,6 +449,16 @@ static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t leng
         }
         else if(ble_task_env.ble2app_id==0x03){
             //send result to app
+            uint8_t rble_sample_result_data[20]={0};
+            nvms_t nvms_rble_result_storage_handle;
+            nvms_rble_result_storage_handle=ad_nvms_open(NVMS_IMAGE_RESULT_DATA_STORAGE_PART);
+            memset(rble_sample_result_data, 0, sizeof(rble_sample_result_data));
+            
+            ad_nvms_read(nvms_rble_result_storage_handle, rble_read_result_data_addr_offset, rble_sample_result_data, sizeof(rble_sample_result_data));
+            test_tx_data(svc, conn_idx, rble_sample_result_data, sizeof(rble_sample_result_data));
+            //test only once
+            ble_task_env.ble2app_id=0xff;
+            
         }
 
         printf("wzb test_tx_done_cb\r\n");

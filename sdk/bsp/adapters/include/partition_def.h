@@ -38,6 +38,7 @@ typedef enum {
 	NVMS_IMAGE_DATA_STORAGE_PART          = 21,
 
 #endif
+	NVMS_IMAGE_RESULT_DATA_STORAGE_PART =22,
 		
 } nvms_partition_id_t;
 
