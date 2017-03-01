@@ -321,7 +321,7 @@ inv_error_t inv_initialize_lower_driver(enum MEMS_SERIAL_INTERFACE type, const u
 
 #if defined(RBLE_PCB_B01_CUSTOM)
 	//test_r
-	result |= inv_set_accel_fullscale(MPU_FS_4G);	
+	result |= inv_set_accel_fullscale(MPU_FS_8G);	
 #else
 	result |= inv_set_accel_fullscale(MPU_FS_2G);
 #endif
