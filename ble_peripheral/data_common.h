@@ -5,25 +5,26 @@
  *      Author: Administrator
  */
 
-#ifndef DATA_H_
-#define DATA_H_
+#ifndef DATA_H_COMMON
+#define DATA_H_COMMON
 
-void detect_new_step(float values);
+#define TICK_TO_MS (100/51)
 
 
-#if 0
 #define RBLE_RESULT_DATA_PATITION_SIZE  (0x005000)
-#define RBLE_RESULT_DATA_BUF_LENGTH    32
+#define RBLE_RESULT_DATA_BUF_LENGTH    128
 #define RBLE_RESULT_FLOAT_SIZE   4
 #define RBLE_RESULT_INT_SIZE   4
+#define RBLE_RESULT_LONG_SIZE   4
+
 
 #define RBLE_RESULT_DATA_LABLE_LENGTH  2
 #define RBLE_RESULT_DATA_LABLE_SC "sc" //step count
 #define RBLE_RESULT_DATA_LABLE_RC "rc" //run count
 #define RBLE_RESULT_DATA_LABLE_DC "dc" //dash count
-#endif
 
 
 
 
-#endif /* DATA_H_ */
+
+#endif /* DATA_H_COMMON */

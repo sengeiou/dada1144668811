@@ -46,6 +46,7 @@
 
 #define RBLE_PCB_B01_CUSTOM
 
+#define BLE_USE_DATA_V2
 
 #define MEMS_SECONDARY_DEVICE
 

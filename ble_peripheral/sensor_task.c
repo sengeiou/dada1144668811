@@ -28,6 +28,10 @@
 #include "ad_nvms.h"
 #endif
 
+#if defined(BLE_USE_DATA_V2)
+#include "data_v2.h"
+#endif
+
 /**
  * @brief Template task increases a counter every mainCOUNTER_FREQUENCY_MS ms
  */
@@ -871,9 +875,11 @@ void process_sensor_output()
 
 
             //step test
-            #if 1
-            float average=qfp_fsqrt(accel_float[0]*accel_float[0]+accel_float[1]*accel_float[1]+accel_float[2]*accel_float[2]);
-            detect_new_step(average);
+            #if defined(BLE_USE_DATA_V1)
+                float average=qfp_fsqrt(accel_float[0]*accel_float[0]+accel_float[1]*accel_float[1]+accel_float[2]*accel_float[2]);
+                detect_new_step(average);
+            #elif defined(BLE_USE_DATA_V2)
+                detect_new_step_v2(accel_float[0]*accel_float[0],accel_float[1]*accel_float[1],accel_float[2]*accel_float[2]);
             #endif
             //end
             
@@ -2153,6 +2159,7 @@ void RbleSensorControlTask( void *pvParameters )
 		
 			////'p';
 		task_sensor_sample=OS_GET_CURRENT_TASK();
+	
 
 			//e=rble_sin(a/6);
 			//e=qfp_fsin(3.14159265/6);
@@ -2180,6 +2187,9 @@ void RbleSensorControlTask( void *pvParameters )
 
 #endif
 
+#if defined(BLE_USE_DATA_V2)
+init_step_env();
+#endif
 
 
 
@@ -2254,6 +2264,9 @@ void RbleSensorControlTask( void *pvParameters )
 #if defined(RBLE_SAMPLE_TIMER_SWITCH)
 rble_sample_start_timer();
 #endif
+
+
+
 
 #if defined(RBLE_SAMPLE_TIMER_SWITCH)
 for (;;) {

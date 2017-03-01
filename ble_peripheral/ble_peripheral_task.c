@@ -449,6 +449,12 @@ static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t leng
         }
         else if(ble_task_env.ble2app_id==0x03){
             //send result to app
+            //for test
+            if(rble_read_result_data_addr_offset>=40){
+                rble_read_result_data_addr_offset=0;
+                 ble_task_env.ble2app_id=0xff;
+                return;
+            }
             uint8_t rble_sample_result_data[20]={0};
             nvms_t nvms_rble_result_storage_handle;
             nvms_rble_result_storage_handle=ad_nvms_open(NVMS_IMAGE_RESULT_DATA_STORAGE_PART);
@@ -456,8 +462,9 @@ static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t leng
             
             ad_nvms_read(nvms_rble_result_storage_handle, rble_read_result_data_addr_offset, rble_sample_result_data, sizeof(rble_sample_result_data));
             test_tx_data(svc, conn_idx, rble_sample_result_data, sizeof(rble_sample_result_data));
+            rble_read_result_data_addr_offset+=sizeof(rble_sample_result_data);
             //test only once
-            ble_task_env.ble2app_id=0xff;
+            ble_task_env.ble2app_id=0x03;
             
         }
 

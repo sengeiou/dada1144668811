@@ -1,9 +1,13 @@
+#if defined(BLE_USE_DATA_V1)
 
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include "data.h"
+#include "data_common.h"
 #include "ad_nvms.h"
+
+
 
 //last A-xyz values
 float a_xyz_old=0;
@@ -18,7 +22,7 @@ long time_of_this_peak=0L;
 
 long time_of_now=0L;
 
-#define TICK_TO_MS (100/51)
+//#define TICK_TO_MS (100/51)
 
 
 float peak_wave=0;
@@ -65,15 +69,18 @@ static int detect_peak(float new_value,float old_value)
         continue_up_count=0;
         is_direction_up=0;
     }
-
+    printf("wzb detect peak old v=%d,new v=%d\r\n",(int)old_value,(int)new_value);
     if((is_direction_up==0)&& (last_status==1)&&(continue_up_former_count >=2 &&(old_value>=min_a_xyz&&
         old_value<=max_a_xyz))){
         peak_wave=old_value;
+        printf("wzb detect peak 111\r\n");
         return 1;
     }else if((last_status==0) && (is_direction_up==1)){
         valley_wave=old_value;
+        printf("wzb detect peak 222\r\n");
         return 0;
     }else{
+            printf("wzb detect peak 333\r\n");
         return 0;
     }
 }
