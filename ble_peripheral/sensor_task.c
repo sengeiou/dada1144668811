@@ -192,7 +192,18 @@ float current_output_rate = 50;
 #define BAC_STILL	0x20
 
 
+#if defined(RBLE_PCB_B01_CUSTOM)
+//test_r
+signed char ACCEL_GYRO_ORIENTATION[] = {-1,0,0,0,1,0,0,0,-1};
+
+#elif 0
+//test_r   //std
+signed char ACCEL_GYRO_ORIENTATION[] = {1,0,0,0,1,0,0,0,1};
+
+#else
 signed char ACCEL_GYRO_ORIENTATION[] = {0,-1,0,1,0,0,0,0,1};
+#endif
+
 /* Change the COMPASS_SLAVE_ID to the correct ID of compass used. You can find the defines in inv_mems_hw_config.h*/
 const unsigned char COMPASS_SLAVE_ID = HW_AK09912; 
 
