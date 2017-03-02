@@ -177,7 +177,7 @@ void detect_new_step_v2(float acc_x2,float acc_y2,float acc_z2)
     }else{
         step_env.detect_peak_mode=ACC_PEAK_Y2;
         if(detect_peak(acc_y2,step_env.acc_value_mode.acc_y2_old)){
-            step_env.min_acc_value=800.0f;
+            step_env.min_acc_value=600.0f;
             step_env.eff_time_of_last_peak=step_env.eff_time_of_this_peak;
             step_env.time_of_now=inv_get_tick_count();
 
@@ -211,6 +211,7 @@ void detect_new_step_v2(float acc_x2,float acc_y2,float acc_z2)
     // statistical data
     if(step_env.flag==1){
         step_env.total_step++;
+        step_env.flag=0;
         printf("wzb step=%d\r\n",step_env.total_step);
         
         if(step_env.type == VERTICAL){
