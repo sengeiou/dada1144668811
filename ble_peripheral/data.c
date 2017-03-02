@@ -205,4 +205,5 @@ void detect_new_step(float values)
     a_xyz_old=values;
 }
 
+#endif
 

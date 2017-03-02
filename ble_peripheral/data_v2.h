@@ -20,32 +20,107 @@ typedef enum {
     JUMP=0x2,
 }step_type_t;
 
+typedef enum {
+    ACC_PEAK_X=0x0,
+    ACC_PEAK_Y=0x1,
+    ACC_PEAK_Z=0x2,
+    ACC_PEAK_X2=0x3,
+    ACC_PEAK_Y2=0x4,
+    ACC_PEAK_Z2=0x5,
+}detect_peak_acc_mode_t;
+
+
+
+typedef struct{
+    float acc_x_old;
+    float acc_y_old;
+    float acc_z_old;
+    float acc_x2_old;
+    float acc_y2_old;
+    float acc_z2_old;
+}acc_value_mode_t;
+
+
+typedef struct{
+    uint8_t acc_x;
+    uint8_t acc_y;
+    uint8_t acc_z;
+    uint8_t acc_x2;
+    uint8_t acc_y2;
+    uint8_t acc_z2;
+
+}last_status_is_up_t;
+
+typedef struct{
+    uint8_t acc_x;
+    uint8_t acc_y;
+    uint8_t acc_z;
+    uint8_t acc_x2;
+    uint8_t acc_y2;
+    uint8_t acc_z2;
+
+}direction_is_up_t;
+
+typedef struct{
+    int acc_x;
+    int acc_y;
+    int acc_z;
+    int acc_x2;
+    int acc_y2;
+    int acc_z2;
+
+}continue_up_count_t;
+
+typedef struct{
+    int acc_x;
+    int acc_y;
+    int acc_z;
+    int acc_x2;
+    int acc_y2;
+    int acc_z2;
+
+}continue_up_former_count_t;
+
+typedef struct{
+        float acc_x;
+        float acc_y;
+        float acc_z;
+        float acc_x2;
+        float acc_y2;
+        float acc_z2;
+
+}peak_wave_t;
+
+typedef struct{
+        float acc_x;
+        float acc_y;
+        float acc_z;
+        float acc_x2;
+        float acc_y2;
+        float acc_z2;
+
+}valley_wave_t;
+
+
 
 typedef struct step_env{
     uint8_t flag;
     uint8_t mode;   //step mode: walk,run,dash
     uint8_t type; //0:x,1:y,2:z
     uint8_t frequency;
-    uint8_t last_status_is_up;
-    uint8_t direction_is_up;
-    float acc_x_old;
-    float acc_y_old;
-    float acc_z_old;
-    float acc_x_new;
-    float acc_y_new;
-    float acc_z_new;
-    float acc_x2_old;
-    float acc_y2_old;
-    float acc_z2_old;
-    float acc_x2_new;
-    float acc_y2_new;
-    float acc_z2_new;
-
+    uint8_t detect_peak_mode;
+    last_status_is_up_t last_status_is_up;
+    direction_is_up_t direction_is_up;
+    
+    acc_value_mode_t acc_value_mode;
+        
     float min_acc_value;
     float max_acc_value;
 
-    float peak_wave;
-    float valley_wave;
+    peak_wave_t peak_wave;
+    valley_wave_t valley_wave;
+
+    
 
     long total_step;
     long total_run;
@@ -60,12 +135,12 @@ typedef struct step_env{
     long h_distance;
     
     
-    long time_of_last_peak;
-    long time_of_this_peak;
+    long eff_time_of_last_peak;
+    long eff_time_of_this_peak;
     long time_of_now;
 
-    int continue_up_count;
-    int continue_up_former_count;
+    continue_up_count_t continue_up_count;
+    continue_up_former_count_t continue_up_former_count;
     
     
 }step_env_t;
