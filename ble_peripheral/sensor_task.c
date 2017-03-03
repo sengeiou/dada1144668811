@@ -205,7 +205,10 @@ signed char ACCEL_GYRO_ORIENTATION[] = {0,-1,0,1,0,0,0,0,1};
 #endif
 
 /* Change the COMPASS_SLAVE_ID to the correct ID of compass used. You can find the defines in inv_mems_hw_config.h*/
-const unsigned char COMPASS_SLAVE_ID = HW_AK09912; 
+
+//test_r
+//const unsigned char COMPASS_SLAVE_ID = HW_AK09912; 
+const unsigned char COMPASS_SLAVE_ID = HW_AK09916; 
 
 /* Change COMPASS_CHIP_ADDR to 0x0C for ICM20698 which uses internal AKM 9916 */
 /* Change COMPASS_CHIP_ADDR to 0x0E for other AKM 9912/9911/9913/8963*/
@@ -215,7 +218,19 @@ const unsigned char COMPASS_CHIP_ADDR = 0x0C;
 
 const unsigned char PRESSURE_CHIP_ADDR = 0x00;
 
+#if defined(RBLE_PCB_B01_CUSTOM)
+
+//test_r
+signed char COMPASS_ORIENTATION[] = {-1,0,0,0,1,0,0,0,-1};
+
+#elif 0
+//test_r  std
+signed char COMPASS_ORIENTATION[] = {1,0,0,0,1,0,0,0,1};
+
+#else
+
 signed char COMPASS_ORIENTATION[] = {0,-1,0,1,0,0,0,0,1};
+#endif
 
 long SOFT_IRON_MATRIX[] = {1073741824,0,0,0,1073741824,0,0,0,1073741824};
 
