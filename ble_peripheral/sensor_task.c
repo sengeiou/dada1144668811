@@ -842,10 +842,10 @@ bool rble_could_write_data_to_patition(uint32_t addr_offset,int count)
 	{
 		rble_led_flash_delay=1000;
 		#if defined(RBLE_SENSOR_CTRL_BY_APP)
-			#if 1 //defined(RBLE_SAMPLE_TIMER_SWITCH)
+			#if defined(RBLE_SAMPLE_TIMER_SWITCH)
 				rble_sample_timer_enable(false);
 			#endif
-			rble_data_addr_offset=0;
+			//rble_data_addr_offset=0;
 		#endif
 		rble_data_patition_not_full=false;
 		
@@ -2145,10 +2145,10 @@ void rble_sample_timer_enable(bool enabled)
 }
 
 
-void rble_sample_start_timer(void)
+void rble_sample_create_timer(void)
 {
 
-	TickType_t period_tick= 51;         //51 (100ms);
+	TickType_t period_tick= 102;         //51 (100ms);
 	//10 / OS_PERIOD_MS; ///500;   ////      10 / OS_PERIOD_MS;   //
 
 	#if 1 //defined(RBLE_UART_DEBUG)
@@ -2159,7 +2159,7 @@ void rble_sample_start_timer(void)
 	rble_sample_timer_id = OS_TIMER_CREATE("rblesampletimer", period_tick, OS_TIMER_SUCCESS,
                                                 (void *) OS_GET_CURRENT_TASK(), rble_sample_timer_cb);
 
-	rble_sample_timer_enable(true);
+	//rble_sample_timer_enable(true);
 }
 
 #endif
@@ -2288,7 +2288,13 @@ init_step_env();
 #endif
 
 #if defined(RBLE_SAMPLE_TIMER_SWITCH)
-rble_sample_start_timer();
+#if  defined(RBLE_SENSOR_CTRL_BY_APP)
+	rble_sample_create_timer();
+#else
+	rble_sample_create_timer();
+
+	rble_sample_timer_enable(true);
+#endif
 #endif
 
 
@@ -2337,29 +2343,52 @@ for (;;) {
 					   
                 }
 				
+				#if defined(RBLE_SENSOR_CTRL_BY_APP)
 				if (notif & RBLE_SENSOR_START_SAMPLE_NOTIF) {
-					
+					#if 1 //defined(RBLE_SAMPLE_TIMER_SWITCH)
+						if(!OS_TIMER_IS_ACTIVE(rble_sample_timer_id))
+						{
+							#if 1 //defined(RBLE_UART_DEBUG)
+							
+							   printf("START SAMPLE=%d\n");
+							  
+							   fflush(stdout); 
+							#endif
+								handle_char_input('a');
+								handle_char_input('g');
+								//handle_char_input('c');
+								//handle_char_input('o');
+						   		rble_sample_timer_enable(true);
+								//rble_sample_create_timer();
 
-					
-						#if 1 //defined(RBLE_UART_DEBUG)
-						
-						   printf("START SAMPLE=%d\n");
-						  
-						   fflush(stdout); 
-						#endif
-						handle_char_input('a');
-						handle_char_input('g');
-
-                       
-						#if defined(RBLE_SAMPLE_TIMER_SWITCH)
-					   		rble_sample_start_timer();
-						#endif
-                       
-                    
-
+								
+							#if defined(RBLE_DATA_STORAGE_IN_FLASH)
+								rble_data_addr_offset=0;
+							#endif
+						}
+					#endif
 					   
                 }
-				
+				else if(notif & RBLE_SENSOR_STOP_SAMPLE_NOTIF)
+				{
+					#if 1 //defined(RBLE_SAMPLE_TIMER_SWITCH)
+						if(OS_TIMER_IS_ACTIVE(rble_sample_timer_id))
+						{
+							handle_char_input('a');
+							handle_char_input('g');
+							//handle_char_input('c');
+							//handle_char_input('o');
+							
+						
+							rble_sample_timer_enable(false);
+							//rble_sample_destroy_timer();
+							#if defined(RBLE_DATA_STORAGE_IN_FLASH)
+							rble_data_addr_offset=0;
+							#endif
+						}
+					#endif
+				}
+				#endif
 
                 
         }

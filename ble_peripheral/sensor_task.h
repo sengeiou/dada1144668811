@@ -44,11 +44,13 @@
 
 #define RBLE_SAMPLE_TIMER_NOTIF (1 << 2) 
 #define RBLE_SENSOR_START_SAMPLE_NOTIF (1 << 3) 
+#define RBLE_SENSOR_STOP_SAMPLE_NOTIF (1 << 4) 
 
 
 #define RBLE_RECEIVE_DATA_HEADER (0xFF)
 #define RBLE_RECEIVE_DATA_CMD (0x01)
 #define RBLE_RECEIVE_DATA_SEND (0x02)
+#define RBLE_STOP_SAMPLE_CMD (0x07)
 
 
 typedef struct RbleSensorControlStruct
