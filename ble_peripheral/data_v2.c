@@ -69,6 +69,29 @@ static int detect_peak(float new_value,float old_value)
         }
 
     }
+    else if(step_env.detect_peak_mode == ACC_PEAK_Z){
+        step_env.last_status_is_up.acc_z=step_env.direction_is_up.acc_z;
+        if(new_value>old_value){
+            step_env.direction_is_up.acc_z=1;
+            step_env.continue_up_count.acc_z++;
+        }else{
+            step_env.continue_up_former_count.acc_z=step_env.continue_up_count.acc_z;
+            step_env.continue_up_count.acc_z=0;
+            step_env.direction_is_up.acc_z=0;
+        }
+        //printf("wzb detect peak z old v=%d,new v=%d\r\n",(int)old_value,(int)new_value);
+        if((step_env.direction_is_up.acc_z==0)&& (step_env.last_status_is_up.acc_z==1)&&(step_env.continue_up_former_count.acc_z>=2 &&(old_value>=step_env.min_acc_value))){
+            step_env.peak_wave.acc_z=old_value;
+            //printf("wzb detect peak y 11\r\n");
+            return 1;
+        }else if((step_env.last_status_is_up.acc_z==0) && (step_env.direction_is_up.acc_z==1)){
+            step_env.valley_wave.acc_z=old_value;
+            return 0;
+        }else{
+            return 0;
+        }
+
+    }
 }
 
 
@@ -102,7 +125,7 @@ static void write_to_flash(long step,long run,long dash)
     
 }
 
-static void write_to_flash_v2(long total_step,long total_run,long total_dash,long h_step,long h_run,long h_dash,long total_distance,long h_distance)
+static void write_to_flash_v2(long total_step,long total_run,long total_dash,long h_step,long h_run,long h_dash,long total_distance,long h_distance,long jump_count)
 {
     nvms_rble_result_storage_handle=ad_nvms_open(NVMS_IMAGE_RESULT_DATA_STORAGE_PART);
     
@@ -165,7 +188,7 @@ void detect_new_step_v2(float acc_x2,float acc_y2,float acc_z,unsigned short fif
                 //step_env.total_step++;
                 step_env.flag=1;
                 reset_jump_state();
-                printf("wzb x2 step\r\n");
+                //printf("wzb x2 step\r\n");
                 step_env.type=HORIZONTAL;
                 
                 if((step_env.eff_time_of_this_peak-step_env.eff_time_of_last_peak)*TICK_TO_MS <=550){
@@ -197,7 +220,7 @@ void detect_new_step_v2(float acc_x2,float acc_y2,float acc_z,unsigned short fif
                 && step_env.peak_wave.acc_y2>=step_env.min_acc_value &&((step_env.time_of_now-step_env.jump.fir_peak_time)>80)){
 
                 step_env.eff_time_of_this_peak=step_env.time_of_now;
-                printf("wzb y2 step\r\n");
+               // printf("wzb y2 step\r\n");
                 //step +1;
                 //current_step++;
                 //step_env.total_step++;
