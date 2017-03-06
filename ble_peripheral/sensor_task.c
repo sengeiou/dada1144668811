@@ -2157,7 +2157,7 @@ void rble_sample_timer_enable(bool enabled)
 void rble_sample_create_timer(void)
 {
 
-	TickType_t period_tick= 102;         //51 (100ms);
+	TickType_t period_tick= 51;         //51 (100ms);
 	//10 / OS_PERIOD_MS; ///500;   ////      10 / OS_PERIOD_MS;   //
 
 	#if 1 //defined(RBLE_UART_DEBUG)
