@@ -2376,6 +2376,7 @@ for (;;) {
 								
 							#if defined(RBLE_DATA_STORAGE_IN_FLASH)
 								rble_data_addr_offset=0;
+								rble_data_patition_not_full=true;
 							#endif
 						}
 					#endif
@@ -2396,6 +2397,7 @@ for (;;) {
 							//rble_sample_destroy_timer();
 							#if defined(RBLE_DATA_STORAGE_IN_FLASH)
 							rble_data_addr_offset=0;
+							rble_data_patition_not_full=true;
 							#endif
 						}
 					#endif
