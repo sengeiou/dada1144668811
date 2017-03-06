@@ -141,7 +141,7 @@ static void write_to_flash_v2(long total_step,long total_run,long total_dash,lon
 
 
 
-void detect_new_step_v2(float acc_x2,float acc_y2,float acc_z2)
+void detect_new_step_v2(float acc_x2,float acc_y2,float acc_z,unsigned short fifo_id)
 {
     if(step_env.acc_value_mode.acc_x2_old== 0){
         step_env.acc_value_mode.acc_x2_old=acc_x2;
@@ -150,7 +150,7 @@ void detect_new_step_v2(float acc_x2,float acc_y2,float acc_z2)
         step_env.min_acc_value=acc_x_abs_min_normal;
         if(detect_peak(acc_x2,step_env.acc_value_mode.acc_x2_old)){
             step_env.eff_time_of_last_peak=step_env.eff_time_of_this_peak;
-            step_env.time_of_now=inv_get_tick_count();
+            step_env.time_of_now=inv_get_tick_count()-(fifo_id)*FIFO_OFFSET_TICK;
 
             if((step_env.time_of_now - step_env.eff_time_of_last_peak)*TICK_TO_MS >=400
                 && step_env.peak_wave.acc_x2>=step_env.min_acc_value){
@@ -186,7 +186,7 @@ void detect_new_step_v2(float acc_x2,float acc_y2,float acc_z2)
          step_env.min_acc_value=acc_y_abs_min_normal;
         if(detect_peak(acc_y2,step_env.acc_value_mode.acc_y2_old)){           
             step_env.eff_time_of_last_peak=step_env.eff_time_of_this_peak;
-            step_env.time_of_now=inv_get_tick_count();
+            step_env.time_of_now=inv_get_tick_count()-(fifo_id)*FIFO_OFFSET_TICK;
 
             if((step_env.time_of_now - step_env.eff_time_of_last_peak)*TICK_TO_MS >=400
                 && step_env.peak_wave.acc_y2>=step_env.min_acc_value){

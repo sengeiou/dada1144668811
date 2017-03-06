@@ -11,6 +11,8 @@
 #define DATA_ABS(x) (x)>0?(x):(-x)
 //x2 y2 z2 means |x| |y| |z|
 
+#define FIFO_OFFSET_TICK (20*512/1000)
+
 typedef enum {
     WALK=0x0,
     RUN=0x1,
@@ -150,7 +152,7 @@ typedef struct step_env{
 
 
 void init_step_env();
-void detect_new_step_v2(float acc_x2,float acc_y2,float acc_z2);
+void detect_new_step_v2(float acc_x2,float acc_y2,float acc_z,unsigned short fifo_id);
 
 
 #if 0
