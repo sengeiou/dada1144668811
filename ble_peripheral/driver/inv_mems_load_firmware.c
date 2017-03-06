@@ -44,13 +44,17 @@
 
 //test_r
 
-#define RBLE_DMP_WRITE_TIMES  5
-//3   7   300
+#define RBLE_DMP_WRITE_TIMES  16
+//3   7   300   5
 
-#define RBLE_DMP_READ_TIMES   2
-#define RBLE_DMP_UNCMP_TIMES   3
-#define RBLE_DMP_SART_ADDR_RESET_TIMES   5
-//3  300
+#define RBLE_DMP_READ_TIMES   16
+//2  5
+
+#define RBLE_DMP_UNCMP_TIMES   16
+//3  5
+
+#define RBLE_DMP_SART_ADDR_RESET_TIMES   16
+//3  300  5
 
 
 #define RBLE_DMP_LOAD_START      0x90
