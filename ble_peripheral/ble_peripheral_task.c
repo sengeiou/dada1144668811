@@ -362,7 +362,8 @@ typedef struct ble2app_data
         uint8_t                 id2;
         uint8_t                 id3;
 } ble2app_data ;
-
+uint32_t rble_read_data_addr_offset=0;
+uint32_t rble_read_result_data_addr_offset=0;
 
 static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t *value,
         uint16_t length)
@@ -405,8 +406,9 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
 				{
 					test_tx_data(svc, conn_idx, (uint8_t *)&td, sizeof(td));
                     ble_task_env.ble2app_id=0x02;//read all test data
+                    rble_read_data_addr_offset=0;
 				}
-			if((value_h==RBLE_RECEIVE_DATA_HEADER) && (value_cmd ==RBLE_STOP_SAMPLE_CMD))
+				else 	if((value_h==RBLE_RECEIVE_DATA_HEADER) && (value_cmd ==RBLE_STOP_SAMPLE_CMD))
 			{
 					
 
@@ -422,15 +424,13 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
                     bd.id3=0x00;//start flag
                     test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
                     ble_task_env.ble2app_id=0x03;
+                    rble_read_result_data_addr_offset=0;
                 }
             }
 	  #endif
 
 }
 
-
-uint32_t rble_read_data_addr_offset=0;
-uint32_t rble_read_result_data_addr_offset=0;
 
 static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t length)
 {
