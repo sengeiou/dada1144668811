@@ -843,7 +843,16 @@ bool rble_could_write_data_to_patition(uint32_t addr_offset,int count)
 		rble_led_flash_delay=1000;
 		#if defined(RBLE_SENSOR_CTRL_BY_APP)
 			#if defined(RBLE_SAMPLE_TIMER_SWITCH)
-				rble_sample_timer_enable(false);
+			
+				if(OS_TIMER_IS_ACTIVE(rble_sample_timer_id))
+				{
+							handle_char_input('a');
+							handle_char_input('g');
+							//handle_char_input('c');
+							//handle_char_input('o');
+
+							rble_sample_timer_enable(false);
+				}
 			#endif
 			//rble_data_addr_offset=0;
 		#endif
