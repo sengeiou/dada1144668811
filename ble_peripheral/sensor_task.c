@@ -2222,9 +2222,7 @@ void RbleSensorControlTask( void *pvParameters )
 
 #endif
 
-#if defined(BLE_USE_DATA_V2)
-init_step_env();
-#endif
+
 
 
 
@@ -2367,6 +2365,11 @@ for (;;) {
 								handle_char_input('g');
 								//handle_char_input('c');
 								//handle_char_input('o');
+
+                                #if defined(BLE_USE_DATA_V2)
+                                    init_step_env();
+                                #endif
+                                
 						   		rble_sample_timer_enable(true);
 								//rble_sample_create_timer();
 

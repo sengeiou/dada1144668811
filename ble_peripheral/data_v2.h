@@ -13,6 +13,8 @@
 
 #define FIFO_OFFSET_TICK (20*512/1000)
 
+#define DATA_JUMP_HEIGHT(t) (0.5)*9.8*(t)*(t)
+
 typedef enum {
     WALK=0x0,
     RUN=0x1,
@@ -106,6 +108,17 @@ typedef struct{
 
 }valley_wave_t;
 
+typedef struct{
+    uint8_t flag;
+    long fir_peak_time;
+    long sec_peak_time;
+    long  count;
+    float time;
+    float height;
+
+}jump_t;
+
+
 
 
 typedef struct step_env{
@@ -133,7 +146,7 @@ typedef struct step_env{
     long h_step;
     long h_run;
     long h_dash;
-    long jump;
+    jump_t jump;
 
     float stride;
     long distance;

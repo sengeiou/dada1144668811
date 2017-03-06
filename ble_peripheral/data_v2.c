@@ -19,6 +19,7 @@ float acc_x_abs_min_normal=28.2f;
 float acc_y_abs_min_normal=28.2f;
 float acc_x_abs_min_run=37.4f;
 float acc_y_abs_min_run=37.4f;
+float acc_z_abs_min_jump=40.0f;
 
 
 static int detect_peak(float new_value,float old_value)
@@ -135,6 +136,9 @@ static void write_to_flash_v2(long total_step,long total_run,long total_dash,lon
     memcpy(rble_sample_result_data+rble_smp_reslut_count,&h_distance,RBLE_RESULT_LONG_SIZE);
     rble_smp_reslut_count+=RBLE_RESULT_LONG_SIZE;
 
+    memcpy(rble_sample_result_data+rble_smp_reslut_count,&jump_count,RBLE_RESULT_LONG_SIZE);
+    rble_smp_reslut_count+=RBLE_RESULT_LONG_SIZE;
+
     ad_nvms_write(nvms_rble_result_storage_handle, rble_result_data_addr_offset, rble_sample_result_data,rble_smp_reslut_count);
     
 }
@@ -153,13 +157,14 @@ void detect_new_step_v2(float acc_x2,float acc_y2,float acc_z,unsigned short fif
             step_env.time_of_now=inv_get_tick_count()-(fifo_id)*FIFO_OFFSET_TICK;
 
             if((step_env.time_of_now - step_env.eff_time_of_last_peak)*TICK_TO_MS >=400
-                && step_env.peak_wave.acc_x2>=step_env.min_acc_value){
+                && step_env.peak_wave.acc_x2>=step_env.min_acc_value &&((step_env.time_of_now-step_env.jump.fir_peak_time)>80)){
 
                 step_env.eff_time_of_this_peak=step_env.time_of_now;
                 //step +1;
                 //current_step++;
                 //step_env.total_step++;
                 step_env.flag=1;
+                reset_jump_state();
                 printf("wzb x2 step\r\n");
                 step_env.type=HORIZONTAL;
                 
@@ -189,7 +194,7 @@ void detect_new_step_v2(float acc_x2,float acc_y2,float acc_z,unsigned short fif
             step_env.time_of_now=inv_get_tick_count()-(fifo_id)*FIFO_OFFSET_TICK;
 
             if((step_env.time_of_now - step_env.eff_time_of_last_peak)*TICK_TO_MS >=400
-                && step_env.peak_wave.acc_y2>=step_env.min_acc_value){
+                && step_env.peak_wave.acc_y2>=step_env.min_acc_value &&((step_env.time_of_now-step_env.jump.fir_peak_time)>80)){
 
                 step_env.eff_time_of_this_peak=step_env.time_of_now;
                 printf("wzb y2 step\r\n");
@@ -197,6 +202,7 @@ void detect_new_step_v2(float acc_x2,float acc_y2,float acc_z,unsigned short fif
                 //current_step++;
                 //step_env.total_step++;
                 step_env.flag=1;
+                reset_jump_state();
                 step_env.type=VERTICAL;
                 
                 if((step_env.eff_time_of_this_peak-step_env.eff_time_of_last_peak)*TICK_TO_MS <=550){
@@ -214,6 +220,47 @@ void detect_new_step_v2(float acc_x2,float acc_y2,float acc_z,unsigned short fif
     step_env.acc_value_mode.acc_y2_old=acc_y2;
     }
 #endif
+
+#if 1
+        if(step_env.acc_value_mode.acc_z_old== 0){
+            step_env.acc_value_mode.acc_z_old=acc_z;
+        }else{
+            step_env.detect_peak_mode=ACC_PEAK_Z;
+             step_env.min_acc_value=acc_z_abs_min_jump;
+            if(detect_peak(acc_z,step_env.acc_value_mode.acc_z_old)){           
+                step_env.eff_time_of_last_peak=step_env.eff_time_of_this_peak;
+                step_env.time_of_now=inv_get_tick_count()-(fifo_id)*FIFO_OFFSET_TICK;
+    
+                if((step_env.time_of_now - step_env.eff_time_of_last_peak)*TICK_TO_MS >=400
+                    && step_env.peak_wave.acc_z>=step_env.min_acc_value){
+    
+                    //step_env.eff_time_of_this_peak=step_env.time_of_now;
+                    if(step_env.jump.fir_peak_time==0){
+                        step_env.jump.fir_peak_time=step_env.time_of_now;
+                        step_env.jump.flag=1;
+                    }else{
+                        step_env.jump.sec_peak_time=step_env.time_of_now;
+                        step_env.jump.flag=2;
+                    }
+                   
+                            
+                    //write_to_flash(current_step,current_run_count,current_dash_count);
+                }
+
+                if(step_env.jump.flag==2 && ((step_env.jump.sec_peak_time-step_env.jump.fir_peak_time))<408){
+                    printf("wzb z step 1\r\n");
+                    step_env.eff_time_of_this_peak=step_env.time_of_now;
+                    step_env.flag=1;
+                    step_env.type=JUMP;
+                    step_env.jump.time=step_env.jump.sec_peak_time-step_env.jump.fir_peak_time-22;
+                    reset_jump_state();
+                }
+                    
+            }
+        step_env.acc_value_mode.acc_z_old=acc_z;
+        }
+#endif
+
 
     // statistical data
     if(step_env.flag==1){
@@ -301,16 +348,24 @@ void detect_new_step_v2(float acc_x2,float acc_y2,float acc_z,unsigned short fif
             step_env.h_distance +=step_env.stride;
         }
         else if(step_env.type == JUMP){
-            step_env.jump++;
+            step_env.jump.count++;
+            step_env.jump.height=DATA_JUMP_HEIGHT(step_env.jump.time/2);
         }
 
 
-        write_to_flash_v2(step_env.total_step,step_env.total_run,step_env.total_dash,step_env.h_step,step_env.h_run,step_env.h_dash,step_env.distance,step_env.h_distance);
+        write_to_flash_v2(step_env.total_step,step_env.total_run,step_env.total_dash,step_env.h_step,step_env.h_run,step_env.h_dash,step_env.distance,step_env.h_distance,step_env.jump.count);
 
     }
    
 }
 
+
+void reset_jump_state()
+{
+    step_env.jump.flag=0;
+    step_env.jump.sec_peak_time=0;
+    step_env.jump.fir_peak_time=0;
+}
 
 void init_step_env()
 {
@@ -382,7 +437,12 @@ void init_step_env()
     step_env.h_run=0;
     step_env.h_dash=0;
 
-    step_env.jump=0;
+    step_env.jump.count=0;
+    step_env.jump.fir_peak_time=0;
+    step_env.jump.sec_peak_time=0;
+    step_env.jump.flag=0;
+    step_env.jump.height=0;
+    step_env.jump.time=0;
 
     step_env.min_acc_value=15.0f;
     step_env.max_acc_value=2000.0f;
