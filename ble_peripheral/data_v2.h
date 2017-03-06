@@ -8,6 +8,9 @@
 #ifndef DATA_H_V2
 #define DATA_H_V2
 
+#define DATA_ABS(x) (x)>0?(x):(-x)
+//x2 y2 z2 means |x| |y| |z|
+
 typedef enum {
     WALK=0x0,
     RUN=0x1,

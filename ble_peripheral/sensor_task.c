@@ -914,7 +914,7 @@ void process_sensor_output()
                 float average=qfp_fsqrt(accel_float[0]*accel_float[0]+accel_float[1]*accel_float[1]+accel_float[2]*accel_float[2]);
                 detect_new_step(average);
             #elif defined(BLE_USE_DATA_V2)
-                detect_new_step_v2(accel_float[0]*accel_float[0],accel_float[1]*accel_float[1],accel_float[2]*accel_float[2]);
+                detect_new_step_v2(DATA_ABS(accel_float[0]),DATA_ABS(accel_float[1]),accel_float[2]);
             #endif
             //end
             

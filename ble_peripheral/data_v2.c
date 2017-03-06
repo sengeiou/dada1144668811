@@ -14,6 +14,13 @@ uint32_t rble_result_data_addr_offset=0;
 uint8_t rble_sample_result_data[RBLE_RESULT_DATA_BUF_LENGTH]={0};
 int rble_smp_reslut_count=0;
 
+///initialization parameter
+float acc_x_abs_min_normal=28.2f;
+float acc_y_abs_min_normal=28.2f;
+float acc_x_abs_min_run=37.4f;
+float acc_y_abs_min_run=37.4f;
+
+
 static int detect_peak(float new_value,float old_value)
 {
     if(step_env.detect_peak_mode == ACC_PEAK_X2){
@@ -26,10 +33,10 @@ static int detect_peak(float new_value,float old_value)
             step_env.continue_up_count.acc_x2=0;
             step_env.direction_is_up.acc_x2=0;
         }
-        printf("wzb detect peak old v=%d,new v=%d\r\n",(int)old_value,(int)new_value);
+        //printf("wzb detect peak old v=%d,new v=%d\r\n",(int)old_value,(int)new_value);
         if((step_env.direction_is_up.acc_x2==0)&& (step_env.last_status_is_up.acc_x2==1)&&(step_env.continue_up_former_count.acc_x2>=2 &&(old_value>=step_env.min_acc_value))){
             step_env.peak_wave.acc_x2=old_value;
-            printf("wzb detect peak 11\r\n");
+            //printf("wzb detect peak 11\r\n");
             return 1;
         }else if((step_env.last_status_is_up.acc_x2==0) && (step_env.direction_is_up.acc_x2==1)){
             step_env.valley_wave.acc_x2=old_value;
@@ -140,8 +147,8 @@ void detect_new_step_v2(float acc_x2,float acc_y2,float acc_z2)
         step_env.acc_value_mode.acc_x2_old=acc_x2;
     }else{
         step_env.detect_peak_mode=ACC_PEAK_X2;
+        step_env.min_acc_value=acc_x_abs_min_normal;
         if(detect_peak(acc_x2,step_env.acc_value_mode.acc_x2_old)){
-            step_env.min_acc_value=800.0f;
             step_env.eff_time_of_last_peak=step_env.eff_time_of_this_peak;
             step_env.time_of_now=inv_get_tick_count();
 
@@ -176,8 +183,8 @@ void detect_new_step_v2(float acc_x2,float acc_y2,float acc_z2)
         step_env.acc_value_mode.acc_y2_old=acc_y2;
     }else{
         step_env.detect_peak_mode=ACC_PEAK_Y2;
-        if(detect_peak(acc_y2,step_env.acc_value_mode.acc_y2_old)){
-            step_env.min_acc_value=600.0f;
+         step_env.min_acc_value=acc_y_abs_min_normal;
+        if(detect_peak(acc_y2,step_env.acc_value_mode.acc_y2_old)){           
             step_env.eff_time_of_last_peak=step_env.eff_time_of_this_peak;
             step_env.time_of_now=inv_get_tick_count();
 
@@ -210,12 +217,13 @@ void detect_new_step_v2(float acc_x2,float acc_y2,float acc_z2)
 
     // statistical data
     if(step_env.flag==1){
-        step_env.total_step++;
+        //step_env.total_step++;
         step_env.flag=0;
         printf("wzb step=%d\r\n",step_env.total_step);
         
         if(step_env.type == VERTICAL){
-            step_env.frequency=2000/(step_env.eff_time_of_this_peak-step_env.eff_time_of_last_peak);
+            step_env.total_step+=2;
+            step_env.frequency=2*1000/(step_env.eff_time_of_this_peak-step_env.eff_time_of_last_peak);
             switch(step_env.mode){
                 case WALK:
                     
@@ -249,9 +257,10 @@ void detect_new_step_v2(float acc_x2,float acc_y2,float acc_z2)
                 break;
             }
 
-            step_env.distance +=step_env.stride;
+            step_env.distance +=step_env.stride*2;
         }
         else if(step_env.type == HORIZONTAL){
+            step_env.total_step++;
             step_env.h_step++;
             step_env.frequency=1000/(step_env.eff_time_of_this_peak-step_env.eff_time_of_last_peak);
             switch(step_env.mode){
