@@ -460,6 +460,10 @@ static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t leng
             //send result to app
             //for test
             if(rble_read_result_data_addr_offset>=40){
+                 ble2app_data bd;
+                 bd.id1=bd.id2=0xff;
+                 bd.id3=0xaa;//stop flag
+                 test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
                 rble_read_result_data_addr_offset=0;
                  ble_task_env.ble2app_id=0xff;
                 return;
