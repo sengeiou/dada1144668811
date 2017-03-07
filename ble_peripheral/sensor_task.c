@@ -2396,6 +2396,12 @@ for (;;) {
 							rble_sample_timer_enable(false);
 							//rble_sample_destroy_timer();
 							#if defined(RBLE_DATA_STORAGE_IN_FLASH)
+							if((RBLE_DATA_PATITION_SIZE-rble_data_addr_offset)>3)
+							{
+								uint8_t rble_storage_end[] = { 'e', 'n', 'd', 0x00};
+								ad_nvms_write(nvms_rble_storage_handle, rble_data_addr_offset, rble_storage_end,
+                                                                        sizeof(rble_storage_end));
+							}
 							rble_data_addr_offset=0;
 							rble_data_patition_not_full=true;
 							#endif
