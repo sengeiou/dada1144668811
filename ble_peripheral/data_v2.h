@@ -118,6 +118,15 @@ typedef struct{
 
 }jump_t;
 
+typedef struct{
+    uint8_t type;
+    uint8_t mode;
+    long time;
+    float length;
+
+}last_step_t;
+
+
 
 
 
@@ -149,13 +158,19 @@ typedef struct step_env{
     jump_t jump;
 
     float stride;
-    long distance;
-    long h_distance;
+    float distance;
+    float h_distance;
     
+
+    long eff_time_of_last_peak_acc_y;
+    long eff_time_of_last_peak_acc_x;
+    long eff_time_of_last_peak_acc_z;
     
     long eff_time_of_last_peak;
     long eff_time_of_this_peak;
     long time_of_now;
+
+    last_step_t last_step;
 
     continue_up_count_t continue_up_count;
     continue_up_former_count_t continue_up_former_count;

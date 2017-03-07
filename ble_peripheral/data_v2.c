@@ -15,11 +15,11 @@ uint8_t rble_sample_result_data[RBLE_RESULT_DATA_BUF_LENGTH]={0};
 int rble_smp_reslut_count=0;
 
 ///initialization parameter
-float acc_x_abs_min_normal=28.2f;
-float acc_y_abs_min_normal=28.2f;
+float acc_x_abs_min_normal=15.0f;//28.2f;
+float acc_y_abs_min_normal=15.0f;//28.2f;
 float acc_x_abs_min_run=37.4f;
 float acc_y_abs_min_run=37.4f;
-float acc_z_abs_min_jump=40.0f;
+float acc_z_abs_min_jump=40.0f;//15.0f;//40.0f;
 
 
 static int detect_peak(float new_value,float old_value)
@@ -125,7 +125,7 @@ static void write_to_flash(long step,long run,long dash)
     
 }
 
-static void write_to_flash_v2(long total_step,long total_run,long total_dash,long h_step,long h_run,long h_dash,long total_distance,long h_distance,long jump_count)
+static void write_to_flash_v2(long total_step,long total_run,long total_dash,long h_step,long h_run,long h_dash,float total_distance,float h_distance,long jump_count)
 {
     nvms_rble_result_storage_handle=ad_nvms_open(NVMS_IMAGE_RESULT_DATA_STORAGE_PART);
     
@@ -183,11 +183,9 @@ void detect_new_step_v2(float acc_x2,float acc_y2,float acc_z,unsigned short fif
                 && step_env.peak_wave.acc_x2>=step_env.min_acc_value &&((step_env.time_of_now-step_env.jump.fir_peak_time)>80)){
 
                 step_env.eff_time_of_this_peak=step_env.time_of_now;
-                //step +1;
-                //current_step++;
-                //step_env.total_step++;
+
                 step_env.flag=1;
-                reset_jump_state();
+                //reset_jump_state();
                 //printf("wzb x2 step\r\n");
                 step_env.type=HORIZONTAL;
                 
@@ -220,12 +218,9 @@ void detect_new_step_v2(float acc_x2,float acc_y2,float acc_z,unsigned short fif
                 && step_env.peak_wave.acc_y2>=step_env.min_acc_value &&((step_env.time_of_now-step_env.jump.fir_peak_time)>80)){
 
                 step_env.eff_time_of_this_peak=step_env.time_of_now;
-               // printf("wzb y2 step\r\n");
-                //step +1;
-                //current_step++;
-                //step_env.total_step++;
+
                 step_env.flag=1;
-                reset_jump_state();
+                //reset_jump_state();
                 step_env.type=VERTICAL;
                 
                 if((step_env.eff_time_of_this_peak-step_env.eff_time_of_last_peak)*TICK_TO_MS <=550){
@@ -254,29 +249,36 @@ void detect_new_step_v2(float acc_x2,float acc_y2,float acc_z,unsigned short fif
                 step_env.eff_time_of_last_peak=step_env.eff_time_of_this_peak;
                 step_env.time_of_now=inv_get_tick_count()-(fifo_id)*FIFO_OFFSET_TICK;
     
-                if((step_env.time_of_now - step_env.eff_time_of_last_peak)*TICK_TO_MS >=400
-                    && step_env.peak_wave.acc_z>=step_env.min_acc_value){
+                 if(step_env.peak_wave.acc_z>=step_env.min_acc_value){    
     
-                    //step_env.eff_time_of_this_peak=step_env.time_of_now;
                     if(step_env.jump.fir_peak_time==0){
                         step_env.jump.fir_peak_time=step_env.time_of_now;
                         step_env.jump.flag=1;
+                        //printf("wzb jump.flag=1;\r\n");
                     }else{
                         step_env.jump.sec_peak_time=step_env.time_of_now;
                         step_env.jump.flag=2;
+                        //printf("wzb jump.flag=2;\r\n");
                     }
                    
                             
                     //write_to_flash(current_step,current_run_count,current_dash_count);
                 }
 
-                if(step_env.jump.flag==2 && ((step_env.jump.sec_peak_time-step_env.jump.fir_peak_time))<408){
-                    printf("wzb z step 1\r\n");
-                    step_env.eff_time_of_this_peak=step_env.time_of_now;
-                    step_env.flag=1;
-                    step_env.type=JUMP;
-                    step_env.jump.time=step_env.jump.sec_peak_time-step_env.jump.fir_peak_time-22;
-                    reset_jump_state();
+                if(step_env.jump.flag==2){
+                    if((step_env.jump.sec_peak_time-step_env.jump.fir_peak_time)<408){
+                        //printf("wzb z step 1\r\n");
+                        step_env.eff_time_of_this_peak=step_env.time_of_now;
+                        step_env.flag=1;
+                        step_env.type=JUMP;
+                        //printf("wzb jump step \r\n");
+                        step_env.jump.time=step_env.jump.sec_peak_time-step_env.jump.fir_peak_time-22;
+                        reset_jump_state();
+                    }else{
+                        step_env.jump.flag=1;
+                        step_env.jump.fir_peak_time=step_env.time_of_now;
+                    }
+                    //reset_jump_state();
                 }
                     
             }
@@ -307,7 +309,7 @@ void detect_new_step_v2(float acc_x2,float acc_y2,float acc_z,unsigned short fif
                     }                   
                     break;    
                case RUN:
-                    step_env.total_run++;
+                    step_env.total_run+=2;
                     if(step_env.frequency<3){
                         step_env.stride=0.75f;
                     }
@@ -320,7 +322,7 @@ void detect_new_step_v2(float acc_x2,float acc_y2,float acc_z,unsigned short fif
                     break;
                case DASH:
                     //default:
-                    step_env.total_dash++;
+                    step_env.total_dash+=2;
                     step_env.stride=1.35f;
                     break;
               default:
@@ -373,9 +375,51 @@ void detect_new_step_v2(float acc_x2,float acc_y2,float acc_z,unsigned short fif
         else if(step_env.type == JUMP){
             step_env.jump.count++;
             step_env.jump.height=DATA_JUMP_HEIGHT(step_env.jump.time/2);
+
+            if((step_env.eff_time_of_this_peak-step_env.last_step.time)<80){
+                if(step_env.last_step.type==VERTICAL){
+                    step_env.total_step-=2;
+                    switch(step_env.last_step.mode){
+                        case WALK:
+                            //step_env.total_step-=2;
+                            break;
+                        case RUN:
+                            step_env.total_run-=2;
+                            break;
+                        case DASH:
+                            step_env.total_dash-=2;
+                            break;
+                        default:
+                            break;
+                    }
+                    step_env.distance-=2*step_env.last_step.length;
+                }else if(step_env.last_step.type==HORIZONTAL){
+                    step_env.total_step-=1;
+                    step_env.h_step-=1;
+                    switch(step_env.last_step.mode){
+                        case WALK:
+                            //step_env.total_step-=2;
+                            break;
+                        case RUN:
+                            step_env.h_run--;
+                            break;
+                        case DASH:
+                            step_env.h_dash--;
+                            break;
+                        default:
+                            break;
+                    }
+                    step_env.distance-=step_env.last_step.length;
+                }
+            }
         }
 
 
+        step_env.last_step.type=step_env.type;
+        step_env.last_step.mode=step_env.mode;
+        step_env.last_step.time=step_env.eff_time_of_this_peak;
+        step_env.last_step.length=step_env.stride;
+        
         write_to_flash_v2(step_env.total_step,step_env.total_run,step_env.total_dash,step_env.h_step,step_env.h_run,step_env.h_dash,step_env.distance,step_env.h_distance,step_env.jump.count);
 
     }
@@ -473,7 +517,11 @@ void init_step_env()
     step_env.eff_time_of_last_peak=0;
     step_env.eff_time_of_this_peak=0;
     step_env.time_of_now=0;
-    
+
+    step_env.last_step.length=0;
+    step_env.last_step.mode=0xff;
+    step_env.last_step.type=0xff;
+    step_env.last_step.time=0;
     
 }
 
