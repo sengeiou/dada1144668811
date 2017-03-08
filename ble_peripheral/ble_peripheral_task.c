@@ -396,7 +396,7 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
 			if((value_h==RBLE_RECEIVE_DATA_HEADER) && (value_cmd ==RBLE_RECEIVE_DATA_CMD))
 				{
 					//start_collect_data =true;
-			       /////// ad_nvms_erase_region(nvms_rble_storage_handle,0, RBLE_DATA_PATITION_SIZE);
+			     ad_nvms_erase_region(nvms_rble_storage_handle,0, RBLE_DATA_PATITION_SIZE);
 
 				#if defined(RBLE_SENSOR_CTRL_BY_APP)
 					OS_TASK_NOTIFY(task_sensor_sample, RBLE_SENSOR_START_SAMPLE_NOTIF, OS_NOTIFY_SET_BITS);
