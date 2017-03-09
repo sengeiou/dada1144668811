@@ -8,7 +8,7 @@
 #ifndef DATA_H_COMMON
 #define DATA_H_COMMON
 
-#define TICK_TO_MS (100/51)
+#define TICK_TO_MS (100.0f/51.0f)
 
 
 #define RBLE_RESULT_DATA_PATITION_SIZE  (0x005000)

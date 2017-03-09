@@ -11,9 +11,9 @@
 #define DATA_ABS(x) (x)>0?(x):(-x)
 //x2 y2 z2 means |x| |y| |z|
 
-#define FIFO_OFFSET_TICK (20*512/1000)
+#define FIFO_OFFSET_TICK (1024.0f/1000.0f)
 
-#define DATA_JUMP_HEIGHT(t) (0.5)*9.8*(t)*(t)
+#define DATA_JUMP_HEIGHT(t) (0.5f)*(9.8f)*(t)*(t)
 
 typedef enum {
     WALK=0x0,
