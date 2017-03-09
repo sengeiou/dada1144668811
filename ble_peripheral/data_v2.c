@@ -7,6 +7,7 @@
 #include "data_common.h"
 #include "ad_nvms.h"
 
+#define WEIBIN_PARAMETER
 static step_env_t step_env;
 
 nvms_t nvms_rble_result_storage_handle;
@@ -15,11 +16,22 @@ uint8_t rble_sample_result_data[RBLE_RESULT_DATA_BUF_LENGTH]={0};
 int rble_smp_reslut_count=0;
 
 ///initialization parameter
-float acc_x_abs_min_normal=15.0f;//28.2f;
-float acc_y_abs_min_normal=15.0f;//28.2f;
-float acc_x_abs_min_run=37.4f;
-float acc_y_abs_min_run=37.4f;
-float acc_z_abs_min_jump=40.0f;//15.0f;//40.0f;
+#ifdef WEIBIN_PARAMETER
+float acc_x_abs_min_normal = 25.2f;
+float acc_y_abs_min_normal = 25.2f;
+float acc_x_abs_min_run = 37.4f;
+float acc_y_abs_min_run = 37.4f;
+float acc_z_abs_min_jump = 40.0f;//15.0f;//40.0f;
+
+int acc_y_min_interval_normal = 1260;//ms
+int acc_y_min_interval_run = 720;//ms
+#else
+float acc_x_abs_min_normal = 15.0f;//28.2f;
+float acc_y_abs_min_normal = 15.0f;//28.2f;
+float acc_x_abs_min_run = 37.4f;
+float acc_y_abs_min_run = 37.4f;
+float acc_z_abs_min_jump = 40.0f;//15.0f;//40.0f;
+#endif
 
 
 static int detect_peak(float new_value,float old_value)
@@ -295,7 +307,12 @@ void detect_new_step_v2(float acc_x2,float acc_y2,float acc_z,unsigned short fif
         
         if(step_env.type == VERTICAL){
             step_env.total_step+=2;
-            step_env.frequency=2*1000/(step_env.eff_time_of_this_peak-step_env.eff_time_of_last_peak);
+			if ((step_env.eff_time_of_this_peak - step_env.eff_time_of_last_peak) == 0) {
+				step_env.frequency = 1;
+			}
+			else {
+				step_env.frequency = 2 * 1000 / (step_env.eff_time_of_this_peak - step_env.eff_time_of_last_peak);
+			}
             switch(step_env.mode){
                 case WALK:
                     
@@ -334,7 +351,12 @@ void detect_new_step_v2(float acc_x2,float acc_y2,float acc_z,unsigned short fif
         else if(step_env.type == HORIZONTAL){
             step_env.total_step++;
             step_env.h_step++;
-            step_env.frequency=1000/(step_env.eff_time_of_this_peak-step_env.eff_time_of_last_peak);
+			if ((step_env.eff_time_of_this_peak - step_env.eff_time_of_last_peak) == 0) {
+				step_env.frequency = 1;
+			}
+			else {
+				step_env.frequency = 1000 / (step_env.eff_time_of_this_peak - step_env.eff_time_of_last_peak);
+			}
             switch(step_env.mode){
                 case WALK:
                     if(step_env.frequency <2){
@@ -402,14 +424,17 @@ void detect_new_step_v2(float acc_x2,float acc_y2,float acc_z,unsigned short fif
                             break;
                         case RUN:
                             step_env.h_run--;
+						step_env.total_run--;
                             break;
                         case DASH:
                             step_env.h_dash--;
+						step_env.total_dash--;
                             break;
                         default:
                             break;
                     }
                     step_env.distance-=step_env.last_step.length;
+					step_env.h_distance -= step_env.last_step.length;
                 }
             }
         }
