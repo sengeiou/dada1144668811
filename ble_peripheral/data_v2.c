@@ -35,7 +35,7 @@ static int detect_peak(float new_value,float old_value)
             step_env.direction_is_up.acc_x2=0;
         }
         //printf("wzb detect peak old v=%d,new v=%d\r\n",(int)old_value,(int)new_value);
-        if((step_env.direction_is_up.acc_x2==0)&& (step_env.last_status_is_up.acc_x2==1)&&(step_env.continue_up_former_count.acc_x2>=2 &&(old_value>=step_env.min_acc_value))){
+        if((step_env.direction_is_up.acc_x2==0)&& (step_env.last_status_is_up.acc_x2==1)&&(step_env.continue_up_former_count.acc_x2>=1 &&(old_value>=step_env.min_acc_value))){
             step_env.peak_wave.acc_x2=old_value;
             //printf("wzb detect peak 11\r\n");
             return 1;
@@ -56,8 +56,8 @@ static int detect_peak(float new_value,float old_value)
             step_env.continue_up_count.acc_y2=0;
             step_env.direction_is_up.acc_y2=0;
         }
-        //printf("wzb detect peak old v=%d,new v=%d\r\n",(int)old_value,(int)new_value);
-        if((step_env.direction_is_up.acc_y2==0)&& (step_env.last_status_is_up.acc_y2==1)&&(step_env.continue_up_former_count.acc_y2>=2 &&(old_value>=step_env.min_acc_value))){
+        //printf("wzb detect peak y old v=%d,new v=%d\r\n",(int)old_value,(int)new_value);
+        if((step_env.direction_is_up.acc_y2==0)&& (step_env.last_status_is_up.acc_y2==1)&&(step_env.continue_up_former_count.acc_y2>=1 &&(old_value>=step_env.min_acc_value))){
             step_env.peak_wave.acc_y2=old_value;
             //printf("wzb detect peak 11\r\n");
             return 1;
@@ -80,7 +80,7 @@ static int detect_peak(float new_value,float old_value)
             step_env.direction_is_up.acc_z=0;
         }
         //printf("wzb detect peak z old v=%d,new v=%d\r\n",(int)old_value,(int)new_value);
-        if((step_env.direction_is_up.acc_z==0)&& (step_env.last_status_is_up.acc_z==1)&&(step_env.continue_up_former_count.acc_z>=2 &&(old_value>=step_env.min_acc_value))){
+        if((step_env.direction_is_up.acc_z==0)&& (step_env.last_status_is_up.acc_z==1)&&(step_env.continue_up_former_count.acc_z>=1 &&(old_value>=step_env.min_acc_value))){
             step_env.peak_wave.acc_z=old_value;
             //printf("wzb detect peak y 11\r\n");
             return 1;
