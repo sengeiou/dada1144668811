@@ -17,14 +17,16 @@ int rble_smp_reslut_count=0;
 
 ///initialization parameter
 #ifdef WEIBIN_PARAMETER
-float acc_x_abs_min_normal = 25.2f;
-float acc_y_abs_min_normal = 25.2f;
+float acc_x_abs_min_normal = 15.0f;//25.2f;
+float acc_y_abs_min_normal = 15.0f;//25.2f;
 float acc_x_abs_min_run = 37.4f;
 float acc_y_abs_min_run = 37.4f;
-float acc_z_abs_min_jump = 40.0f;//15.0f;//40.0f;
+float acc_z_abs_min_jump = 56.0f;//15.0f;//40.0f;
+int acc_y_min_interval_step = 500;//ms
 
 int acc_y_min_interval_normal = 1260;//ms
 int acc_y_min_interval_run = 720;//ms
+int acc_y_min_interval_dash = 600;//ms
 #else
 float acc_x_abs_min_normal = 15.0f;//28.2f;
 float acc_y_abs_min_normal = 15.0f;//28.2f;
@@ -226,8 +228,8 @@ void detect_new_step_v2(float acc_x2,float acc_y2,float acc_z,unsigned short fif
             step_env.eff_time_of_last_peak=step_env.eff_time_of_this_peak;
             step_env.time_of_now=inv_get_tick_count()-(fifo_id)*FIFO_OFFSET_TICK;
 
-            if((step_env.time_of_now - step_env.eff_time_of_last_peak)*TICK_TO_MS >=400
-                && step_env.peak_wave.acc_y2>=step_env.min_acc_value &&((step_env.time_of_now-step_env.jump.fir_peak_time)>80)){
+			if ((step_env.time_of_now - step_env.eff_time_of_last_peak)*TICK_TO_MS >= acc_y_min_interval_step
+				&& step_env.peak_wave.acc_y2 >= step_env.min_acc_value && ((step_env.time_of_now - step_env.jump.fir_peak_time) > 80)) {
 
                 step_env.eff_time_of_this_peak=step_env.time_of_now;
 
@@ -235,9 +237,9 @@ void detect_new_step_v2(float acc_x2,float acc_y2,float acc_z,unsigned short fif
                 //reset_jump_state();
                 step_env.type=VERTICAL;
                 
-                if((step_env.eff_time_of_this_peak-step_env.eff_time_of_last_peak)*TICK_TO_MS <=550){
+                if((step_env.eff_time_of_this_peak-step_env.eff_time_of_last_peak)*TICK_TO_MS <=acc_y_min_interval_dash){
                     step_env.mode=DASH;
-                }else if((step_env.eff_time_of_this_peak-step_env.eff_time_of_last_peak)*TICK_TO_MS <=720){
+                }else if((step_env.eff_time_of_this_peak-step_env.eff_time_of_last_peak)*TICK_TO_MS <=acc_y_min_interval_run){
                     step_env.mode=RUN;
                 }else{
                     step_env.mode=WALK;
@@ -284,7 +286,7 @@ void detect_new_step_v2(float acc_x2,float acc_y2,float acc_z,unsigned short fif
                         step_env.flag=1;
                         step_env.type=JUMP;
                         //printf("wzb jump step \r\n");
-                        step_env.jump.time=step_env.jump.sec_peak_time-step_env.jump.fir_peak_time-22;
+						step_env.jump.time = (step_env.jump.sec_peak_time - step_env.jump.fir_peak_time - 22)*TICK_TO_MS;
                         reset_jump_state();
                     }else{
                         step_env.jump.flag=1;
@@ -396,7 +398,7 @@ void detect_new_step_v2(float acc_x2,float acc_y2,float acc_z,unsigned short fif
         }
         else if(step_env.type == JUMP){
             step_env.jump.count++;
-            step_env.jump.height=DATA_JUMP_HEIGHT(step_env.jump.time/2);
+            step_env.jump.height=DATA_JUMP_HEIGHT(step_env.jump.time/1000/2);
 
             if((step_env.eff_time_of_this_peak-step_env.last_step.time)<80){
                 if(step_env.last_step.type==VERTICAL){
