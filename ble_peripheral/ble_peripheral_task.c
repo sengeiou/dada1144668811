@@ -34,6 +34,11 @@
 #include "bas.h"
 #include "cts.h"
 #include "dis.h"
+#include "nvds.h"
+#ifdef dg_configSUOTA_SUPPORT
+#include "dlg_suota.h"
+#endif /* dg_configSUOTA_SUPPORT */
+#include "sw_version.h"
 #include "scps.h"
 #include "test.h"
 #include "ad_nvms.h"
@@ -58,8 +63,17 @@ extern OS_TASK task_sensor_sample;
 #if 1
 //test_r
 static const uint8_t adv_data[] = {
-        0x12, GAP_DATA_TYPE_LOCAL_NAME,
-        'T', 'e', 's', 't', '_', 'r', ' ', 'P', 'e', 'r', 'i', 'p', 'h', 'e', 'r', 'a', 'l'
+        0x13, GAP_DATA_TYPE_LOCAL_NAME,
+        'T', 'e', 's', 't', '_', 'J', 'o', 'r', 'd', 'a', 'n', '_', 'V', '1', '.', '0', '.', '1',
+        0x01
+#ifdef dg_configSUOTA_SUPPORT
+        + 0x02
+#endif /* dg_configSUOTA_SUPPORT */
+        ,
+        GAP_DATA_TYPE_UUID16_LIST_INC,     
+#ifdef dg_configSUOTA_SUPPORT
+        0xF5, 0xFE,     // = 0xFEF5 (DIALOG SUOTA UUID)
+#endif /* dg_configSUOTA_SUPPORT */        
 };
 
 #else
@@ -68,6 +82,50 @@ static const uint8_t adv_data[] = {
         'D', 'i', 'a', 'l', 'o', 'g', ' ', 'P', 'e', 'r', 'i', 'p', 'h', 'e', 'r', 'a', 'l'
 };
 #endif
+
+static uint8_t scan_rsp_data[] = {
+        0x06, GAP_DATA_TYPE_MANUFACTURER_SPEC,  0xD2, 0x00, 0xB1, 0xB2, 0xB3,
+};
+
+
+typedef enum {
+        ADV_INTERVAL_FAST = 0,
+} adv_setting_t;
+
+static const struct {
+        uint16_t min;
+        uint16_t max;
+} adv_intervals[] = {
+        [ADV_INTERVAL_FAST] =
+        {
+                .min = BLE_ADV_INTERVAL_FROM_MS(FAST_ADV_INTERVAL),
+                .max = BLE_ADV_INTERVAL_FROM_MS(FAST_ADV_INTERVAL),
+        },
+};
+
+
+typedef enum {
+        CONN_INTERVAL_FAST = 0,
+        CONN_INTERVAL_SLOW = 1,
+} conn_setting_t;
+
+
+static const struct {
+        uint16_t min;
+        uint16_t max;
+} conn_intervals[] = {
+        [CONN_INTERVAL_FAST] =
+        {
+                .min = BLE_CONN_INTERVAL_FROM_MS(FAST_CONN_INTV_MIN),
+                .max = BLE_CONN_INTERVAL_FROM_MS(FAST_CONN_INTV_MAX),
+        },
+        [CONN_INTERVAL_SLOW] =
+        {
+                .min = BLE_CONN_INTERVAL_FROM_MS(SLOW_CONN_INTV_MIN),
+                .max = BLE_CONN_INTERVAL_FROM_MS(SLOW_CONN_INTV_MAX),
+        }
+};
+
 
 typedef struct ble_task_env{
     OS_TASK ble_task_p;
@@ -325,6 +383,91 @@ static void dbg_cts_adjust(uint16_t conn_idx, int argc, char **argv, void *ud)
 }
 #endif /* (CFG_CTS && CFG_DEBUG_SERVICE) */
 
+/**
+ * Function to prepare scan response data (replaces the 3 last bytes with the last bytes of BD address)
+ */
+void app_calc_scan_rsp_data(uint8_t *scan_rsp_data, int scan_rsp_size)
+{
+        uint8_t *ptr = NULL;
+        uint8_t str[] = {0xB1, 0xB2, 0xB3};
+        uint8_t bd_addr[NVDS_LEN_BD_ADDRESS] = {0};
+        nvds_tag_len_t bd_addr_len = NVDS_LEN_BD_ADDRESS;
+
+        ptr = memchr(scan_rsp_data, str[0], scan_rsp_size);
+        if(!ptr)
+                return;
+
+        if (memcmp(ptr, str, sizeof(str)))
+                return;
+
+        if (nvds_get(NVDS_TAG_BD_ADDRESS, &bd_addr_len, bd_addr) != NVDS_OK)
+                return;
+
+        *ptr       = bd_addr[2];
+        *(ptr + 1) = bd_addr[1];
+        *(ptr + 2) = bd_addr[0];
+}
+
+
+/**
+ * Function to set the provided connection parameters setting
+ */
+static void req_conn_param_update(uint16_t conn_idx, conn_setting_t setting)
+{
+        gap_conn_params_t params = {
+                .interval_max  = conn_intervals[setting].max,
+                .interval_min  = conn_intervals[setting].min,
+                .slave_latency = 0,
+                .sup_timeout   = BLE_SUPERVISION_TMO_FROM_MS(CONN_SUPERVISION_TMO)
+        };
+
+        if (ble_task_env.conn_intv < BLE_CONN_INTERVAL_FROM_MS(40) && setting == CONN_INTERVAL_FAST)
+                return;
+
+        ble_gap_conn_param_update(conn_idx, &params);
+
+#if CFG_DEBUG_SERVICE
+	dlgdebug_notify_str(dbgs, conn_idx, "Connection Parameters Update Request, Min: %d.%dms, Max: %d.%dms, SUP: %dms\r\n",
+			BLE_CONN_INTERVAL_TO_MS(params.interval_min), BLE_CONN_INTERVAL_TO_MS(params.interval_min * 10) % 10,
+			BLE_CONN_INTERVAL_TO_MS(params.interval_max), BLE_CONN_INTERVAL_TO_MS(params.interval_max * 10) % 10,
+			BLE_SUPERVISION_TMO_TO_MS(params.sup_timeout));
+#endif /* CFG_DEBUG_SERVICE */
+}
+
+
+/**
+ * SUOTA service callbacks
+ */
+#ifdef dg_configSUOTA_SUPPORT
+static bool suota_ready_cb(void)
+{
+        /*
+         * This callback is used so application can accept/block SUOTA.
+         * Also, before SUOTA starts, user might want to do some actions
+         * e.g. disable sleep mode.
+         *
+         * If true is returned, then advertising is stopped and SUOTA
+         * is started. Otherwise SUOTA is canceled.
+         *
+         */
+        req_conn_param_update(ble_task_env.conn_idx, CONN_INTERVAL_FAST);
+
+        return true;
+}
+
+static void suota_status_changed_cb(uint8_t status, uint8_t error_code)
+{
+        if(status == SUOTA_DONE || status == SUOTA_ERROR)
+                req_conn_param_update(ble_task_env.conn_idx, CONN_INTERVAL_SLOW);
+}
+
+static const suota_callbacks_t suota_cb = {
+        .suota_ready = suota_ready_cb,
+        .suota_status = suota_status_changed_cb,
+};
+#endif /* dg_configSUOTA_SUPPORT */
+
+
 /*
  * Main code
  */
@@ -502,7 +645,7 @@ void ble_peripheral_task(void *params)
 {
        int i=0;
        for(i=0;i<5;i++){
-               printf("wzb\r\n");
+               printf("wzb SW_VERSION=%s    SW_VERSION_DATE=%s\r\n",BLACKORCA_SW_VERSION,BLACKORCA_SW_VERSION_DATE);
        }
 
         int8_t wdog_id;
@@ -517,6 +660,11 @@ void ble_peripheral_task(void *params)
 #if CFG_SCPS
         ble_service_t *scps;
 #endif
+
+#ifdef dg_configSUOTA_SUPPORT
+	ble_service_t *suota;
+#endif /* dg_configSUOTA_SUPPORT */
+
         ble_service_t *svc;
 
         // in case services which do not use svc are all disabled, just surpress -Wunused-variable
@@ -599,6 +747,12 @@ void ble_peripheral_task(void *params)
         ble_service_add(scps);
 #endif
 
+#ifdef dg_configSUOTA_SUPPORT
+	/* register SUOTA Service */
+	suota = suota_init(&suota_cb);
+	ble_service_add(suota);
+#endif /* dg_configSUOTA_SUPPORT */
+
         //add test service by wzb
         test_service = test_init(&test_callbacks);
         ble_service_add(test_service);
@@ -611,7 +765,9 @@ void ble_peripheral_task(void *params)
         OS_TIMER_START(cts_timer, OS_TIMER_FOREVER);
 #endif
 
-        ble_gap_adv_data_set(sizeof(adv_data), adv_data, 0, NULL);
+        app_calc_scan_rsp_data(scan_rsp_data, sizeof(scan_rsp_data));
+        ble_gap_adv_data_set(sizeof(adv_data), adv_data, sizeof(scan_rsp_data), scan_rsp_data);
+
         ble_gap_adv_start(GAP_CONN_MODE_UNDIRECTED);
         printf("wzb for(;;)\r\n");
         for (;;) {

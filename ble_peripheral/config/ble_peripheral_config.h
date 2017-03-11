@@ -29,4 +29,13 @@
 #define CFG_SCPS             (1)     // register ScPS
 #define CFG_USER_SERVICE     (1)     // register custom service (using 128-bit UUIDs)
 
+
+#define FAST_ADV_INTERVAL                         (320)      // ms
+
+#define FAST_CONN_INTV_MAX                        (125/10)      // ms
+#define FAST_CONN_INTV_MIN                        (125/10)      // ms
+#define SLOW_CONN_INTV_MAX                        (520)      // ms
+#define SLOW_CONN_INTV_MIN                        (480)      // ms
+#define CONN_SUPERVISION_TMO                      (6000)      // ms
+
 #endif /* BLE_PERIPHERAL_CONFIG_H_ */
