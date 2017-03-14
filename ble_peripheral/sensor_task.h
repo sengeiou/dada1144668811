@@ -51,6 +51,7 @@
 #define RBLE_RECEIVE_DATA_CMD (0x01)
 #define RBLE_RECEIVE_DATA_SEND (0x02)
 #define RBLE_STOP_SAMPLE_CMD (0x07)
+#define RBLE_SAVE_SAMPLE_CMD (0x08)
 
 
 typedef struct RbleSensorControlStruct
