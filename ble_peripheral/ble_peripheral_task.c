@@ -508,6 +508,11 @@ typedef struct ble2app_data
 uint32_t rble_read_data_addr_offset=0;
 uint32_t rble_read_result_data_addr_offset=0;
 
+extern 	float orientationFloat[3];
+extern int rv_accuracy;
+extern int compass_accuracy;
+extern bool rble_write_flash_cmd;
+
 static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t *value,
         uint16_t length)
 {
@@ -539,8 +544,7 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
 			if((value_h==RBLE_RECEIVE_DATA_HEADER) && (value_cmd ==RBLE_RECEIVE_DATA_CMD))
 				{
 					//start_collect_data =true;
-			     ad_nvms_erase_region(nvms_rble_storage_handle,0, RBLE_DATA_PATITION_SIZE);
-
+					
 				#if defined(RBLE_SENSOR_CTRL_BY_APP)
 					OS_TASK_NOTIFY(task_sensor_sample, RBLE_SENSOR_START_SAMPLE_NOTIF, OS_NOTIFY_SET_BITS);
 				#endif
@@ -554,11 +558,18 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
 				else 	if((value_h==RBLE_RECEIVE_DATA_HEADER) && (value_cmd ==RBLE_STOP_SAMPLE_CMD))
 			{
 					
-
+				rble_write_flash_cmd =false;
+				
 				#if defined(RBLE_SENSOR_CTRL_BY_APP)
 					OS_TASK_NOTIFY(task_sensor_sample, RBLE_SENSOR_STOP_SAMPLE_NOTIF, OS_NOTIFY_SET_BITS);
 					
 				#endif
+			}
+			else if((value_h==RBLE_RECEIVE_DATA_HEADER) && (value_cmd ==RBLE_SAVE_SAMPLE_CMD))
+			{
+				 rble_write_flash_cmd =true;
+				
+				
 			}
             else if((value_h==RBLE_RECEIVE_DATA_HEADER) && value_cmd == 0xff){
                 if(length==3 && (*(value+2)==0x01)){
@@ -569,6 +580,34 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
                     ble_task_env.ble2app_id=0x03;
                     rble_read_result_data_addr_offset=0;
                 }
+            }
+			else if((value_h==RBLE_RECEIVE_DATA_HEADER) && value_cmd == 0x69){
+                float x=0,y=0,z=0;
+				//char float_str[12];
+				char float_str[20];
+				long cps_acy=(long)compass_accuracy;
+				long rv_acy=(long)rv_accuracy;
+				
+				memset(float_str,0,sizeof(float_str));
+
+				//memcpy(float_str,&x,sizeof(x));
+				//memcpy(float_str+sizeof(x),&y,sizeof(y));
+				//memcpy(float_str+sizeof(x)+sizeof(y),&z,sizeof(z));
+
+				memcpy(float_str,orientationFloat,sizeof(float));
+				memcpy(float_str+sizeof(float),orientationFloat+1,sizeof(float));
+				memcpy(float_str+2*sizeof(float),orientationFloat+2,sizeof(float));
+				memcpy(float_str+3*sizeof(float),&cps_acy,sizeof(long));
+				memcpy(float_str+3*sizeof(float)+sizeof(long),&rv_acy,sizeof(long));
+				
+                    //ble2app_data bd;
+                    //bd.id1=0x12;
+					//bd.id2=0x34;
+                    //bd.id3=0x00;//start flag
+                    //test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
+                    test_tx_data(svc, conn_idx, (uint8_t *)float_str, sizeof(float_str));
+                    ble_task_env.ble2app_id=0x03;
+                
             }
 	  #endif
 

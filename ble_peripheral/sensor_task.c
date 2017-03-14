@@ -52,7 +52,8 @@ int rble_smp_count=0;
 
 bool rble_data_patition_not_full=true;
 
-
+bool rble_write_flash_cmd=false;
+bool rble_is_write_cmd=false;
 #endif
 
 OS_TIMER rble_sample_timer_id;
@@ -849,7 +850,7 @@ bool rble_could_write_data_to_patition(uint32_t addr_offset,int count)
 							handle_char_input('a');
 							handle_char_input('g');
 							//handle_char_input('c');
-							//handle_char_input('o');
+							handle_char_input('o');
 
 							rble_sample_timer_enable(false);
 				}
@@ -857,10 +858,10 @@ bool rble_could_write_data_to_patition(uint32_t addr_offset,int count)
 			//rble_data_addr_offset=0;
 		#endif
 		rble_data_patition_not_full=false;
-		
+		rble_write_flash_cmd =false;
 	}
 
-	return rble_data_patition_not_full;
+	return (rble_data_patition_not_full&&rble_is_write_cmd);
 }
 	
 #endif
@@ -1330,7 +1331,16 @@ void fifo_handler()
 		if(rble_data_patition_not_full)
 		{
 			tmp_tick=inv_get_tick_count();
-		
+
+			if(rble_write_flash_cmd)
+			{
+				rble_is_write_cmd=true;
+			}
+			else
+			{
+				rble_is_write_cmd=false;
+			}
+			
 					memset(rble_sample_data,0,RBLE_DATA_BUF_LENGTH);
 					rble_smp_count=0;
 					//rble_sample_data[rble_smp_count]=RBLE_DATA_TK_LABLE;
@@ -1542,6 +1552,15 @@ void fifo_handler()
 					
 #if (MEMS_CHIP == HW_ICM20630 || MEMS_CHIP == HW_ICM20648)
 					rv_accuracy = (int)((float)inv_get_rv_accuracy() / (float)(1ULL << (29)));
+
+					#if 1
+						//test_r
+						compass_accuracy = inv_get_mag_accuracy();
+						#if defined(RBLE_UART_DEBUG)
+							printf("cps_acy=%d,rv_acy=%d\n",compass_accuracy,rv_accuracy);
+						#endif
+					#endif
+
 #else
 					compass_accuracy = inv_get_mag_accuracy();
 #endif
@@ -2361,10 +2380,16 @@ for (;;) {
 							  
 							   fflush(stdout); 
 							#endif
+
+							
+						#if defined(RBLE_DATA_STORAGE_IN_FLASH)
+							ad_nvms_erase_region(nvms_rble_storage_handle,0, RBLE_DATA_PATITION_SIZE);
+						#endif
+
 								handle_char_input('a');
 								handle_char_input('g');
 								//handle_char_input('c');
-								//handle_char_input('o');
+								handle_char_input('o');
 
                                 #if defined(BLE_USE_DATA_V2)
                                     init_step_env();
@@ -2390,7 +2415,7 @@ for (;;) {
 							handle_char_input('a');
 							handle_char_input('g');
 							//handle_char_input('c');
-							//handle_char_input('o');
+							handle_char_input('o');
 							
 						
 							rble_sample_timer_enable(false);
