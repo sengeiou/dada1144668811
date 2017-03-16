@@ -54,8 +54,12 @@
 
 #define RBLE_FLOAT_MATH_QFBLIB
 
+#define CUSTOM_CONFIG_1M_DEFINE
+
 #define RBLE_DATA_STORAGE_IN_FLASH
-#define USE_PARTITION_TABLE_512K
+//#define USE_PARTITION_TABLE_512K
+
+
 
 #define RBLE_DMP_REPEAT_WRITE
 #define RBLE_SAMPLE_TIMER_SWITCH
@@ -71,6 +75,14 @@
 
 #define dg_configIMAGE_SETUP                    DEVELOPMENT_MODE
 #define dg_configEMULATE_OTP_COPY               (0)
+
+/////////////////////////////////////////////////////////////
+//                      SUOTA Options                      //
+/////////////////////////////////////////////////////////////
+#if !defined(dg_configIMAGE_FLASH_OFFSET) || \
+    dg_configIMAGE_FLASH_OFFSET == (0x00000)
+    #undef dg_configSUOTA_SUPPORT
+#endif
 
 #define dg_configUSER_CAN_USE_TIMER1            (0)
 
@@ -211,19 +223,17 @@
         //#define CODE_SIZE     (256 * 1024)
 
 		#if 1
-			//test_r
+		//test_r
 		/* DA14681-01
-								 * RAM goes first, RetRAM0 follows. RetRAM1 is added at the beginning when
-								 * optimized RetRAM configuration is used (so that the IVT is preserved).
-			 					 */
+		 * RAM goes first, RetRAM0 follows. RetRAM1 is added at the beginning when
+		 * optimized RetRAM configuration is used (so that the IVT is preserved).
+		 */
                         #define RETRAM_FIRST    0
 		
-                        #define RAM_SIZE        ( 64 * 1024)
-		
+                        #define RAM_SIZE        ( 64 * 1024)		
                        
                         #define RETRAM_0_SIZE   ( 64 * 1024)
-                        #define RETRAM_1_SIZE   (  0 * 1024)
-                        
+                        #define RETRAM_1_SIZE   (  0 * 1024)                        
 
         #elif  0 
 		//(dg_configEXEC_MODE == MODE_IS_CACHED)

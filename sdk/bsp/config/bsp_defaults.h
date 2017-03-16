@@ -1211,7 +1211,7 @@
  * \bsp_default_note{\bsp_config_option_app, \bsp_config_option_expert_only}
  */
 #ifndef dg_configFLASH_AUTODETECT
-#define dg_configFLASH_AUTODETECT       (0)
+#define dg_configFLASH_AUTODETECT       (1)
 #endif
 
 #if dg_configFLASH_AUTODETECT == 0

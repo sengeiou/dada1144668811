@@ -194,7 +194,7 @@ extern uint32_t NVMS_PARAM_PART_end;
  * Linker symbols
  *
  * Note: if any of them is missing, please correct your linker script. Please refer to the linker
- * script of pxp_reporter.
+ * script of ble_peripheral.
  */
 extern uint32_t __copy_table_start__;
 extern uint32_t __copy_table_end__;

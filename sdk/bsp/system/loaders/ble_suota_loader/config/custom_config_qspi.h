@@ -149,8 +149,9 @@
  */
 #define CFG_FORCE_SUOTA_GPIO                    (0)
 
+#define RBLE_DATA_STORAGE_IN_FLASH
 #define USE_PARTITION_TABLE_1MB_WITH_SUOTA
-
+#define CUSTOM_CONFIG_SUOTA_1M_DEFINE
 /*************************************************************************************************\
  * BLE device config
  */

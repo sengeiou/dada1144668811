@@ -87,7 +87,7 @@ static uint8_t scan_rsp_data[] = {
         0x06, GAP_DATA_TYPE_MANUFACTURER_SPEC,  0xD2, 0x00, 0xB1, 0xB2, 0xB3,
 };
 
-
+/*
 typedef enum {
         ADV_INTERVAL_FAST = 0,
 } adv_setting_t;
@@ -102,7 +102,7 @@ static const struct {
                 .max = BLE_ADV_INTERVAL_FROM_MS(FAST_ADV_INTERVAL),
         },
 };
-
+*/
 
 typedef enum {
         CONN_INTERVAL_FAST = 0,
@@ -329,7 +329,7 @@ static const dis_device_info_t dis_info = {
         .serial_number = "SN123456",
         .hw_revision = "Rev.D",
         .fw_revision = "1.0",
-        .sw_revision = "1.1",
+        .sw_revision = "1.0.0.2",
         .system_id = &dis_sys_id,
         .reg_cert_length = sizeof(dis_reg_cert),
         .reg_cert = dis_reg_cert,
