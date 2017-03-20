@@ -67,18 +67,18 @@ Dialog's Development Environment provides it. It is called `arm-none-eabi-gdb-py
 
         usage: ./dump_globals.py -f <elf_file> -b <mem_snapshot_file> -g <gdb> -x <registers_xml_file>
 
-        e.g 1 ./dump_globals.py -g arm-none-eabi-gdb-py -f ../ble_peripheral/DA14681-01-Debug_QSPI/ble_peripheral.elf
+        e.g 1 ./dump_globals.py -g arm-none-eabi-gdb-py -f ../../../../../ble_peripheral/DA14681-01-Debug_QSPI/ble_peripheral.elf
         Dumps RAM contents, symbols are provided by the elf file. GDB path is provided by the -g argument.
 
-        e.g 2 ./dump_globals.py -g arm-none-eabi-gdb-py -f ../ble_peripheral/DA14681-01-Debug_QSPI/ble_peripheral.elf -b dump_memory.ihex
+        e.g 2 ./dump_globals.py -g arm-none-eabi-gdb-py -f ../../../../../ble_peripheral/DA14681-01-Debug_QSPI/ble_peripheral.elf -b dump_memory.ihex
         Dumps RAM contents, symbols are provided by the elf file, memory contents will be read using the provided ihex file.
         GDB path is provided by the -g argument.
 
-        e.g 3 ./dump_globals.py -g arm-none-eabi-gdb-py -f ../ble_peripheral/DA14681-01-Debug_QSPI/ble_peripheral.elf -b dump_memory.bin
+        e.g 3 ./dump_globals.py -g arm-none-eabi-gdb-py -f ../../../../../ble_peripheral/DA14681-01-Debug_QSPI/ble_peripheral.elf -b dump_memory.bin
         Dumps RAM contents, symbols are provided by the elf file, memory contents will be read using the provided raw bin file restored at address 0x7fc0000.
         GDB path is provided by the -g argument.
 
-        e.g 4 ./dump_globals.py -g arm-none-eabi-gdb-py -f ../ble_peripheral/DA14681-01-Debug_QSPI/ble_peripheral.elf -x ../../../../../doc/DA14681-01.xml
+        e.g 4 ./dump_globals.py -g arm-none-eabi-gdb-py -f ../../../../../ble_peripheral/DA14681-01-Debug_QSPI/ble_peripheral.elf -x ../../../../../doc/DA14681-01.xml
         Dumps RAM contents, symbols are provided by the elf file, peripheral registers, GDB path is provided by the -g argument.
         GDB path is provided by the -g argument.
 

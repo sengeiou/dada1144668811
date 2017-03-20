@@ -200,18 +200,18 @@ def create_gdb_cmd_file(elf_file, off_mem_snapshot_file, xml_reg_file):
 def usage(argv):
         print "usage: " + argv[0] + " -f <elf_file> -b <mem_snapshot_file> -g <gdb> -x <registers_xml_file>"
         print ""
-        print "e.g 1 " + argv[0] + " -g arm-none-eabi-gdb-py -f ../ble_peripheral/DA14681-01-Debug_QSPI/ble_peripheral.elf"
+        print "e.g 1 " + argv[0] + " -g arm-none-eabi-gdb-py -f ../../../../../ble_peripheral/DA14681-01-Debug_QSPI/ble_peripheral.elf"
         print "Dumps RAM contents, symbols are provided by the elf file. GDB path is provided by the -g argument."
         print ""
-        print "e.g 2 " + argv[0] + " -g arm-none-eabi-gdb-py -f ../ble_peripheral/DA14681-01-Debug_QSPI/ble_peripheral.elf -b dump_memory.ihex"
+        print "e.g 2 " + argv[0] + " -g arm-none-eabi-gdb-py -f ../../../../../ble_peripheral/DA14681-01-Debug_QSPI/ble_peripheral.elf -b dump_memory.ihex"
         print "Dumps RAM contents, symbols are provided by the elf file, memory contents will be read using the provided ihex file."
         print "GDB path is provided by the -g argument."
         print ""
-        print "e.g 3 " + argv[0] + " -g arm-none-eabi-gdb-py -f ../ble_peripheral/DA14681-01-Debug_QSPI/ble_peripheral.elf -b dump_memory.bin"
+        print "e.g 3 " + argv[0] + " -g arm-none-eabi-gdb-py -f ../../../../../ble_peripheral/DA14681-01-Debug_QSPI/ble_peripheral.elf -b dump_memory.bin"
         print "Dumps RAM contents, symbols are provided by the elf file, memory contents will be read using the provided raw bin file restored at address 0x%x." % (ram_start)
         print "GDB path is provided by the -g argument."
         print ""
-        print "e.g 4 " + argv[0] + " -g arm-none-eabi-gdb-py -f ../ble_peripheral/DA14681-01-Debug_QSPI/ble_peripheral.elf -x ../../../../../doc/DA14681-01.xml"
+        print "e.g 4 " + argv[0] + " -g arm-none-eabi-gdb-py -f ../../../../../ble_peripheral/DA14681-01-Debug_QSPI/ble_peripheral.elf -x ../../../../../doc/DA14681-01.xml"
         print "Dumps RAM contents, symbols are provided by the elf file, peripheral registers, GDB path is provided by the -g argument."
         print "GDB path is provided by the -g argument."
 
