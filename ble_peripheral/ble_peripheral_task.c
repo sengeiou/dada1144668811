@@ -504,6 +504,8 @@ typedef struct ble2app_data
 } ble2app_data;
 uint32_t rble_read_data_addr_offset = 0;
 uint32_t rble_read_result_data_addr_offset = 0;
+uint32_t t_rble_read_result_data_addr_offset = 0;
+
 
 extern float orientationFloat[3];
 extern int rv_accuracy;
@@ -544,7 +546,7 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
 #endif
                 bd.id1 = 0xFF;
                 bd.id2 = 0x01;
-                bd.id2 = 0xFF;
+                bd.id3 = 0xFF;
                 test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
                 ble_task_env.ble2app_id = 0xFF;
         }
@@ -552,7 +554,7 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
                 {
                 bd.id1 = 0xFF;
                 bd.id2 = 0x02;
-                bd.id2 = 0xFF;
+                bd.id3 = 0xFF;
                 test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
                 ble_task_env.ble2app_id = 0x02;          //read all test data
                 rble_read_data_addr_offset = 0;
@@ -564,8 +566,9 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
 
                 bd.id1 = 0xFF;
                 bd.id2 = 0x07;
-                bd.id2 = 0xFF;
+                bd.id3 = 0xFF;
                 test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
+                ble_task_env.ble2app_id = 0xFF;
 #if defined(RBLE_SENSOR_CTRL_BY_APP)
                 OS_TASK_NOTIFY(task_sensor_sample, RBLE_SENSOR_STOP_SAMPLE_NOTIF,
                         OS_NOTIFY_SET_BITS);
@@ -576,8 +579,9 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
                 {
 					bd.id1 = 0xFF;
 	                bd.id2 = 0x05;
-	                bd.id2 = 0xFF;
+	                bd.id3 = 0xFF;
 	                test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
+                    ble_task_env.ble2app_id = 0xFF;
 					rble_write_flash_cmd = true;
 
         }
@@ -586,15 +590,17 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
                 rble_start_cal_cmd = true;
                 bd.id1 = 0xFF;
                 bd.id2 = 0x08;
-                bd.id2 = 0xFF;
+                bd.id3 = 0xFF;
                 test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
+                ble_task_env.ble2app_id = 0xFF;
         }
 
         else if ((value_h == RBLE_RECEIVE_DATA_HEADER) && (value_cmd == RBLE_SEND_RESULT_CMD))
                 {
                 bd.id1 = 0xFF;
                 bd.id2 = 0x09;
-                bd.id2 = 0xFF;
+                bd.id3 = 0xFF;
+                rble_read_result_data_addr_offset=0;
                 test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
                 ble_task_env.ble2app_id = 0x09;
         }
@@ -604,7 +610,7 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
                         bd.id3 = 0x00;          //start flag
                         test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
                         ble_task_env.ble2app_id = 0x03;
-                        rble_read_result_data_addr_offset = 0;
+                        t_rble_read_result_data_addr_offset = 0;
                 }
         }
         else if ((value_h == RBLE_RECEIVE_DATA_HEADER) && value_cmd == 0x69) {
@@ -643,6 +649,7 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
 static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t length)
 {
 
+        printf("wzb ble_task_env.ble2app_id=%d\r\n",ble_task_env.ble2app_id);
         if (ble_task_env.ble2app_id == 0x02) {
                 nvms_t nvms_rble_storage_handle;
                 //uint32_t rble_data_addr_offset=0;
@@ -664,25 +671,47 @@ static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t leng
                         //return;
                 }
         }
+         else if(ble_task_env.ble2app_id == 0x03){
+            //for test
+           uint8_t rble_sample_result_data[20] = { 0 };
+                nvms_t nvms_rble_result_storage_handle;
+                nvms_rble_result_storage_handle = ad_nvms_open(NVMS_IMAGE_RESULT_DATA_STORAGE_PART);
+                memset(rble_sample_result_data, 0, sizeof(rble_sample_result_data));
+                printf("wzb t_rble_read_result_data_addr_offset=%d\r\n",t_rble_read_result_data_addr_offset);
+                 if (t_rble_read_result_data_addr_offset != 40)
+                                {
+                                ad_nvms_read(nvms_rble_result_storage_handle,
+                                        t_rble_read_result_data_addr_offset, rble_sample_result_data,
+                                        sizeof(rble_sample_result_data));
+                    
+                          
+                                        test_tx_data(svc, conn_idx, rble_sample_result_data,
+                                                sizeof(rble_sample_result_data));
+                                        ble_task_env.ble2app_id = 0x03;
+                                        t_rble_read_result_data_addr_offset +=
+                                                sizeof(rble_sample_result_data);
+                                
+                        }
+                        else if (t_rble_read_result_data_addr_offset == 40)
+                                {
+                                ad_nvms_read(nvms_rble_result_storage_handle,
+                                        t_rble_read_result_data_addr_offset, rble_sample_result_data,
+                                        8);
+                                ble_task_env.ble2app_id = 0xff;
+                                test_tx_data(svc, conn_idx, rble_sample_result_data, 8);
+                                t_rble_read_result_data_addr_offset += 8;
+                                
+                        }
+        }
         else if (ble_task_env.ble2app_id == 0x09) {
-                //send result to app
-                //for test
-                // if(rble_read_result_data_addr_offset>=40){
-                //     ble2app_data bd;
-                //    bd.id1=bd.id2=0xff;
-                //    bd.id3=0xaa;//stop flag
-                //    test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
-                //   rble_read_result_data_addr_offset=0;
-                //    ble_task_env.ble2app_id=0xff;
-                //   return;
-                //}
+
                 uint8_t rble_sample_result_data[20] = { 0 };
                 nvms_t nvms_rble_result_storage_handle;
                 int i;
                 bool read_result = false;
                 nvms_rble_result_storage_handle = ad_nvms_open(NVMS_IMAGE_RESULT_DATA_STORAGE_PART);
                 memset(rble_sample_result_data, 0, sizeof(rble_sample_result_data));
-                if (rble_read_data_addr_offset < RBLE_DATA_RESULT_PATITION_SIZE)
+                if (rble_read_result_data_addr_offset < RBLE_DATA_RESULT_PATITION_SIZE)
                         {
                         if (rble_read_result_data_addr_offset != 40)
                                 {
@@ -707,16 +736,18 @@ static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t leng
                                 {
                                         test_tx_data(svc, conn_idx, rble_sample_result_data,
                                                 sizeof(rble_sample_result_data));
+                                        ble_task_env.ble2app_id = 0x09;
                                         rble_read_result_data_addr_offset +=
                                                 sizeof(rble_sample_result_data);
                                 }
                         }
-                        if (rble_read_result_data_addr_offset == 40)
+                        else if (rble_read_result_data_addr_offset == 40)
                                 {
                                 ad_nvms_read(nvms_rble_result_storage_handle,
                                         rble_read_result_data_addr_offset, rble_sample_result_data,
                                         8);
                                 test_tx_data(svc, conn_idx, rble_sample_result_data, 8);
+                                ble_task_env.ble2app_id = 0x09;
                                 rble_read_result_data_addr_offset += 8;
                         }
                 }
