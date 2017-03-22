@@ -57,6 +57,7 @@ bool rble_data_patition_not_full = true;
 
 bool rble_write_flash_cmd = false;
 bool rble_is_write_cmd = false;
+bool rble_start_cal_cmd =false;
 #endif
 
 OS_TIMER rble_sample_timer_id;
@@ -1448,8 +1449,11 @@ void process_sensor_output(unsigned short fifo_id)
 #elif defined(BLE_USE_DATA_V2)
         detect_new_step_v2(DATA_ABS(accel_float[0]),DATA_ABS(accel_float[1]),accel_float[2],fifo_id);
 #elif defined(BLE_USE_DATA_V5)
-        detect_new_step(acc_gyr_ori[0], acc_gyr_ori[1], acc_gyr_ori[2], acc_gyr_ori[3],
-                acc_gyr_ori[4], fifo_id);
+	if(rble_data_patition_not_full && rble_is_write_cmd)
+		{
+                        detect_new_step(acc_gyr_ori[0], acc_gyr_ori[1], acc_gyr_ori[2], acc_gyr_ori[3],
+                                acc_gyr_ori[4], fifo_id);
+		}
 #endif
         //end
 
