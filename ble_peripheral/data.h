@@ -4,7 +4,7 @@
  *  Created on: 2017Äê2ÔÂ27ÈÕ
  *      Author: Administrator
  */
-
+#if defined(BLE_USE_DATA_V1)
 #ifndef DATA_H_
 #define DATA_H_
 
@@ -27,3 +27,4 @@ void detect_new_step(float values);
 
 
 #endif /* DATA_H_ */
+#endif

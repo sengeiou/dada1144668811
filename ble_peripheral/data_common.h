@@ -12,7 +12,7 @@
 
 
 #define RBLE_RESULT_DATA_PATITION_SIZE  (0x005000)
-#define RBLE_RESULT_DATA_BUF_LENGTH    36
+#define RBLE_RESULT_DATA_BUF_LENGTH    48
 #define RBLE_RESULT_FLOAT_SIZE   4
 #define RBLE_RESULT_INT_SIZE   4
 #define RBLE_RESULT_LONG_SIZE   4
@@ -23,6 +23,8 @@
 #define RBLE_RESULT_DATA_LABLE_RC "rc" //run count
 #define RBLE_RESULT_DATA_LABLE_DC "dc" //dash count
 
+#define RBLE_RESULT_DATA_LABLE_TRACK "trak" //track
+#define RBLE_RESULT_DATA_LABLE_JUMP "jump" //jump
 
 
 
