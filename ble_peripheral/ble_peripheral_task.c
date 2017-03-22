@@ -727,6 +727,11 @@ static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t leng
                                 }
                                 if (read_result)
                                 {
+                                         ble2app_data bd;
+                                         bd.id1 = 0x65;
+                                         bd.id2 = 0x6e;
+                                         bd.id3 = 0x64;
+                                         test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
                                         rble_read_result_data_addr_offset = 0;
                                         ble_task_env.ble2app_id = 0xff;
                                         return;
@@ -754,11 +759,15 @@ static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t leng
                 else
                 {
                         rble_read_result_data_addr_offset = 0;
+                        ble2app_data bd;
+                        bd.id1 = 0x65;
+                        bd.id2 = 0x6e;
+                        bd.id3 = 0x64;
+                        test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
                         ble_task_env.ble2app_id = 0xff;
                         return;
                 }
-                //test only once
-                ble_task_env.ble2app_id = 0x09;
+
 
         }
 
