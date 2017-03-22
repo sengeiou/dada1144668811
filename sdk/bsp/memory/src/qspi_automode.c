@@ -88,6 +88,7 @@
 #include "qspi_w25q80ew.h"
 #include "qspi_mx25u51245.h"
 #include "qspi_gd25lq80b.h"
+#include "qspi_mx25r8035.h"
 #else
 #ifndef dg_configFLASH_HEADER_FILE
 #error Please define macro dg_configFLASH_HEADER_FILE to the header file name that contains the respective implementation
@@ -101,6 +102,7 @@ static const qspi_flash_config_t* flash_config_table[] = {
         &flash_w25q80ew_config, // This is the default one
         &flash_mx25u51245_config,
         &flash_gd25lq80b_config,
+        &flash_mx25r8035_config,
 };
 
 __RETAINED static qspi_flash_config_t flash_autodetect_config;
