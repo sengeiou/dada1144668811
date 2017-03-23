@@ -816,6 +816,8 @@ void detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gyr_y,float
 		//printf("wzb h step=%d,h run=%d,h dash=%d\n", step_env.h_step, step_env.h_run, step_env.h_dash);
 		//printf("wzb jump=%d\n", step_env.jump_count);
 
+        write_result_to_flash();
+
 		step_env.last_step.type = step_env.type;
 		step_env.last_step.mode = step_env.mode;
 		step_env.last_step.time = step_env.time;

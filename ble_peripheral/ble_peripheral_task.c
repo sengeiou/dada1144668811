@@ -720,7 +720,7 @@ static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t leng
                                         sizeof(rble_sample_result_data));
                                 for (i = 0; i < 20; i++)
                                         {
-                                        if (rble_sample_result_data + i != 0xff)
+                                        if (rble_sample_result_data[i] != 0xff)
                                                 read_result = false;
                                         else
                                                 read_result = true;

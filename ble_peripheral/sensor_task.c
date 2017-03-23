@@ -975,7 +975,7 @@ void process_sensor_output(unsigned short fifo_id)
                                 accel_accuracy = 1; //accuracy reaches intermediate level after one-axis factory cal--yd
                         //INV_SPRINTF(tst, INV_TST_LEN, "Accel Data\t %8.5f, %8.5f, %8.5f, %d, %lld\r\n", accel_float[0], accel_float[1], accel_float[2], accel_accuracy, ts); print_command_console(tst);
 
-#if 1 //defined(RBLE_UART_DEBUG)
+#if 0 //defined(RBLE_UART_DEBUG)
                         memset(print_float_str, 0, RBLE_FLOAT_STR_LENTH);
                         qfp_float2str(accel_float[0], print_float_str, 0);
 
@@ -985,7 +985,7 @@ void process_sensor_output(unsigned short fifo_id)
                         fflush(stdout);
 #endif
 
-#if 1 //defined(RBLE_UART_DEBUG)
+#if 0 //defined(RBLE_UART_DEBUG)
                         memset(print_float_str, 0, RBLE_FLOAT_STR_LENTH);
 
                         qfp_float2str(accel_float[1], print_float_str, 0);
@@ -995,7 +995,7 @@ void process_sensor_output(unsigned short fifo_id)
                         fflush(stdout);
 #endif
 
-#if 1 //defined(RBLE_UART_DEBUG)
+#if 0 //defined(RBLE_UART_DEBUG)
                         memset(print_float_str, 0, RBLE_FLOAT_STR_LENTH);
                         qfp_float2str(accel_float[2], print_float_str, 0);
 
@@ -1054,7 +1054,7 @@ void process_sensor_output(unsigned short fifo_id)
                                 gyro_float[1], gyro_float[2], gyro_accuracy, ts);
                         print_command_console(tst);
 
-#if 1 //defined(RBLE_UART_DEBUG)
+#if 0 //defined(RBLE_UART_DEBUG)
                         memset(print_float_str, 0, RBLE_FLOAT_STR_LENTH);
                         qfp_float2str(gyro_float[0], print_float_str, 0);
 
@@ -1065,7 +1065,7 @@ void process_sensor_output(unsigned short fifo_id)
                         fflush(stdout);
 #endif
 
-#if 1 //defined(RBLE_UART_DEBUG)
+#if 0 //defined(RBLE_UART_DEBUG)
                         memset(print_float_str, 0, RBLE_FLOAT_STR_LENTH);
 
                         qfp_float2str(gyro_float[1], print_float_str, 0);
@@ -1076,7 +1076,7 @@ void process_sensor_output(unsigned short fifo_id)
                         fflush(stdout);
 #endif
 
-#if 1 //defined(RBLE_UART_DEBUG)
+#if 0 //defined(RBLE_UART_DEBUG)
                         memset(print_float_str, 0, RBLE_FLOAT_STR_LENTH);
                         qfp_float2str(gyro_float[2], print_float_str, 0);
 
@@ -1276,7 +1276,7 @@ void process_sensor_output(unsigned short fifo_id)
                          print_data_console(tst);
                          */
 
-#if 1 //defined(RBLE_UART_DEBUG)
+#if 0 //defined(RBLE_UART_DEBUG)
                         // printf("fifo_handler,orientationFloat=%d,%d,%d\n",orientationFloat[0],orientationFloat[1],orientationFloat[2]);
                         memset(print_float_str, 0, RBLE_FLOAT_STR_LENTH);
                         qfp_float2str(orientationFloat[0], print_float_str, 0);
@@ -1474,7 +1474,7 @@ void fifo_handler()
         // Process Incoming INT and Get/Pack FIFO Data
         inv_identify_interrupt(&int_read_back);
 
-#if 1//defined(RBLE_UART_DEBUG)
+#if 0//defined(RBLE_UART_DEBUG)
         printf("fifo=0x%x\n", int_read_back);
         fflush(stdout);
 
@@ -1499,7 +1499,7 @@ void fifo_handler()
 
                         rble_led_flash_delay = 400;
 
-#if 1 //defined(RBLE_UART_DEBUG)
+#if 0 //defined(RBLE_UART_DEBUG)
                         printf("dleft=%d,tal_cnt=%d,arr[3]=%d\n", data_left_in_fifo,
                                 total_sample_cnt, sample_cnt_array[3]);
 #endif
