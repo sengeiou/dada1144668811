@@ -49,7 +49,7 @@ OS_TASK task_sensor_sample;
 #if defined(RBLE_DATA_STORAGE_IN_FLASH)
 
 nvms_t nvms_rble_storage_handle;
-nvms_t _nvms_rble_result_storage_handle;
+//nvms_t _nvms_rble_result_storage_handle;
 
 uint32_t rble_data_addr_offset = 0;
 uint8_t rble_sample_data[RBLE_DATA_BUF_LENGTH] = { 0 };
@@ -2387,7 +2387,7 @@ void RbleSensorControlTask(void *pvParameters)
 
 #if defined(RBLE_DATA_STORAGE_IN_FLASH)
         nvms_rble_storage_handle = ad_nvms_open(NVMS_IMAGE_DATA_STORAGE_PART);
-        _nvms_rble_result_storage_handle = ad_nvms_open(NVMS_IMAGE_DATA_STORAGE_PART);
+       // _nvms_rble_result_storage_handle = ad_nvms_open(NVMS_IMAGE_DATA_STORAGE_PART);
 
 
 #endif
@@ -2519,8 +2519,8 @@ void RbleSensorControlTask(void *pvParameters)
 #if defined(RBLE_DATA_STORAGE_IN_FLASH)
                                 ad_nvms_erase_region(nvms_rble_storage_handle, 0,
                                         RBLE_DATA_PATITION_SIZE);
-                                ad_nvms_erase_region(_nvms_rble_result_storage_handle, 0,
-                                        RBLE_DATA_RESULT_PATITION_SIZE);
+                              //  ad_nvms_erase_region(_nvms_rble_result_storage_handle, 0,
+                              //          RBLE_DATA_RESULT_PATITION_SIZE);
 
 #endif
 
@@ -2529,7 +2529,7 @@ void RbleSensorControlTask(void *pvParameters)
                                 //handle_char_input('c');
                                 handle_char_input('o');
 
-#if defined(BLE_USE_DATA_V2)
+#if 1//defined(BLE_USE_DATA_V2)
                                 init_step_env();
 #endif
 
