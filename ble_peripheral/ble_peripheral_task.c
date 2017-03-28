@@ -42,6 +42,8 @@
 #include "scps.h"
 #include "test.h"
 #include "ad_nvms.h"
+#include "ad_ble.h"
+
 #include "sensor_task.h"
 #include "data.h"
 static ble_service_t *test_service;
@@ -263,6 +265,25 @@ static const cts_callbacks_t cts_callbacks = {
 };
 #endif // CFG_CTS
 
+
+static void read_mac_addr()
+{
+    uint8_t mac_addr[6];
+    nvms_t nvms;
+    int i;
+    memset(mac_addr,0,sizeof(mac_addr));
+    bool valid;
+
+    valid = w_ad_ble_read_nvms_param(mac_addr, 6, 0x01,0x00);
+    if(valid){
+        printf("read mac addr:%x,%x,%x,%x,%x,%x\r\n",mac_addr[0],mac_addr[1],mac_addr[2],mac_addr[3],mac_addr[4],mac_addr[5]);
+    }else{
+       printf("read mac addr failt \r\n");
+    }
+
+
+}
+
 /*
  * Custom service data
  */
@@ -326,7 +347,7 @@ static const dis_device_info_t dis_info = {
         .serial_number = "SN123456",
         .hw_revision = "Rev.D",
         .fw_revision = "1.0",
-        .sw_revision = "1.0.0.2",
+        .sw_revision = "1.0.0.3",
         .system_id = &dis_sys_id,
         .reg_cert_length = sizeof(dis_reg_cert),
         .reg_cert = dis_reg_cert,
@@ -794,6 +815,8 @@ void ble_peripheral_task(void *params)
                 printf("wzb SW_VERSION=%s    SW_VERSION_DATE=%s\r\n", BLACKORCA_SW_VERSION,
                         BLACKORCA_SW_VERSION_DATE);
         }
+
+        read_mac_addr();
 
         int8_t wdog_id;
 #if CFG_CTS

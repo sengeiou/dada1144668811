@@ -49,6 +49,8 @@ OS_TASK task_sensor_sample;
 #if defined(RBLE_DATA_STORAGE_IN_FLASH)
 
 nvms_t nvms_rble_storage_handle;
+nvms_t _nvms_rble_result_storage_handle;
+
 uint32_t rble_data_addr_offset = 0;
 uint8_t rble_sample_data[RBLE_DATA_BUF_LENGTH] = { 0 };
 int rble_smp_count = 0;
@@ -1412,7 +1414,16 @@ void process_sensor_output(unsigned short fifo_id)
         }
 
         //step test
-#if 0
+
+#if defined(BLE_USE_DATA_V1)
+        float average=qfp_fsqrt(accel_float[0]*accel_float[0]+accel_float[1]*accel_float[1]+accel_float[2]*accel_float[2]);
+        detect_new_step(average);
+#elif defined(BLE_USE_DATA_V2)
+        detect_new_step_v2(DATA_ABS(accel_float[0]),DATA_ABS(accel_float[1]),accel_float[2],fifo_id);
+#elif defined(BLE_USE_DATA_V5)
+	if(rble_data_patition_not_full && rble_is_write_cmd)
+		{
+                #if 0
         memset(print_float_str,0,RBLE_FLOAT_STR_LENTH);
         qfp_float2str(acc_gyr_ori[0],print_float_str,0);
         printf("accx:");
@@ -1443,15 +1454,7 @@ void process_sensor_output(unsigned short fifo_id)
         printf("\n");
         fflush(stdout);
 #endif
-#if defined(BLE_USE_DATA_V1)
-        float average=qfp_fsqrt(accel_float[0]*accel_float[0]+accel_float[1]*accel_float[1]+accel_float[2]*accel_float[2]);
-        detect_new_step(average);
-#elif defined(BLE_USE_DATA_V2)
-        detect_new_step_v2(DATA_ABS(accel_float[0]),DATA_ABS(accel_float[1]),accel_float[2],fifo_id);
-#elif defined(BLE_USE_DATA_V5)
-	if(rble_data_patition_not_full && rble_is_write_cmd)
-		{
-                        detect_new_step(acc_gyr_ori[0], acc_gyr_ori[1], acc_gyr_ori[2], acc_gyr_ori[3],
+                        detect_new_step_v5(acc_gyr_ori[0], acc_gyr_ori[1], acc_gyr_ori[2], acc_gyr_ori[3],
                                 acc_gyr_ori[4], fifo_id);
 		}
 #endif
@@ -2384,6 +2387,8 @@ void RbleSensorControlTask(void *pvParameters)
 
 #if defined(RBLE_DATA_STORAGE_IN_FLASH)
         nvms_rble_storage_handle = ad_nvms_open(NVMS_IMAGE_DATA_STORAGE_PART);
+        _nvms_rble_result_storage_handle = ad_nvms_open(NVMS_IMAGE_DATA_STORAGE_PART);
+
 
 #endif
 
@@ -2514,6 +2519,9 @@ void RbleSensorControlTask(void *pvParameters)
 #if defined(RBLE_DATA_STORAGE_IN_FLASH)
                                 ad_nvms_erase_region(nvms_rble_storage_handle, 0,
                                         RBLE_DATA_PATITION_SIZE);
+                                ad_nvms_erase_region(_nvms_rble_result_storage_handle, 0,
+                                        RBLE_DATA_RESULT_PATITION_SIZE);
+
 #endif
 
                                 handle_char_input('a');

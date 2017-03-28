@@ -13,11 +13,15 @@ nvms_t nvms_rble_result_storage_handle;
 uint32_t rble_result_data_addr_offset=0;
 uint8_t rble_sample_result_data[RBLE_RESULT_DATA_BUF_LENGTH]={0};
 int rble_smp_reslut_count=0;
+float float_buf_print[3]={0};
+
 
 uint32_t rble_track_jump_data_addr_offset=48;
 uint8_t rble_track_jump_data[20]={0};
 int rble_smp_track_jump_count=0;
-
+static float data_abs(float value);
+static void printf_float(float flt,uint8_t type);
+static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gyr_y,float yaw,unsigned short fifo_id);
 static void reset_jump_state();
 static void reset_x_step_env();
 static void reset_y_step_env();
@@ -35,6 +39,8 @@ static void clear_temp_jump();
 static void copy_jump_to_temp();
 static void copy_jump_to_temp_step();
 static long get_temp_step_time(uint8_t type);
+static float samples_filter(float input,uint8_t type);
+
 //static step_env_t step_env;
 
 float jump_time_height[100][3] = { 0 };
@@ -173,7 +179,7 @@ static int detect_peak(float new_value, float old_value)
 
 static float data_abs(float value)
 {
-	return value > 0 ? value : -value;
+	return value >= 0 ? value : -value;
 }
 
 
@@ -182,7 +188,8 @@ static long sample_counter=0;
 
 static float samples_buf[3][8] = { 0 };
 
-static float samples_filter(float input,uint8_t type) {
+static float samples_filter(float input,uint8_t type)
+{
 	float output=0.0f;
     int i;
 	if (sample_counter <7) {
@@ -257,8 +264,9 @@ void write_jump_to_flash()
 
 void write_result_to_flash()
 {
+   // printf("write_result_to_flash %d\r\n",step_env.total_step);
     nvms_rble_result_storage_handle=ad_nvms_open(NVMS_IMAGE_RESULT_DATA_STORAGE_PART);
-    
+    ad_nvms_erase_region(nvms_rble_result_storage_handle,0,48);
     memset(rble_sample_result_data,0,RBLE_RESULT_DATA_BUF_LENGTH);
     rble_smp_reslut_count=0;
 
@@ -304,17 +312,70 @@ void write_result_to_flash()
     ad_nvms_write(nvms_rble_result_storage_handle, 0, rble_sample_result_data,rble_smp_reslut_count);
 }
 
-void detect_new_step(float acc_x,float acc_y,float acc_z,float gyr_y,float yaw,unsigned short fifo_id)
+
+static void printf_float(float flt,uint8_t type)
 {
-    detect_new_step_v5(samples_filter(acc_x,0),samples_filter(acc_y,0),acc_z,gyr_y,yaw,fifo_id);
+        char print_float_str[32];
+        memset(print_float_str,0,32);
+        float_buf_print[0]=flt;
+        qfp_float2str(float_buf_print[0],print_float_str,0);
+        printf("type=%x:",type);
+        printf(print_float_str);
+        printf("\r\n");
+        fflush(stdout);
 }
 
-void detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gyr_y,float yaw,unsigned short fifo_id)
+void detect_new_step_v5(float acc_x,float acc_y,float acc_z,float gyr_y,float yaw,unsigned short fifo_id)
+{
+    #if 0
+    char print_float_str[32];
+        memset(print_float_str,0,32);
+        qfp_float2str(acc_x,print_float_str,0);
+        printf("accx:");
+        printf(print_float_str);
+        printf("\n");
+        fflush(stdout);
+        memset(print_float_str,0,32);
+        qfp_float2str(acc_y,print_float_str,0);
+        printf("accy:");
+        printf(print_float_str);
+        printf("\n");
+        fflush(stdout);
+        memset(print_float_str,0,32);
+        qfp_float2str(acc_z,print_float_str,0);
+        printf("accz:");
+        printf(print_float_str);
+        printf("\n");
+        fflush(stdout);
+        memset(print_float_str,0,32);
+        qfp_float2str(gyr_y,print_float_str,0);
+        printf("gyry:");
+        printf(print_float_str);
+        printf("\n");
+        fflush(stdout);
+        memset(print_float_str,0,32);
+        qfp_float2str(yaw,print_float_str,0);
+        printf("yaw:");
+        printf(print_float_str);
+        printf("\n");
+        fflush(stdout);
+#endif
+#ifdef FILTER
+    w_detect_new_step_v5(samples_filter(acc_x,0),samples_filter(acc_y,1),acc_z,gyr_y,yaw,fifo_id);
+    sample_counter++;
+#else
+    w_detect_new_step_v5(acc_x,acc_y,acc_z,gyr_y,yaw,fifo_id);
+#endif
+
+}
+
+static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gyr_y,float yaw,unsigned short fifo_id)
 {
 
 	float acc_x2, acc_y2;
-	acc_x2 = data_abs(acc_x);
-	acc_y2 = data_abs(acc_y);
+	acc_x2 = DATA_ABS(acc_x);
+	acc_y2 = DATA_ABS(acc_y);
+   // printf("wzb accx2=%d,accy2=%d,accz=%d\r\n",(int)acc_x,(int)acc_y,(int)acc_z);
 	if (step_env.yaw_old == 0)step_env.yaw_old = yaw;
 	step_env.time_of_now = inv_get_tick_count()-(fifo_id)*FIFO_OFFSET_TICK;
 	if (((step_env.time_of_now - step_env.temp_step.time) >= 450)) {
@@ -992,7 +1053,7 @@ void init_step_env()
 {
 	step_env.flag = 0;
 	step_env.frequency = 0;
-
+    sample_counter=0;
 	step_env.acc_value_mode.acc_x2_old = 0;
 	step_env.acc_value_mode.acc_y2_old = 0;
 	step_env.acc_value_mode.acc_z2_old = 0;
@@ -1094,6 +1155,18 @@ void init_step_env()
 	step_env.last_step.time = 0;
 	step_env.last_step.ori = 0;
 
+    step_env.temp_step.air_time=0;
+    step_env.temp_step.fir_peak_time=0;
+    step_env.temp_step.sec_peak_time=0;
+    step_env.temp_step.flag=0;
+    step_env.temp_step.jump_ori=0;
+    step_env.temp_step.length=0;
+    step_env.temp_step.mode=0xff;
+    step_env.temp_step.ori=0;
+    step_env.temp_step.time=0;
+    step_env.temp_step.type=0xff;
+    step_env.temp_step.value=0;
+
     step_env.coord_x=0;
     step_env.coord_y=0;
     step_env.fir_peak_time=0;
@@ -1106,6 +1179,8 @@ void init_step_env()
     step_env.step_change=0;
     step_env.step_change_time=0;
     step_env.max_v=0;
+
+    step_env.yaw_old=0;
 
 }
 

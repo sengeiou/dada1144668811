@@ -4,7 +4,7 @@
 #ifndef DATA_H_V5
 #define DATA_H_V5
 
-#define DATA_ABS(x) ((x)>0?(x):(-x))
+#define DATA_ABS(x) ((x)>=0?(x):(-x))
 //x2 y2 z2 means |x| |y| |z|
 
 #define FIFO_OFFSET_TICK (20*512/1000)
@@ -290,7 +290,7 @@ typedef struct step_env {
 step_env_t step_env;
 void init_step_env();
 //void detect_new_step_v2(float acc_x, float acc_y, float acc_z, int line);
-void detect_new_step(float acc_x,float acc_y,float acc_z,float gyr_y,float yaw,unsigned short fifo_id);
+void detect_new_step_v5(float acc_x,float acc_y,float acc_z,float gyr_y,float yaw,unsigned short fifo_id);
 void print_result();
 
 #if 0
