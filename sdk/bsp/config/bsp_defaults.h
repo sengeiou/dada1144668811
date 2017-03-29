@@ -1865,7 +1865,7 @@
 #endif
 
 #ifndef dg_configNVPARAM_ADAPTER
-#define dg_configNVPARAM_ADAPTER                (0)
+#define dg_configNVPARAM_ADAPTER                (1)
 #endif
 
 #ifndef dg_configCRYPTO_ADAPTER
