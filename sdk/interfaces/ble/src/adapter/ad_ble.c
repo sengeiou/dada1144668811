@@ -432,6 +432,49 @@ static bool ad_ble_read_nvms_param(uint8_t* param, uint8_t len, uint8_t nvparam_
         return false; /* Failure */
 }
 
+bool w_ad_ble_read_nvms_param(uint8_t* param, uint8_t len, uint8_t nvparam_tag, uint32_t nvms_addr)
+{
+#if (dg_configNVMS_ADAPTER == 1)
+#if (dg_configNVPARAM_ADAPTER == 1)
+        uint16_t read_len = 0;
+        uint16_t param_len;
+        uint8_t valid;
+
+        /* Parameter length shall be long enough to store address and validity flag */
+        param_len = ad_nvparam_get_length(ble_parameters, nvparam_tag, NULL);
+        if (param_len == len + sizeof(valid)) {
+                ad_nvparam_read_offset(ble_parameters, nvparam_tag,
+                                                len, sizeof(valid), &valid);
+
+                /* Read param from nvparam only if validity flag is set to 0x00 and read_len is correct */
+                if (valid == 0x00) {
+                        read_len = ad_nvparam_read(ble_parameters, nvparam_tag,
+                                len, param);
+                        if (read_len == len) {
+                                return true; /* Success */
+                        }
+                }
+        }
+#else
+        nvms_t nvms;
+        int i;
+
+        nvms = ad_nvms_open(NVMS_PARAM_PART);
+
+        ad_nvms_read(nvms, nvms_addr, (uint8_t *) param, len);
+
+        for (i = 0; i < len; i++) {
+                if (param[i] != 0xFF) {
+                        return true; /* Success */
+                }
+        }
+#endif /* (dg_configNVPARAM_ADAPTER == 1) */
+#endif /* (dg_configNVMS_ADAPTER == 1) */
+
+        return false; /* Failure */
+}
+
+
 void read_public_address()
 {
         uint8_t default_addr[BD_ADDR_LEN] = defaultBLE_STATIC_ADDRESS;

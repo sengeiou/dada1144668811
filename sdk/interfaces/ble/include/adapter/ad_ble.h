@@ -241,6 +241,8 @@ OS_BASE_TYPE ad_ble_command_queue_send( const void *item, OS_TICK_TIME wait_tick
  *
  */
 void ad_ble_lpclock_available(void);
+bool w_ad_ble_read_nvms_param(uint8_t* param, uint8_t len, uint8_t nvparam_tag, uint32_t nvms_addr);
+
 
 /**
  * \brief Send a message to the BLE adapter event queue.
