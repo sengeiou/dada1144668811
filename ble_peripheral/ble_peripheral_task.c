@@ -46,6 +46,12 @@
 
 #include "sensor_task.h"
 #include "data.h"
+
+#if defined(CUSTOM_CONFIG_SERIAL_NUMBER_DEFINE)
+#include "ad_nvparam.h"
+#include "platform_nvparam.h"
+#endif
+
 static ble_service_t *test_service;
 /*
  * Notification bits reservation
@@ -62,7 +68,12 @@ extern OS_TASK task_sensor_sample;
  */
 
 #if 1
-//test_r
+#if defined(CUSTOM_CONFIG_SERIAL_NUMBER_DEFINE)
+//#define SERIAL_NUMBER_NAME		"AS0170518ECG0001"
+#define SERIAL_NUMBER_INVAID	"AS0170518ECG####"
+#define MODEL_TYPY_STR 			"AS0"
+#define SERIAL_NUMBER_LEN	17
+#endif
 static const uint8_t adv_data[] = {
         0x13, GAP_DATA_TYPE_LOCAL_NAME,
         'W', 'B', 'I', 'N', '_', 'T', ' ', 'P', 'e', 'r', 'i', 'p', 'h', 'e', 'r', 'a', 'l',
@@ -347,7 +358,7 @@ static const dis_device_info_t dis_info = {
         .serial_number = "SN123456",
         .hw_revision = "Rev.D",
         .fw_revision = "1.0",
-        .sw_revision = "1.0.0.3",
+        .sw_revision = "1.0.0.1",
         .system_id = &dis_sys_id,
         .reg_cert_length = sizeof(dis_reg_cert),
         .reg_cert = dis_reg_cert,
@@ -812,16 +823,108 @@ static test_callbacks_t test_callbacks = {
         .set_flow_control = test_set_flow_control_cb,
 };
 
+/* Buffer must have length at least max_len + 1 */
+#if defined(CUSTOM_CONFIG_SERIAL_NUMBER_DEFINE)
+
+static void read_nvms_param_part(void)
+{
+	nvms_t nvms;
+	int i = 0;
+	uint8_t tmp_buf[60];
+	
+	nvms = ad_nvms_open(NVMS_PARAM_PART);
+	
+	ad_nvms_read(nvms, NVMS_PARAM_PART, (uint8_t *) tmp_buf,sizeof(tmp_buf));
+
+	printf("read_nvms_param_part\r\n");
+
+	for(i=0;i<60;i++)
+		printf("tmp_buf[%d]=%d   tmp_buf[%d]=%x\r\n",i,tmp_buf[i],i,tmp_buf[i]);	
+}
+
+static void read_serial_number(void)
+{
+    static const uint8_t default_sn[SERIAL_NUMBER_LEN] = SERIAL_NUMBER_INVAID;
+
+#if dg_configNVPARAM_ADAPTER
+	char serial_number[SERIAL_NUMBER_LEN]; /* 1 byte for '\0' character */	 
+	int serial_len=0; 
+	uint8_t valid = 0xFF;
+	uint16_t read_len = 0,write_len=0;
+	uint16_t param_len;
+	nvparam_t param;
+int i =0;
+	memset(serial_number, 0, sizeof(serial_number));
+
+	param = ad_nvparam_open("ble_platform");
+#if 0	
+	write_len = ad_nvparam_write(param, TAG_BLE_PLATFORM_SERIAL_NUMBER,
+                                                        sizeof(serial_number), SERIAL_NUMBER_NAME);
+
+        /* Parameter length shall be long enough to store address and validity flag */
+        param_len = ad_nvparam_get_length(param, TAG_BLE_PLATFORM_SERIAL_NUMBER, NULL);
+printf("wzb read_serial_number param_len=%d tag=%d default_sn=%d  valid=%d\r\n",param_len,TAG_BLE_PLATFORM_SERIAL_NUMBER,sizeof(default_sn),sizeof(valid));		
+       // if (param_len < sizeof(default_sn) + sizeof(valid)) {
+              //  goto done;
+        //}
+#endif
+		read_len = ad_nvparam_read(param, TAG_BLE_PLATFORM_SERIAL_NUMBER,
+											sizeof(serial_number), serial_number);
+
+printf("wzb read_serial_number 0 serial_number=%s read_len=%d  MODEL_TYPY_STR=%s\r\n",serial_number,read_len,MODEL_TYPY_STR);	
+
+        /* Read serial number from nvparam only if validity flag is set to 0x00 */		
+       if ((strstr(serial_number, MODEL_TYPY_STR)) == NULL){
+		   write_len = ad_nvparam_write(param, TAG_BLE_PLATFORM_SERIAL_NUMBER,
+												SERIAL_NUMBER_LEN, SERIAL_NUMBER_INVAID);
+	printf("wzb read_serial_number write_len=%d\r\n",write_len);			   
+        }
+	   
+	   read_len = ad_nvparam_read(param, TAG_BLE_PLATFORM_SERIAL_NUMBER,
+										   sizeof(serial_number), serial_number);
+	   printf("wzb read_serial_number 1 serial_number=%s read_len=%d\r\n",serial_number,read_len);
+
+done:
+        /* If address read from nvparam is invalid, replace with default one */
+        if (read_len != sizeof(default_sn)) {
+                memcpy(serial_number, SERIAL_NUMBER_INVAID, sizeof(serial_number));
+        }
+#else
+        static const uint8_t empty_sn[SERIAL_NUMBER_LEN] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+        nvms_t nvms;
+
+        nvms = ad_nvms_open(NVMS_PARAM_PART);
+
+        ad_nvms_read(nvms, NVMS_PARAMS_TAG_BD_ADDRESS_OFFSET, (uint8_t *) serial_number,
+                                                                        sizeof(serial_number));
+
+        /* If address is read from empty flash, replace with default one */
+        if (!memcmp(serial_number, empty_sn, sizeof(serial_number))) {
+                memcpy(serial_number, SERIAL_NUMBER_NAME, sizeof(serial_number));
+        }
+#endif
+}
+
+#endif /*CUSTOM_CONFIG_SERIAL_NUMBER_DEFINE*/
+
 void ble_peripheral_task(void *params)
 {
         int i = 0;
+#if defined(CUSTOM_CONFIG_SERIAL_NUMBER_DEFINE)
+       char serial_number[SERIAL_NUMBER_LEN]; /* 1 byte for '\0' character */ 	
+       int serial_len=0; 
+#endif	   
         for (i = 0; i < 5; i++) {
                 printf("wzb SW_VERSION=%s    SW_VERSION_DATE=%s\r\n", BLACKORCA_SW_VERSION,
                         BLACKORCA_SW_VERSION_DATE);
         }
 
         read_mac_addr();
-
+		
+#if defined(CUSTOM_CONFIG_SERIAL_NUMBER_DEFINE)
+/* Get serial number from nvparam if exist or default otherwise */
+      read_serial_number();
+#endif
         int8_t wdog_id;
 #if CFG_CTS
         ble_service_t *cts;
