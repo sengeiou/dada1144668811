@@ -124,7 +124,7 @@
 #define dg_configPOWER_1V8_ACTIVE               (1)
 #define dg_configPOWER_1V8_SLEEP                (1)
 
-#define dg_configBATTERY_TYPE                   (BATTERY_TYPE_LIMN2O4)
+#define dg_configBATTERY_TYPE                   (BATTERY_TYPE_NO_RECHARGE)//(BATTERY_TYPE_LIMN2O4)
 #define dg_configBATTERY_CHARGE_CURRENT         2       // 30mA
 #define dg_configBATTERY_PRECHARGE_CURRENT      20      // 2.1mA
 #define dg_configBATTERY_CHARGE_NTC             1       // disabled
