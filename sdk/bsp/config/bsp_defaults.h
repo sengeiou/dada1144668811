@@ -972,11 +972,12 @@
  *
  * \bsp_default_note{\bsp_config_option_app, \bsp_config_option_expert_only}
  */
+ /*20170331 LH Test*/
 #ifndef dg_configBATTERY_LOW_LEVEL
         #if (dg_configBATTERY_TYPE == BATTERY_TYPE_NO_BATTERY) || (dg_configBATTERY_TYPE == BATTERY_TYPE_NO_RECHARGE)
                 #define dg_configBATTERY_LOW_LEVEL      (0)
         #else
-                #define dg_configBATTERY_LOW_LEVEL      (2293)  // 2.8V
+                #define dg_configBATTERY_LOW_LEVEL      (1638) // 2V     //(1473) //1.8V  //(2293)  // 2.8V
         #endif
 #endif
 
