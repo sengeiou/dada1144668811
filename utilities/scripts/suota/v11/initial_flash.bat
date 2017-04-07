@@ -126,7 +126,7 @@ call :banner "Erasing bootloader area"
 
 call :banner "Erasing partition table"
 @echo %verbose_on%
-"%CLI%" --cfg "%TMPCFG%" gdbserver erase_qspi 0x5F000 4096
+"%CLI%" --cfg "%TMPCFG%" gdbserver erase_qspi 0x7F000 4096
 @echo %on_off%
 
 @rem Flash application image to update partition. It will be moved to image partition by bootloader
