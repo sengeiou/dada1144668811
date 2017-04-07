@@ -127,7 +127,7 @@ if [ -z $nobootloader ] ; then
   "$CLI" gdbserver erase_qspi 0 4096
 fi
 title "Erasing partition table"
-"$CLI" gdbserver erase_qspi 0x7F000 4096
+"$CLI" gdbserver erase_qspi 0x5F000 4096
 
 # Flash application image to update partition. It will be moved to image partition by bootloader
 title "Writing application image $bin_file"
