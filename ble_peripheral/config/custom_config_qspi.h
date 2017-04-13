@@ -119,8 +119,7 @@
 
 
 #define dg_configFLASH_CONNECTED_TO             (FLASH_CONNECTED_TO_1V8)
-#define dg_configFLASH_POWER_DOWN               (0)
-
+#define dg_configFLASH_POWER_DOWN               (1)
 #define dg_configPOWER_1V8_ACTIVE               (1)
 #define dg_configPOWER_1V8_SLEEP                (1)
 
