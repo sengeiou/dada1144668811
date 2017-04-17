@@ -70,9 +70,11 @@ extern OS_TASK task_sensor_sample;
 #if 1
 #if defined(CUSTOM_CONFIG_SERIAL_NUMBER_DEFINE)
 //#define SERIAL_NUMBER_NAME		"AS0170518ECG0001"
-#define SERIAL_NUMBER_INVAID	"AS0170518ECG####"
+#define SERIAL_NUMBER_INVAID	"AS0170518ECG0004"
 #define MODEL_TYPY_STR 			"AS0"
 #define SERIAL_NUMBER_LEN	17
+char serial_number[SERIAL_NUMBER_LEN];
+
 #endif
 static const uint8_t adv_data[] = {
         0x13, GAP_DATA_TYPE_LOCAL_NAME,
@@ -277,24 +279,6 @@ static const cts_callbacks_t cts_callbacks = {
 #endif // CFG_CTS
 
 
-static void read_mac_addr()
-{
-    uint8_t mac_addr[6];
-    nvms_t nvms;
-    int i;
-    memset(mac_addr,0,sizeof(mac_addr));
-    bool valid;
-
-    valid = w_ad_ble_read_nvms_param(mac_addr, 6, 0x01,0x00);
-    if(valid){
-        printf("read mac addr:%x,%x,%x,%x,%x,%x\r\n",mac_addr[0],mac_addr[1],mac_addr[2],mac_addr[3],mac_addr[4],mac_addr[5]);
-    }else{
-       printf("read mac addr failt \r\n");
-    }
-
-
-}
-
 /*
  * Custom service data
  */
@@ -308,7 +292,58 @@ static void myservice_init(ble_service_t *include_svc)
          * UUIDs for services, characteristics and descriptors.
          */
 
-        ble_uuid_from_string("91a7608d-4456-479d-b9b1-4706e8711cf8", &uuid);
+        //test
+        char sn_uuid[37];
+        int i=0;
+        for(i=0;i<4;i++){
+            sn_uuid[i]='0';
+        }
+        sn_uuid[4]=serial_number[2];
+        sn_uuid[5]='0';
+        sn_uuid[6]=serial_number[3];
+        sn_uuid[7]='0';
+
+        sn_uuid[8]='-';
+
+        sn_uuid[9]=serial_number[4];
+        sn_uuid[10]='0';
+        sn_uuid[11]=serial_number[5];
+        sn_uuid[12]='0';
+
+        sn_uuid[13]='-';
+
+        sn_uuid[14]=serial_number[6];
+        sn_uuid[15]='0';
+        sn_uuid[16]=serial_number[7];
+        sn_uuid[17]='0';
+
+        sn_uuid[18]='-';
+
+        sn_uuid[19]=serial_number[8];
+        sn_uuid[20]='0';
+        sn_uuid[21]='0';
+        sn_uuid[22]='0';
+
+        sn_uuid[23]='-';
+
+        for(i=24;i<28;i++){
+            sn_uuid[i]='0';
+        }
+
+        sn_uuid[28]=serial_number[12];
+        sn_uuid[29]='0';
+        sn_uuid[30]=serial_number[13];
+        sn_uuid[31]='0';
+        sn_uuid[32]=serial_number[14];
+        sn_uuid[33]='0';
+        sn_uuid[34]=serial_number[15];
+        sn_uuid[35]='0';
+        sn_uuid[36]='\0';
+        
+        
+       // ble_uuid_from_string("91a7608d-4456-479d-b9b1-4706e8711cf8", &uuid);
+       printf("len=%d,sn_uuid=%s\r\n",strlen(sn_uuid),sn_uuid);
+        ble_uuid_from_string(sn_uuid, &uuid);
         ble_gatts_add_service(&uuid, GATT_SERVICE_PRIMARY, ble_gatts_get_num_attr(1, 1, 1));
 
         if (include_svc) {
@@ -826,28 +861,12 @@ static test_callbacks_t test_callbacks = {
 /* Buffer must have length at least max_len + 1 */
 #if defined(CUSTOM_CONFIG_SERIAL_NUMBER_DEFINE)
 
-static void read_nvms_param_part(void)
-{
-	nvms_t nvms;
-	int i = 0;
-	uint8_t tmp_buf[60];
-	
-	nvms = ad_nvms_open(NVMS_PARAM_PART);
-	
-	ad_nvms_read(nvms, NVMS_PARAM_PART, (uint8_t *) tmp_buf,sizeof(tmp_buf));
-
-	printf("read_nvms_param_part\r\n");
-
-	for(i=0;i<60;i++)
-		printf("tmp_buf[%d]=%d   tmp_buf[%d]=%x\r\n",i,tmp_buf[i],i,tmp_buf[i]);	
-}
-
 static void read_serial_number(void)
 {
     static const uint8_t default_sn[SERIAL_NUMBER_LEN] = SERIAL_NUMBER_INVAID;
 
 #if dg_configNVPARAM_ADAPTER
-	char serial_number[SERIAL_NUMBER_LEN]; /* 1 byte for '\0' character */	 
+	//char serial_number[SERIAL_NUMBER_LEN]; /* 1 byte for '\0' character */	 
 	int serial_len=0; 
 	uint8_t valid = 0xFF;
 	uint16_t read_len = 0,write_len=0;
@@ -919,8 +938,7 @@ void ble_peripheral_task(void *params)
                         BLACKORCA_SW_VERSION_DATE);
         }
 
-        read_mac_addr();
-		
+
 #if defined(CUSTOM_CONFIG_SERIAL_NUMBER_DEFINE)
 /* Get serial number from nvparam if exist or default otherwise */
       read_serial_number();
