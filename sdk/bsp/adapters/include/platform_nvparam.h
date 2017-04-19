@@ -47,7 +47,7 @@
 #define TAG_BLE_PLATFORM_BLE_CA_NB_PKT          0x43 // 16bit value
 #define TAG_BLE_PLATFORM_BLE_CA_NB_BAD_PKT      0x44 // 16bit value
 #define TAG_BLE_PLATFORM_IRK                    0x80 // 16 bytes array
-#define TAG_BLE_PLATFORM_SERIAL_NUMBER			0x81 // 16 bytes array
+#define TAG_BLE_PLATFORM_SERIAL_NUMBER			0x81 // 15 bytes array
 
 /**
  * 'ble_platform' area definition
@@ -69,7 +69,7 @@ NVPARAM_AREA(ble_platform, NVMS_PARAM_PART, 0x0000)
         NVPARAM_PARAM(TAG_BLE_PLATFORM_BLE_CA_NB_PKT,           0x001E, 3) // uint16
         NVPARAM_PARAM(TAG_BLE_PLATFORM_BLE_CA_NB_BAD_PKT,       0x0021, 3) // uint16
         NVPARAM_PARAM(TAG_BLE_PLATFORM_IRK,                     0x0024, 17) // uint8[16]
-        NVPARAM_PARAM(TAG_BLE_PLATFORM_SERIAL_NUMBER,           0x0048, 17) // uint8[16]
+        NVPARAM_PARAM(TAG_BLE_PLATFORM_SERIAL_NUMBER,           0x0048, 16) // uint8[16]
 NVPARAM_AREA_END()
 
 #endif /* PLATFORM_NVPARAM_H_ */
