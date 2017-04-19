@@ -775,7 +775,7 @@ static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t leng
                         }
         }
         else if (ble_task_env.ble2app_id == 0x09) {
-
+                printf("ff09 rble_read_result_data_addr_offset=%d\r\n",rble_read_result_data_addr_offset);
                 uint8_t rble_sample_result_data[20] = { 0 };
                 nvms_t nvms_rble_result_storage_handle;
                 int i;
@@ -789,12 +789,14 @@ static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t leng
                                 ad_nvms_read(nvms_rble_result_storage_handle,
                                         rble_read_result_data_addr_offset, rble_sample_result_data,
                                         sizeof(rble_sample_result_data));
-                                for (i = 0; i < 20; i++)
-                                        {
-                                        if (rble_sample_result_data[i] != 0xff)
-                                                read_result = false;
-                                        else
-                                                read_result = true;
+                                read_result = true;
+                                for (i = 0; i < 20; i++){
+                                    printf("rble_sample_result_data[i=%d]=%x\r\n",i,rble_sample_result_data[i]);
+                                    if (rble_sample_result_data[i] != 0xff){
+                                        read_result = false;
+                                    }
+                                 
+                                                
                                 }
                                 if (read_result)
                                 {

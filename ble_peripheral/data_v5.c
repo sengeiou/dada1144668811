@@ -233,12 +233,14 @@ void write_track_to_flash()
     memcpy(rble_track_jump_data+rble_smp_track_jump_count,&step_env.time,RBLE_RESULT_LONG_SIZE);
     rble_smp_track_jump_count+=RBLE_RESULT_LONG_SIZE;
 
-    ad_nvms_write(nvms_rble_result_storage_handle, rble_track_jump_data_addr_offset, rble_track_jump_data,rble_smp_track_jump_count);
+    int ret=ad_nvms_write(nvms_rble_result_storage_handle, rble_track_jump_data_addr_offset, rble_track_jump_data,rble_smp_track_jump_count);
+    printf("write_track_to_flash ret=%d\r\n",ret);
     rble_track_jump_data_addr_offset+=rble_smp_track_jump_count;
 }
 
 void write_jump_to_flash()
 {
+    printf("write_jump_to_flash\r\n");
     nvms_rble_result_storage_handle=ad_nvms_open(NVMS_IMAGE_RESULT_DATA_STORAGE_PART);
     memset(rble_track_jump_data,0,20);
     rble_smp_track_jump_count=0;
@@ -266,7 +268,7 @@ void write_result_to_flash()
 {
    // printf("write_result_to_flash %d\r\n",step_env.total_step);
     nvms_rble_result_storage_handle=ad_nvms_open(NVMS_IMAGE_RESULT_DATA_STORAGE_PART);
-    ad_nvms_erase_region(nvms_rble_result_storage_handle,0,48);
+    //ad_nvms_erase_region(nvms_rble_result_storage_handle,0,48);
     memset(rble_sample_result_data,0,RBLE_RESULT_DATA_BUF_LENGTH);
     rble_smp_reslut_count=0;
 
@@ -309,7 +311,9 @@ void write_result_to_flash()
     memcpy(rble_sample_result_data+rble_smp_reslut_count,&step_env.jump_count,RBLE_RESULT_LONG_SIZE);
     rble_smp_reslut_count+=RBLE_RESULT_LONG_SIZE;
 
-    ad_nvms_write(nvms_rble_result_storage_handle, 0, rble_sample_result_data,rble_smp_reslut_count);
+    int ret=ad_nvms_write(nvms_rble_result_storage_handle, 0, rble_sample_result_data,rble_smp_reslut_count);
+    printf("write_result_to_flash ret=%d\r\n",ret);
+    
 }
 
 
