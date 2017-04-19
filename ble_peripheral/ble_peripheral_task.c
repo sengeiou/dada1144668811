@@ -319,7 +319,7 @@ static void myservice_init(ble_service_t *include_svc)
 
         sn_uuid[18]='-';
 
-        sn_uuid[19]=serial_number[8];
+        sn_uuid[19]='0';
         sn_uuid[20]='0';
         sn_uuid[21]='0';
         sn_uuid[22]='0';
@@ -330,7 +330,7 @@ static void myservice_init(ble_service_t *include_svc)
             sn_uuid[i]='0';
         }
 
-        sn_uuid[28]='0';
+        sn_uuid[28]=serial_number[11];
         sn_uuid[29]='0';
         sn_uuid[30]=serial_number[12];
         sn_uuid[31]='0';
@@ -338,9 +338,9 @@ static void myservice_init(ble_service_t *include_svc)
         sn_uuid[33]='0';
         sn_uuid[34]=serial_number[14];
         sn_uuid[35]='0';
-        sn_uuid[36]=serial_number[15];
-	    sn_uuid[37]='\0';        
-
+        sn_uuid[36]='\0';
+        
+        
        // ble_uuid_from_string("91a7608d-4456-479d-b9b1-4706e8711cf8", &uuid);
        printf("len=%d,sn_uuid=%s\r\n",strlen(sn_uuid),sn_uuid);
         ble_uuid_from_string(sn_uuid, &uuid);
