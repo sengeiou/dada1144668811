@@ -711,56 +711,35 @@ static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gy
 		if (step_env.type == VERTICAL) {
 			step_env.total_step += 2;
 			if ((step_env.time - step_env.last_step.time) == 0) {
-				step_env.frequency = 1;
+				step_env.frequency = 50*20;
 			}
 			else {
-				step_env.frequency = 2 * 1000 / (step_env.time - step_env.last_step.time);
+				step_env.frequency = (step_env.time - step_env.last_step.time)*TICK_TO_MS;
 			}
 			switch (step_env.mode) {
 			case WALK:
-#ifdef WEIBIN_PARAMETER
-				step_env.stride = 0.714f;
-#else
-				if (step_env.frequency < 2) {
-					step_env.stride = 0.64f; //default slow step length
-				}
-				if (step_env.frequency >= 2 && step_env.frequency < 2.8) {
-					step_env.stride = 0.2802*step_env.frequency + 0.09376;
-				}
-				else {
-					step_env.stride = 0.878f;//default fast step length
-				}
-#endif
 				break;
 			case RUN:
 				step_env.total_run += 2;
-#ifdef WEIBIN_PARAMETER
-				step_env.stride = 0.882f;
-#else
-				if (step_env.frequency < 3) {
-					step_env.stride = 0.75f;
-				}
-
-				if (step_env.frequency >= 3 && step_env.frequency < 3.4) {
-					step_env.stride = 0.9222*step_env.frequency - 1.981;
-				}
-				else {
-					step_env.stride = 1.15f;
-				}
-#endif
 				break;
 			case DASH:
 				//default:
 				step_env.total_dash += 2;
-				step_env.stride = 1.35f;
+				
 				break;
 			default:
 				break;
 			}
 
+			step_env.stride = (-0.000608)*step_env.frequency+1.358;
 			step_env.distance += step_env.stride * 2;
 
-
+			//max v
+			if (step_env.mode == DASH) {
+				if (step_env.max_v < (step_env.stride * 2 / step_env.frequency)*1000) {
+					step_env.max_v = (step_env.stride * 2 / step_env.frequency)*1000;
+				}
+			}
 			//
 			if (step_env.ori == BACKWARD) {
 				step_env.backward_num += 2;
@@ -783,45 +762,14 @@ static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gy
 		else if (step_env.type == HORIZONTAL) {
 			step_env.total_step++;
 			step_env.h_step++;
-			if ((step_env.time - step_env.last_step.time) == 0) {
-				step_env.frequency = 1;
-			}
-			else {
-				step_env.frequency = 1000 / (step_env.time - step_env.last_step.time);
-			}
 			switch (step_env.mode) {
 			case WALK:
-#ifdef WEIBIN_PARAMETER
 				step_env.stride = 0.882f;
-#else
-				if (step_env.frequency < 2) {
-					step_env.stride = 0.64f; //default slow step length
-				}
-				if (step_env.frequency >= 2 && step_env.frequency < 2.8) {
-					step_env.stride = 0.2802*step_env.frequency + 0.09376;
-				}
-				else {
-					step_env.stride = 0.878f;//default fast step length
-				}
-#endif
 				break;
 			case RUN:
 				step_env.total_run++;
 				step_env.h_run++;
-#ifdef WEIBIN_PARAMETER
 				step_env.stride = 0.91f;
-#else
-				if (step_env.frequency < 3) {
-					step_env.stride = 0.75f;
-				}
-
-				if (step_env.frequency >= 3 && step_env.frequency < 3.4) {
-					step_env.stride = 0.9222*step_env.frequency - 1.981;
-				}
-				else {
-					step_env.stride = 1.15f;
-				}
-#endif
 				break;
 			case DASH:
 				//default:
@@ -1056,7 +1004,7 @@ static void reset_jump_state()
 void init_step_env()
 {
     memset(&step_env,0,sizeof(step_env));
-
+    rble_track_jump_data_addr_offset=48;
 }
 
 

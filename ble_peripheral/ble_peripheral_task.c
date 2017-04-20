@@ -660,10 +660,10 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
                 bd.id3 = 0xFF;
                 test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
                 ble_task_env.ble2app_id = 0xFF;
-                nvms_t _nvms_rble_result_storage_handle;
-                 _nvms_rble_result_storage_handle = ad_nvms_open(NVMS_IMAGE_DATA_STORAGE_PART);
-                  ad_nvms_erase_region(_nvms_rble_result_storage_handle, 0,
-                                        RBLE_DATA_RESULT_PATITION_SIZE);
+               // nvms_t _nvms_rble_result_storage_handle;
+                // _nvms_rble_result_storage_handle = ad_nvms_open(NVMS_IMAGE_DATA_STORAGE_PART);
+                 // ad_nvms_erase_region(_nvms_rble_result_storage_handle, 0,
+                                       // RBLE_DATA_RESULT_PATITION_SIZE);
         }
 
         else if ((value_h == RBLE_RECEIVE_DATA_HEADER) && (value_cmd == RBLE_SEND_RESULT_CMD))
@@ -807,6 +807,8 @@ static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t leng
                                          test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
                                         rble_read_result_data_addr_offset = 0;
                                         ble_task_env.ble2app_id = 0xff;
+                                        ad_nvms_erase_region(nvms_rble_result_storage_handle, 0,
+                                            RBLE_DATA_RESULT_PATITION_SIZE);
                                         return;
 
                                 }

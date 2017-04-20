@@ -226,7 +226,7 @@ typedef struct step_env {
 	long fir_peak_time;
 	long sec_peak_time;
 	float value;
-	uint8_t frequency;
+	float frequency;
 	uint8_t detect_peak_mode;
 	last_status_is_up_t last_status_is_up;
 	direction_is_up_t direction_is_up;
