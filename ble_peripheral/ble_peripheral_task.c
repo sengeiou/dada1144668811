@@ -645,7 +645,7 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
         else if ((value_h == RBLE_RECEIVE_DATA_HEADER) && (value_cmd == RBLE_SAVE_SAMPLE_CMD))
                 {
 					bd.id1 = 0xFF;
-	                bd.id2 = 0x05;
+	                bd.id2 = 0x08;
 	                bd.id3 = 0xFF;
 	                test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
                     ble_task_env.ble2app_id = 0xFF;
@@ -656,7 +656,7 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
                 {
                 rble_start_cal_cmd = true;
                 bd.id1 = 0xFF;
-                bd.id2 = 0x08;
+                bd.id2 = 0x05;
                 bd.id3 = 0xFF;
                 test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
                 ble_task_env.ble2app_id = 0xFF;

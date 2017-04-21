@@ -710,7 +710,7 @@ static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gy
 
 		if (step_env.type == VERTICAL) {
 			step_env.total_step += 2;
-			if ((step_env.time - step_env.last_step.time) == 0) {
+			if (step_env.last_step.time == 0) {
 				step_env.frequency = 50*20;
 			}
 			else {
