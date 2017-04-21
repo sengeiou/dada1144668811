@@ -716,6 +716,8 @@ static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gy
 			else {
 				step_env.frequency = (step_env.time - step_env.last_step.time)*TICK_TO_MS;
 			}
+            if (step_env.frequency < 400) step_env.frequency = 400;
+			if (step_env.frequency > 1300)step_env.frequency = 1300;
 			switch (step_env.mode) {
 			case WALK:
 				break;
