@@ -150,6 +150,10 @@ static int detect_peak(float new_value, float old_value)
 	}
 	else if (step_env.detect_peak_mode == ACC_PEAK_Z) {
 		step_env.last_status_is_up.acc_z = step_env.direction_is_up.acc_z;
+
+		if (new_value < 5  && new_value>-4) {
+			step_env.jump_air_count++;
+		}
 		if (new_value > old_value) {
 			step_env.direction_is_up.acc_z = 1;
 			step_env.continue_up_count.acc_z++;
@@ -644,18 +648,29 @@ static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gy
 					step_env.jump.fir_peak_time = step_env.time_of_now;
 					step_env.jump.fir_peak_value = step_env.acc_value_mode.acc_z_old;
 					//printf("z jump.flag=1; line=%d\n", line);
+					step_env.jump_air_count = 0;
 				}
 				else if (step_env.jump.flag == 1) {
 					if (((step_env.time_of_now - step_env.jump.fir_peak_time) > 180) && ((step_env.time_of_now - step_env.jump.fir_peak_time) < 450)) {
-						step_env.jump.flag = 2;
-						step_env.jump.sec_peak_time = step_env.time_of_now;
-						step_env.jump.sec_peak_value = step_env.acc_value_mode.acc_z_old;
-						//printf("z jump.flag=2;line=%d\n", line);
+						if (step_env.jump_air_count >= 5) {
+							step_env.jump.flag = 2;
+							step_env.jump.sec_peak_time = step_env.time_of_now;
+							step_env.jump.sec_peak_value = step_env.acc_value_mode.acc_z_old;
+						//	printf("z jump.flag=2;line=%d\n", line);
+						}
+						else {
+							step_env.jump.flag = 1;
+						//	printf("z jump.flag=1; line=%d\n", line);
+							step_env.jump.fir_peak_time = step_env.time_of_now;
+							step_env.jump.fir_peak_value = step_env.acc_value_mode.acc_z_old;
+							step_env.jump_air_count = 0;
+						}					
 					}
 					else if ((step_env.time_of_now - step_env.jump.fir_peak_time) >= 450) {
 						step_env.jump.flag = 1;
 						step_env.jump.fir_peak_time = step_env.time_of_now;
 						step_env.jump.fir_peak_value = step_env.acc_value_mode.acc_z_old;
+						step_env.jump_air_count = 0;
 					}
 				}
 

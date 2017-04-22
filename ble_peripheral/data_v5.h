@@ -222,6 +222,7 @@ typedef struct step_env {
 	uint8_t mode;   //step mode: walk,run,dash
 	uint8_t type; //0:x,1:y,2:z
 	uint8_t ori;
+	int jump_air_count;
 	long time;
 	long fir_peak_time;
 	long sec_peak_time;
