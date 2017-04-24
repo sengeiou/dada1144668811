@@ -54,20 +54,20 @@ int jump_col = 0;
 #ifdef FILTER
 float acc_x_abs_min_normal = 5.50f;//25.2f;
 float acc_y_abs_min_normal = 5.5f;//15.0f;//6.5f;//15.0f;//25.2f;
-float acc_x_abs_min_run = 15.0f;
-float acc_y_abs_min_run = 15.0f;
-float acc_x_abs_min_dash = 28.0f;
-float acc_y_abs_min_dash = 28.0f;
+float acc_x_abs_min_run = 12.0f;//15.0f;
+float acc_y_abs_min_run = 12.0f;//15.0f;
+float acc_x_abs_min_dash = 20.0f;//28.0f;
+float acc_y_abs_min_dash = 20.0f;//28.0f;
 float acc_z_abs_min_jump = 40.0f;//15.0f;//40.0f;
 int acc_y_min_interval_step = 500;//ms
 
 int acc_y_min_interval_normal = 1260;//ms
-int acc_y_min_interval_run = 720;//ms
-int acc_y_min_interval_dash = 600;//ms
+int acc_y_min_interval_run = 650;//ms
+int acc_y_min_interval_dash = 480;//ms
 
 int acc_x_min_interval_normal = 1260;//ms
-int acc_x_min_interval_run = 850;//ms
-int acc_x_min_interval_dash = 600;//ms
+int acc_x_min_interval_run = 600;//ms
+int acc_x_min_interval_dash = 380;//ms
 #else
 float acc_x_abs_min_normal = 15.0f;//25.2f;
 float acc_y_abs_min_normal = 12.5f;//15.0f;//6.5f;//15.0f;//25.2f;
@@ -401,7 +401,7 @@ static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gy
 		step_env.min_acc_value = acc_x_abs_min_normal;
 		if (detect_peak(acc_x2, step_env.acc_value_mode.acc_x2_old)) {
 
-			if (step_env.time_of_now - MAX(step_env.last_step.time, get_temp_step_time(HORIZONTAL)) > 110) {
+			if (step_env.time_of_now - MAX(step_env.time, get_temp_step_time(HORIZONTAL)) > 110) {
 				if (step_env.x_step.flag == 0) {
 					step_env.x_step.flag = 1;
 					//printf("x flag=1,line=%d\n", line);
@@ -434,7 +434,7 @@ static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gy
 
 				if (step_env.x_step.flag == 2) {
 					step_env.x_step.value = (data_abs(step_env.x_step.fir_peak_value) + data_abs(step_env.x_step.sec_peak_value)) / 2;
-					long step_div = (step_env.x_step.sec_peak_time - MAX(step_env.last_step.time, step_env.temp_step.time))*TICK_TO_MS;
+					float step_div = (step_env.x_step.sec_peak_time - MAX(step_env.time, step_env.temp_step.time))*TICK_TO_MS;
 					if (step_div<acc_x_min_interval_dash && step_env.x_step.value>acc_x_abs_min_dash) {
 						step_env.x_step.mode = DASH;
 					}
@@ -509,7 +509,7 @@ static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gy
 		step_env.min_acc_value = acc_y_abs_min_normal;
 		if (detect_peak(acc_y2, step_env.acc_value_mode.acc_y2_old)) {
 			//step_env.time_of_now = inv_get_tick_count(line);
-			if (step_env.time_of_now - MAX(step_env.last_step.time, get_temp_step_time(VERTICAL)) > 110) {
+			if (step_env.time_of_now - MAX(step_env.time, get_temp_step_time(VERTICAL)) > 110) {
 				if (step_env.y_step.flag == 0) {
 					step_env.y_step.flag = 1;
 					step_env.y_step.fir_peak_time = step_env.time_of_now;
@@ -564,7 +564,7 @@ static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gy
 
 				if (step_env.y_step.flag == 2) {
 					step_env.y_step.value = (data_abs(step_env.y_step.fir_peak_value) + data_abs(step_env.y_step.sec_peak_value)) / 2;
-					long step_div = (step_env.y_step.sec_peak_time - MAX(step_env.last_step.time, step_env.temp_step.time))*TICK_TO_MS;
+					float step_div = (step_env.y_step.sec_peak_time - MAX(step_env.time, get_temp_step_time(VERTICAL)))*TICK_TO_MS;
 					if (step_div<acc_y_min_interval_dash && step_env.y_step.value>acc_y_abs_min_dash) {
 						step_env.y_step.mode = DASH;
 					}
@@ -781,12 +781,12 @@ static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gy
 			step_env.h_step++;
 			switch (step_env.mode) {
 			case WALK:
-				step_env.stride = 0.882f;
+				step_env.stride = 0.782f;
 				break;
 			case RUN:
 				step_env.total_run++;
 				step_env.h_run++;
-				step_env.stride = 0.91f;
+				step_env.stride = 0.81f;
 				break;
 			case DASH:
 				//default:
