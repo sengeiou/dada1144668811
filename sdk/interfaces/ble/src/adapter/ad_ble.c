@@ -54,6 +54,8 @@
 #include "rwble.h"
 #endif
 
+#include <time.h>
+
 #include "rwip_config.h"
 #include "reg_blecore.h"
 
@@ -474,10 +476,45 @@ bool w_ad_ble_read_nvms_param(uint8_t* param, uint8_t len, uint8_t nvparam_tag, 
         return false; /* Failure */
 }
 
+static void GetRandomValue(unsigned char string[6])
+ {
+	     int iRandom = 0;
+	     int fd = 0;
+	     unsigned long seed;
+	
+
+	
+		     /* initialize random seed */
+		 srand(time(NULL));
+	     iRandom = rand();
+		// printf("irandom=%d\n", iRandom);
+	     string[0] = (((iRandom >> 24 | iRandom >> 16) & (0xFE)) | (0x02)); /* must use private bit(1) and no BCMC bit 0 */
+	
+		     /* second seed */
+	    
+	     iRandom = rand();
+		// printf("irandom=%d\n", iRandom);
+	     string[1] = ((iRandom >> 8) & 0xFF);
+	
+		     /* third seed */
+		 iRandom = rand();
+		 //printf("irandom=%d\n", iRandom);
+	     string[5] = (iRandom & 0xFF);
+	
+		 return;
+	 }
+
 
 void read_public_address()
 {
         uint8_t default_addr[BD_ADDR_LEN] = defaultBLE_STATIC_ADDRESS;
+        //for test
+        #if 1
+            //uint8_t custom_addr[BD_ADDR_LEN]={0x16, 0x00, 0x80, 0xCA, 0xEA, 0x80};
+            //memcpy(public_address, &custom_addr, sizeof(public_address));
+            //return;
+            GetRandomValue(default_addr);
+        #endif
 
 #ifdef BLE_PROD_TEST
         memcpy(public_address, &default_addr, sizeof(public_address));
