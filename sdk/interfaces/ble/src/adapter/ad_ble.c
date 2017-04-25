@@ -399,7 +399,8 @@ static bool ad_ble_read_nvms_param(uint8_t* param, uint8_t len, uint8_t nvparam_
         uint16_t read_len = 0;
         uint16_t param_len;
         uint8_t valid;
-
+        int i;
+        #if 0
         /* Parameter length shall be long enough to store address and validity flag */
         param_len = ad_nvparam_get_length(ble_parameters, nvparam_tag, NULL);
         if (param_len == len + sizeof(valid)) {
@@ -415,6 +416,18 @@ static bool ad_ble_read_nvms_param(uint8_t* param, uint8_t len, uint8_t nvparam_
                         }
                 }
         }
+        #else
+        read_len = ad_nvparam_read(ble_parameters, nvparam_tag,
+                                        len, param);
+        if (read_len == len) {
+            for (i = 0; i < len; i++) {
+                if (param[i] != 0xFF) {
+                        return true; /* Success */
+                }
+            }
+        }
+
+        #endif
 #else
         nvms_t nvms;
         int i;
@@ -486,19 +499,23 @@ static void GetRandomValue(unsigned char string[6])
 	
 		     /* initialize random seed */
 		 srand(time(NULL));
+		 long time_s=time(NULL);
+		 printf("time_s=%ld\r\n",time_s);
+		 long time_s_2=inv_get_tick_count();
+		 printf("time_s_2=%ld\r\n",time_s_2);
 	     iRandom = rand();
-		// printf("irandom=%d\n", iRandom);
+		 printf("irandom=%d\n", iRandom);
 	     string[0] = (((iRandom >> 24 | iRandom >> 16) & (0xFE)) | (0x02)); /* must use private bit(1) and no BCMC bit 0 */
 	
 		     /* second seed */
 	    
 	     iRandom = rand();
-		// printf("irandom=%d\n", iRandom);
+		 printf("irandom=%d\n", iRandom);
 	     string[1] = ((iRandom >> 8) & 0xFF);
 	
 		     /* third seed */
 		 iRandom = rand();
-		 //printf("irandom=%d\n", iRandom);
+		 printf("irandom=%d\n", iRandom);
 	     string[5] = (iRandom & 0xFF);
 	
 		 return;
@@ -507,13 +524,14 @@ static void GetRandomValue(unsigned char string[6])
 
 void read_public_address()
 {
-        uint8_t default_addr[BD_ADDR_LEN] = defaultBLE_STATIC_ADDRESS;
+        uint8_t default_addr[BD_ADDR_LEN] = {0x19, 0x00, 0x80, 0xCA, 0xEA, 0x80};
         //for test
-        #if 1
+        #if 0
             //uint8_t custom_addr[BD_ADDR_LEN]={0x16, 0x00, 0x80, 0xCA, 0xEA, 0x80};
             //memcpy(public_address, &custom_addr, sizeof(public_address));
             //return;
             GetRandomValue(default_addr);
+        printf("random mac:%x,%x,%x,%x,%x,%x\r\n",default_addr[0],default_addr[1],default_addr[2],default_addr[3],default_addr[4],default_addr[5]);
         #endif
 
 #ifdef BLE_PROD_TEST
@@ -524,6 +542,7 @@ void read_public_address()
         valid = ad_ble_read_nvms_param(public_address, BD_ADDR_LEN, TAG_BLE_PLATFORM_BD_ADDRESS,
                                                                 NVMS_PARAMS_TAG_BD_ADDRESS_OFFSET);
         if (!valid) {
+                printf("wzb 123 memcpy mac\r\n");
                 memcpy(public_address, &default_addr, BD_ADDR_LEN);
         }
 #endif

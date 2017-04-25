@@ -16,7 +16,7 @@ int rble_smp_reslut_count=0;
 float float_buf_print[3]={0};
 
 
-uint32_t rble_track_jump_data_addr_offset=48;
+uint32_t rble_track_jump_data_addr_offset=100;
 uint8_t rble_track_jump_data[20]={0};
 int rble_smp_track_jump_count=0;
 static float data_abs(float value);
@@ -752,7 +752,8 @@ static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gy
 			step_env.distance += step_env.stride * 2;
 
 			//max v
-			if (step_env.mode == DASH) {
+			//if (step_env.mode == DASH) {
+			if(1){
 				if (step_env.max_v < (step_env.stride * 2 / step_env.frequency)*1000) {
 					step_env.max_v = (step_env.stride * 2 / step_env.frequency)*1000;
 				}
@@ -1021,7 +1022,7 @@ static void reset_jump_state()
 void init_step_env()
 {
     memset(&step_env,0,sizeof(step_env));
-    rble_track_jump_data_addr_offset=48;
+    rble_track_jump_data_addr_offset=100;
 }
 
 

@@ -47,12 +47,17 @@
 #include "sensor_task.h"
 #include "data.h"
 
+
+
+
 #if defined(CUSTOM_CONFIG_SERIAL_NUMBER_DEFINE)
 #include "ad_nvparam.h"
 #include "platform_nvparam.h"
 #endif
 
 static ble_service_t *test_service;
+static void reboot(void);
+
 /*
  * Notification bits reservation
  * bit #0 is always assigned to BLE event queue notification
@@ -78,7 +83,7 @@ char serial_number[SERIAL_NUMBER_LEN];
 #endif
 static const uint8_t adv_data[] = {
         0x13, GAP_DATA_TYPE_LOCAL_NAME,
-        'W', 'B', 'I', 'N', '_', 'T', ' ', 'P', 'e', 'r', 'i', 'p', 'h', 'e', 'r', 'a', 'l',
+        's', 'z', 'b', 't', '_', 'q', 'i', 'a','o', 'd', 'a', 'n', 'V', '1', '.', '0', '.', '1',
         0x01
         #ifdef dg_configSUOTA_SUPPORT
         + 0x02
@@ -145,6 +150,7 @@ typedef struct ble_task_env {
         uint16_t conn_intv;             ///< Connection interval
         uint16_t mtu;
         uint8_t ble2app_id;
+        uint8_t test_rx_data_id;
 
 } ble_task_env_t;
 
@@ -393,7 +399,7 @@ static const dis_device_info_t dis_info = {
         .serial_number = "SN123456",
         .hw_revision = "Rev.D",
         .fw_revision = "1.0",
-        .sw_revision = "1.0.0.1",
+        .sw_revision = "1.0.0.3",
         .system_id = &dis_sys_id,
         .reg_cert_length = sizeof(dis_reg_cert),
         .reg_cert = dis_reg_cert,
@@ -579,7 +585,8 @@ extern int rv_accuracy;
 extern int compass_accuracy;
 extern bool rble_write_flash_cmd;
 extern bool rble_start_cal_cmd;
-
+uint8_t create_id_data[52];
+int create_id_data_rx_len=0;
 static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t *value,
         uint16_t length)
 {
@@ -600,12 +607,33 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
         memset(bd.id2, 0, sizeof(bd.id1));
         memset(bd.id3, 0, sizeof(bd.id1));
 
+        if(ble_task_env.test_rx_data_id==0x08){
+            memcpy(create_id_data+create_id_data_rx_len,value,length);
+            create_id_data_rx_len+=length;
+            printf("11 create_id_data_rx_len=%d\r\n",create_id_data_rx_len);
+            if(create_id_data_rx_len>=52){
+                ble_task_env.test_rx_data_id=0xff;
+                create_id_data_rx_len=0;
+                nvms_t nvms_rble_result_storage_handle;
+                nvms_rble_result_storage_handle = ad_nvms_open(NVMS_IMAGE_RESULT_DATA_STORAGE_PART);
+                ad_nvms_write(nvms_rble_result_storage_handle,48,create_id_data,52);
+                bd.id1 = 0xFF;
+	            bd.id2 = 0x08;
+	            bd.id3 = 0xFF;
+                test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
+                ble_task_env.ble2app_id = 0xFF;
+            }
+            return;
+        }
+
 #if 1
         value_h = *(value);
         value_cmd = *(value + 1);
+        
         if ((value_h == RBLE_RECEIVE_DATA_HEADER) && (value_cmd == RBLE_START_SENSOR_CMD))
                 {
                 //start_collect_data =true;
+                ble_task_env.test_rx_data_id=0xff;
 
 #if defined(RBLE_SENSOR_CTRL_BY_APP)
                 OS_TASK_NOTIFY(task_sensor_sample, RBLE_SENSOR_START_SAMPLE_NOTIF,
@@ -614,11 +642,34 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
                 bd.id1 = 0xFF;
                 bd.id2 = 0x01;
                 bd.id3 = 0xFF;
+                uint8_t rble_sample_result_data[20] = { 0 };
+                nvms_t nvms_rble_result_storage_handle;
+                int i;
+                bool read_result = false;
+                nvms_rble_result_storage_handle = ad_nvms_open(NVMS_IMAGE_RESULT_DATA_STORAGE_PART);
+                memset(rble_sample_result_data, 0, sizeof(rble_sample_result_data));
+                ad_nvms_read(nvms_rble_result_storage_handle,
+                                        0, rble_sample_result_data,
+                                        sizeof(rble_sample_result_data));
+                read_result = true;
+                for (i = 0; i < 20; i++){
+                    printf("rble_sample_result_data[i=%d]=%x\r\n",i,rble_sample_result_data[i]);
+                    if (rble_sample_result_data[i] != 0xff){
+                       read_result = false;
+                    }                               
+                }
+                if(read_result){
+                    bd.id3=0x00;
+                }else{
+                    bd.id3=0x01;
+                }
+                
                 test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
                 ble_task_env.ble2app_id = 0xFF;
         }
         else if ((value_h == RBLE_RECEIVE_DATA_HEADER) && (value_cmd == RBLE_RECEIVE_DATA_SEND))
                 {
+                ble_task_env.test_rx_data_id=0xff;
                 bd.id1 = 0xFF;
                 bd.id2 = 0x02;
                 bd.id3 = 0xFF;
@@ -628,7 +679,7 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
         }
         else if ((value_h == RBLE_RECEIVE_DATA_HEADER) && (value_cmd == RBLE_STOP_SAMPLE_CMD))
                 {
-
+                ble_task_env.test_rx_data_id=0xff;
                 rble_write_flash_cmd = false;
 
                 bd.id1 = 0xFF;
@@ -647,13 +698,21 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
 					bd.id1 = 0xFF;
 	                bd.id2 = 0x08;
 	                bd.id3 = 0xFF;
-	                test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
-                    ble_task_env.ble2app_id = 0xFF;
+                    ble_task_env.test_rx_data_id=0x08;
+                    create_id_data_rx_len=0;
+                    memset(create_id_data,0,sizeof(create_id_data));
+                    if(length>2){
+                        memcpy(create_id_data,value+2,length-2);
+                        create_id_data_rx_len+=(length-2);
+                    }
+	                //test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
+                    //ble_task_env.ble2app_id = 0xFF;
 					rble_write_flash_cmd = true;
 
         }
         else if ((value_h == RBLE_RECEIVE_DATA_HEADER) && (value_cmd == RBLE_START_CAL_CMD))
                 {
+                ble_task_env.test_rx_data_id=0xff;
                 rble_start_cal_cmd = true;
                 bd.id1 = 0xFF;
                 bd.id2 = 0x05;
@@ -668,6 +727,7 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
 
         else if ((value_h == RBLE_RECEIVE_DATA_HEADER) && (value_cmd == RBLE_SEND_RESULT_CMD))
                 {
+                ble_task_env.test_rx_data_id=0xff;
                 bd.id1 = 0xFF;
                 bd.id2 = 0x09;
                 bd.id3 = 0xFF;
@@ -676,6 +736,7 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
                 ble_task_env.ble2app_id = 0x09;
         }
         else if ((value_h == RBLE_RECEIVE_DATA_HEADER) && value_cmd == 0xff) {
+            ble_task_env.test_rx_data_id==0xff;
                 if (length == 3 && (*(value + 2) == 0x01)) {
                         bd.id1 = bd.id2 = 0xff;
                         bd.id3 = 0x00;          //start flag
@@ -685,6 +746,7 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
                 }
         }
         else if ((value_h == RBLE_RECEIVE_DATA_HEADER) && value_cmd == 0x69) {
+            ble_task_env.test_rx_data_id=0xff;
                 float x = 0, y = 0, z = 0;
                 //char float_str[12];
                 char float_str[20];
@@ -825,10 +887,10 @@ static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t leng
                                 {
                                 ad_nvms_read(nvms_rble_result_storage_handle,
                                         rble_read_result_data_addr_offset, rble_sample_result_data,
-                                        8);
-                                test_tx_data(svc, conn_idx, rble_sample_result_data, 8);
+                                        20);
+                                test_tx_data(svc, conn_idx, rble_sample_result_data, 20);
                                 ble_task_env.ble2app_id = 0x09;
-                                rble_read_result_data_addr_offset += 8;
+                                rble_read_result_data_addr_offset += 20;
                         }
                 }
                 else
@@ -930,6 +992,52 @@ done:
 
 #endif /*CUSTOM_CONFIG_SERIAL_NUMBER_DEFINE*/
 
+static bool read_nvms_param(uint8_t* param, uint8_t len, uint8_t nvparam_tag, uint32_t nvms_addr)
+{
+#if (dg_configNVMS_ADAPTER == 1)
+#if (dg_configNVPARAM_ADAPTER == 1)
+            uint16_t read_len = 0;
+            uint16_t param_len;
+            uint8_t valid;
+            nvparam_t ble_parameters=ad_nvparam_open("ble_platform");
+
+            read_len = ad_nvparam_read(ble_parameters, nvparam_tag,
+                                    len, param);
+            if (read_len == len) {
+                    return true; /* Success */
+            }
+                    
+            
+#else
+            nvms_t nvms;
+            int i;
+    
+            nvms = ad_nvms_open(NVMS_PARAM_PART);
+    
+            ad_nvms_read(nvms, nvms_addr, (uint8_t *) param, len);
+    
+            for (i = 0; i < len; i++) {
+                    if (param[i] != 0xFF) {
+                            return true; /* Success */
+                    }
+            }
+#endif /* (dg_configNVPARAM_ADAPTER == 1) */
+#endif /* (dg_configNVMS_ADAPTER == 1) */
+    
+            return false; /* Failure */
+
+
+}
+
+static void reboot(void)
+{
+        /*
+         * Reset platform
+         */
+        __disable_irq();
+        REG_SETF(CRG_TOP, SYS_CTRL_REG, SW_RESET, 1);
+}
+
 void ble_peripheral_task(void *params)
 {
         int i = 0;
@@ -941,6 +1049,35 @@ void ble_peripheral_task(void *params)
                 printf("wzb SW_VERSION=%s    SW_VERSION_DATE=%s\r\n", BLACKORCA_SW_VERSION,
                         BLACKORCA_SW_VERSION_DATE);
         }
+
+        //test write mac and sn
+        #if 0
+        nvparam_t custm_param=ad_nvparam_open("ble_platform");
+        uint8_t custom_addr[BD_ADDR_LEN]={0x22, 0x00, 0x80, 0xCA, 0xEA, 0x80};
+        if (ad_nvparam_write(custm_param, TAG_BLE_PLATFORM_BD_ADDRESS,6, custom_addr)!=6){
+            printf("write mac fail\r\n");
+        }
+        uint8_t custom_sn[SERIAL_NUMBER_LEN] = "AS017425ECG0009";
+
+        if(ad_nvparam_write(custm_param, TAG_BLE_PLATFORM_SERIAL_NUMBER,SERIAL_NUMBER_LEN, custom_sn)!=16){
+            printf("write sn fail \r\n");
+        }
+
+        bool valid;
+        uint8_t test_address[6]={0};
+        valid = read_nvms_param(test_address, 6, TAG_BLE_PLATFORM_BD_ADDRESS,
+                                                                0x0000);
+        if(valid){
+            printf("read_nvms_param ok \r\n");
+        }
+        else{
+            printf("read_nvms_param err \r\n");
+        }
+        int j=0;
+        for(j=0;j<6;j++)printf("test addr=%x\r\n",test_address[j]);
+        reboot();
+        #endif
+        //end
 
 
 #if defined(CUSTOM_CONFIG_SERIAL_NUMBER_DEFINE)
@@ -978,6 +1115,7 @@ void ble_peripheral_task(void *params)
         ble_task_env.ble_task_p = OS_GET_CURRENT_TASK();
         ble_task_env.conn_idx = BLE_CONN_IDX_INVALID;
         ble_task_env.ble2app_id = 0xff;
+        ble_task_env.test_rx_data_id=0xff;
 
         srand(time(NULL));
 
@@ -1064,7 +1202,9 @@ void ble_peripheral_task(void *params)
         OS_TIMER_START(cts_timer, OS_TIMER_FOREVER);
 #endif
 
+        
         app_calc_scan_rsp_data(scan_rsp_data, sizeof(scan_rsp_data));
+        printf("scan_rsp_data=%x,%x,%x\r\n",scan_rsp_data[4],scan_rsp_data[5],scan_rsp_data[6]);
         ble_gap_adv_data_set(sizeof(adv_data), adv_data, sizeof(scan_rsp_data), scan_rsp_data);
 
         ble_gap_adv_start(GAP_CONN_MODE_UNDIRECTED);
