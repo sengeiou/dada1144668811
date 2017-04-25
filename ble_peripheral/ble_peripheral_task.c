@@ -57,6 +57,8 @@
 
 static ble_service_t *test_service;
 static void reboot(void);
+static int write_mac_addr(const void *data);
+static int write_sn(const void *data);
 
 /*
  * Notification bits reservation
@@ -149,7 +151,7 @@ typedef struct ble_task_env {
         uint16_t conn_idx;              ///< Connection index
         uint16_t conn_intv;             ///< Connection interval
         uint16_t mtu;
-        uint8_t ble2app_id;
+        int ble2app_id;
         uint8_t test_rx_data_id;
 
 } ble_task_env_t;
@@ -735,15 +737,15 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
                 test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
                 ble_task_env.ble2app_id = 0x09;
         }
-        else if ((value_h == RBLE_RECEIVE_DATA_HEADER) && value_cmd == 0xff) {
+        else if ((value_h == RBLE_RECEIVE_DATA_HEADER) && value_cmd == 0xff && length == 3 && (*(value + 2) == 0x01)) {
             ble_task_env.test_rx_data_id==0xff;
-                if (length == 3 && (*(value + 2) == 0x01)) {
+               
                         bd.id1 = bd.id2 = 0xff;
                         bd.id3 = 0x00;          //start flag
                         test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
                         ble_task_env.ble2app_id = 0x03;
                         t_rble_read_result_data_addr_offset = 0;
-                }
+                
         }
         else if ((value_h == RBLE_RECEIVE_DATA_HEADER) && value_cmd == 0x69) {
             ble_task_env.test_rx_data_id=0xff;
@@ -773,6 +775,35 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
                 test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
                 //test_tx_data(svc, conn_idx, (uint8_t *)float_str, sizeof(float_str));
                 ble_task_env.ble2app_id = 0xFF;
+
+        }
+        else if((*value)==0x0a && (*(value+1)==0xff) && (*(value+2)==0xff) 
+            && (*(value+3)==0xff) && (*(value+4)==0xff) && length==11){
+            //write mac addr
+            ble_task_env.test_rx_data_id=0xff;
+            bd.id1=0x0a;
+            bd.id2=0xff;
+            if(write_mac_addr(value+5)==-1){
+                bd.id3=0x00;
+            }else{
+                bd.id3=0x01;
+            }
+            ble_task_env.ble2app_id = 0x0aFF;
+            test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
+        }
+        else if((*value)==0x0b && (*(value+1)==0xff) && (*(value+2)==0xff) 
+            && (*(value+3)==0xff) && (*(value+4)==0xff) && length==20){
+            //write sn
+            ble_task_env.test_rx_data_id=0xff;
+            bd.id1=0x0b;
+            bd.id2=0xff;
+            if(write_sn(value+5)== -1){
+                bd.id3=0x0;
+            }else{
+                bd.id3=0x01;
+            }
+            ble_task_env.ble2app_id = 0x0bFF;
+            test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
 
         }
 #endif
@@ -907,6 +938,14 @@ static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t leng
 
 
         }
+        else if(ble_task_env.ble2app_id == 0x0aff){
+            ble_task_env.ble2app_id = 0xff;
+            reboot();
+        }
+        else if(ble_task_env.ble2app_id == 0x0bff){
+            ble_task_env.ble2app_id = 0xff;
+            reboot();
+        }
 
         printf("wzb test_tx_done_cb\r\n");
 }
@@ -1037,6 +1076,32 @@ static void reboot(void)
         __disable_irq();
         REG_SETF(CRG_TOP, SYS_CTRL_REG, SW_RESET, 1);
 }
+
+static int write_mac_addr(const void *data)
+{
+    nvparam_t custm_param=ad_nvparam_open("ble_platform");
+    uint8_t custom_addr[BD_ADDR_LEN]={0x22, 0x00, 0x80, 0xCA, 0xEA, 0x80};
+    memcpy(custom_addr,data,6);
+    printf("write_mac_addr:%x:%x:%x:%x:%x:%x\r\n",custom_addr[0],custom_addr[1],custom_addr[2],custom_addr[3],custom_addr[4],custom_addr[5]);
+    if (ad_nvparam_write(custm_param, TAG_BLE_PLATFORM_BD_ADDRESS,6, custom_addr)!=6){
+            return -1;
+    }
+    return 0;
+}
+
+static int write_sn(const void *data)
+{
+    nvparam_t custm_param=ad_nvparam_open("ble_platform");
+    uint8_t custom_sn[SERIAL_NUMBER_LEN] = "AS017425ECG0009";
+    memcpy(custom_sn,data,15);
+    custom_sn[15]='\0';
+    printf("write_sn custom_sn=%s\r\n",custom_sn);
+    if (ad_nvparam_write(custm_param, TAG_BLE_PLATFORM_SERIAL_NUMBER,SERIAL_NUMBER_LEN, custom_sn)!=16){
+            return -1;
+    }
+    return 0;
+}
+
 
 void ble_peripheral_task(void *params)
 {
