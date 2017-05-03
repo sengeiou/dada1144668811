@@ -586,6 +586,8 @@ extern float orientationFloat[3];
 extern int rv_accuracy;
 extern int compass_accuracy;
 extern bool rble_write_flash_cmd;
+extern bool rble_write_result_flash_cmd;
+
 extern bool rble_start_cal_cmd;
 uint8_t create_id_data[52];
 int create_id_data_rx_len=0;
@@ -710,6 +712,7 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
 	                //test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
                     //ble_task_env.ble2app_id = 0xFF;
 					rble_write_flash_cmd = true;
+                    rble_write_result_flash_cmd = true;
 
         }
         else if ((value_h == RBLE_RECEIVE_DATA_HEADER) && (value_cmd == RBLE_START_CAL_CMD))

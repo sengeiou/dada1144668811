@@ -62,6 +62,9 @@ bool rble_is_write_cmd = false;
 bool rble_start_cal_cmd =false;
 #endif
 
+bool rble_write_result_flash_cmd = false;
+
+
 OS_TIMER rble_sample_timer_id;
 
 RbleSensorControlStruct_t rble_sensor_control_env;
@@ -943,6 +946,41 @@ bool rble_could_write_data_to_patition(uint32_t addr_offset, int count)
 #if defined(RBLE_SENSOR_CTRL_BY_APP)
 #if defined(RBLE_SAMPLE_TIMER_SWITCH)
 
+               /* if (OS_TIMER_IS_ACTIVE(rble_sample_timer_id))
+                        {
+                        handle_char_input('a');
+                        handle_char_input('g');
+                        //handle_char_input('c');
+                        handle_char_input('o');
+
+                        rble_sample_timer_enable(false);
+                }*/
+#endif
+                //rble_data_addr_offset=0;
+#endif
+                rble_data_patition_not_full = false;
+                rble_write_flash_cmd = false;
+                printf("rble_could_write_data_to_patition stop\r\n");
+        }
+
+        return (rble_data_patition_not_full && rble_is_write_cmd);
+}
+
+#endif
+extern  bool rble_data_result_patition_not_full;
+bool rble_could_write_result_data_to_patition()
+{
+        if (rble_data_result_patition_not_full)
+        {
+                
+
+        }
+        else
+        {
+                rble_led_flash_delay = 1000;
+#if defined(RBLE_SENSOR_CTRL_BY_APP)
+#if defined(RBLE_SAMPLE_TIMER_SWITCH)
+
                 if (OS_TIMER_IS_ACTIVE(rble_sample_timer_id))
                         {
                         handle_char_input('a');
@@ -955,14 +993,15 @@ bool rble_could_write_data_to_patition(uint32_t addr_offset, int count)
 #endif
                 //rble_data_addr_offset=0;
 #endif
-                rble_data_patition_not_full = false;
-                rble_write_flash_cmd = false;
+               
+                rble_write_result_flash_cmd = false;
+        printf("rble_could_write_result_data_to_patition stop\r\n");
+
         }
 
-        return (rble_data_patition_not_full && rble_is_write_cmd);
+        return (rble_data_result_patition_not_full && rble_write_result_flash_cmd);
 }
 
-#endif
 
 void process_sensor_output(unsigned short fifo_id)
 {
@@ -1421,7 +1460,7 @@ void process_sensor_output(unsigned short fifo_id)
 #elif defined(BLE_USE_DATA_V2)
         detect_new_step_v2(DATA_ABS(accel_float[0]),DATA_ABS(accel_float[1]),accel_float[2],fifo_id);
 #elif defined(BLE_USE_DATA_V5)
-	if(rble_data_patition_not_full && rble_is_write_cmd)
+	if(rble_could_write_result_data_to_patition)
 		{
                 #if 0
         memset(print_float_str,0,RBLE_FLOAT_STR_LENTH);

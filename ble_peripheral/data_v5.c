@@ -215,7 +215,7 @@ static float samples_filter(float input,uint8_t type)
 }
 
 
-
+bool rble_data_result_patition_not_full=true;
 void write_track_to_flash()
 {
     nvms_rble_result_storage_handle=ad_nvms_open(NVMS_IMAGE_RESULT_DATA_STORAGE_PART);
@@ -240,6 +240,10 @@ void write_track_to_flash()
     int ret=ad_nvms_write(nvms_rble_result_storage_handle, rble_track_jump_data_addr_offset, rble_track_jump_data,rble_smp_track_jump_count);
     printf("write_track_to_flash ret=%d\r\n",ret);
     rble_track_jump_data_addr_offset+=rble_smp_track_jump_count;
+
+    if(rble_track_jump_data_addr_offset+40>RBLE_RESULT_DATA_PATITION_SIZE){
+        rble_data_result_patition_not_full=false;
+    }
 }
 
 void write_jump_to_flash()
@@ -266,6 +270,9 @@ void write_jump_to_flash()
 
     ad_nvms_write(nvms_rble_result_storage_handle, rble_track_jump_data_addr_offset, rble_track_jump_data,rble_smp_track_jump_count);
     rble_track_jump_data_addr_offset+=rble_smp_track_jump_count;
+    if(rble_track_jump_data_addr_offset+40>RBLE_RESULT_DATA_PATITION_SIZE){
+        rble_data_result_patition_not_full=false;
+    }
 }
 
 void write_result_to_flash()
@@ -1023,6 +1030,7 @@ void init_step_env()
 {
     memset(&step_env,0,sizeof(step_env));
     rble_track_jump_data_addr_offset=100;
+    rble_data_result_patition_not_full=true;
 }
 
 
