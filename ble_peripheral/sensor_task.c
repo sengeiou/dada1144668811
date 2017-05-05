@@ -56,6 +56,8 @@ uint8_t rble_sample_data[RBLE_DATA_BUF_LENGTH] = { 0 };
 int rble_smp_count = 0;
 
 bool rble_data_patition_not_full = true;
+float acc_gyr_ori[5] = { 0 };
+
 
 bool rble_write_flash_cmd = false;
 bool rble_is_write_cmd = false;
@@ -1008,7 +1010,7 @@ void process_sensor_output(unsigned short fifo_id)
 
         signed long long_quat[3] = { 0 };
 
-        float acc_gyr_ori[5] = { 0 };
+        //float acc_gyr_ori[5] = { 0 };
 
         if (hal.report & PRINT_ACCEL) {
                 if (accel_data_was_set == 1) {

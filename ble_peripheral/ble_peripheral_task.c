@@ -70,6 +70,8 @@ static int write_sn(const void *data);
 #if defined(RBLE_SENSOR_CTRL_BY_APP)
 extern OS_TASK task_sensor_sample;
 #endif
+
+extern acc_gyr_ori[5];
 /*
  * BLE peripheral advertising data
  */
@@ -809,6 +811,21 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
             test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
 
         }
+
+        else if((*value)==0xaa && (*(value+1)==0x17) && (*(value+2)==0x00) 
+            && (*(value+3)==0xc1) && length==4){
+            #if defined(RBLE_SENSOR_CTRL_BY_APP)
+                OS_TASK_NOTIFY(task_sensor_sample, RBLE_SENSOR_START_SAMPLE_NOTIF,
+                        OS_NOTIFY_SET_BITS);
+            #endif
+            //report sensor value
+            ble_task_env.test_rx_data_id=0xff;
+            ble_task_env.ble2app_id = 0xaa17;
+            bd.id1=0xaa;
+            bd.id2=0x97;
+            bd.id3=0x06;
+            test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
+        }
 #endif
 
 }
@@ -947,9 +964,21 @@ static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t leng
         }
         else if(ble_task_env.ble2app_id == 0x0bff){
             ble_task_env.ble2app_id = 0xff;
-            reboot();
+           // reboot();
         }
 
+        else if(ble_task_env.ble2app_id == 0xaa17){
+            ble_task_env.ble2app_id = 0xff;
+            uint8_t tx_sensor_data[20] = { 0 };
+            memset(tx_sensor_data, 0, 20);
+            memcpy(tx_sensor_data, &(acc_gyr_ori[0]),4);
+            memcpy(tx_sensor_data+4, &(acc_gyr_ori[1]),4);
+            memcpy(tx_sensor_data+8, &(acc_gyr_ori[2]),4);
+            memcpy(tx_sensor_data+12, &(acc_gyr_ori[3]),4);
+            memcpy(tx_sensor_data+16, &(acc_gyr_ori[4]),4);
+            test_tx_data(svc, conn_idx, tx_sensor_data, 20);
+        }
+        
         printf("wzb test_tx_done_cb\r\n");
 }
 
