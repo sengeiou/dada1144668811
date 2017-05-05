@@ -36,7 +36,9 @@ typedef enum {
 #if defined(RBLE_DATA_STORAGE_IN_FLASH)
         NVMS_IMAGE_DATA_STORAGE_PART          = 21,
 #endif
-        NVMS_IMAGE_RESULT_DATA_STORAGE_PART =22,		
+	NVMS_IMAGE_RESULT_DATA_STORAGE_PART =22,
+	NVMS_IMAGE_CUSTOM_CONFIG_PART=23,
+		
 } nvms_partition_id_t;
 
 /**
