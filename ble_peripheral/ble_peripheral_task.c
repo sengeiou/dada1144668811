@@ -920,17 +920,11 @@ static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t leng
                                          ble_task_env.ble2app_id = 0xff;
                                           rble_read_result_data_addr_offset = 0;
                                         int ret=-1;
-                                        int k=0;
-                                        for(k=1;k<88;k++){
-                                            if(ad_nvms_erase_region(nvms_rble_result_storage_handle, (k-1)*4096,
-                                            4096)){
-                                                ret=0;
-                                            }
+
+                                        if(ad_nvms_erase_region(nvms_rble_result_storage_handle, 0,
+                                            20)){
+                                            ret=0;
                                         }
-                                        //if(ad_nvms_erase_region(nvms_rble_result_storage_handle, 0,
-                                          //  20)){
-                                            //ret=0;
-                                        //}
                                         printf("ad_nvms_erase_region RESULT :%d\r\n",ret);
                                          test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
                                        
