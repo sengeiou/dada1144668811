@@ -917,12 +917,18 @@ static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t leng
                                          bd.id1 = 0x65;
                                          bd.id2 = 0x6e;
                                          bd.id3 = 0x64;
+                                         ble_task_env.ble2app_id = 0xff;
+                                          rble_read_result_data_addr_offset = 0;
+                                        int ret=-1;
+                                        if(ad_nvms_erase_region(nvms_rble_result_storage_handle, 0,
+                                            20)){
+                                            ret=0;
+                                        }
+                                        printf("ad_nvms_erase_region RESULT :%d\r\n",ret);
                                          test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
-                                        rble_read_result_data_addr_offset = 0;
-                                        ble_task_env.ble2app_id = 0xff;
-                                        ad_nvms_erase_region(nvms_rble_result_storage_handle, 0,
-                                            RBLE_DATA_RESULT_PATITION_SIZE);
-                                        return;
+                                       
+                                        
+                                        //return;
 
                                 }
                                 else
