@@ -64,6 +64,14 @@ bool rble_is_write_cmd = false;
 bool rble_start_cal_cmd =false;
 #endif
 
+#if defined(RBLE_SENOR_TEST_CUSTOM)
+nvms_t nvms_rble_test_storage_handle;
+unsigned char rble_gsensor_id=0;
+unsigned char rble_msensor_id=0;
+
+#endif
+
+
 bool rble_write_result_flash_cmd = false;
 
 
@@ -2433,6 +2441,10 @@ void RbleSensorControlTask(void *pvParameters)
 
 #endif
 
+#if defined(RBLE_SENOR_TEST_CUSTOM)
+	nvms_rble_test_storage_handle = ad_nvms_open(NVMS_IMAGE_CUSTOM_CONFIG_PART);
+#endif
+
 #if 1
 
 #if 0  //defined(RBLE_UART_DEBUG)
@@ -2453,6 +2465,25 @@ void RbleSensorControlTask(void *pvParameters)
 #if defined MEMS_SECONDARY_DEVICE
         inv_set_slave_compass_id(0x24);
 #endif
+
+#if defined(RBLE_SENOR_TEST_CUSTOM)
+
+		#if 0  //defined(RBLE_UART_DEBUG)
+        printf("RbleSensorControlTask rble_gsensor_id=0x%x\n",rble_gsensor_id);
+		printf("RbleSensorControlTask rble_msensor_id=0x%x\n",rble_msensor_id);
+        fflush(stdout);
+
+		#endif
+		
+		ad_nvms_write(nvms_rble_test_storage_handle,
+                                                RBLE_GSENSOR_ID_OFFSET, &rble_gsensor_id,
+                                                1);
+
+		ad_nvms_write(nvms_rble_test_storage_handle,
+                                                RBLE_MSENSOR_ID_OFFSET, &rble_msensor_id,
+                                                1);
+#endif
+
 
         if (result) {
                 print_command_console("Could not initialize.\r\n");

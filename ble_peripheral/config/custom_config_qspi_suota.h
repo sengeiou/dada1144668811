@@ -37,6 +37,8 @@
 
 #define RBLE_SENSOR_CTRL_BY_APP
 
+#define RBLE_SENOR_TEST_CUSTOM
+
 #define MEMS_20648
 ////#define RBLE_UART_DEBUG
 
