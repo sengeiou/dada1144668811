@@ -38,6 +38,11 @@
 //test_dmp3a
 #include "../dmp3a/inv_mems_interface_mapping.h"
 
+#if defined(RBLE_SENOR_TEST_CUSTOM)
+
+extern unsigned char rble_msensor_id;
+
+#endif
 
 
 long final_matrix[9] = {0};
@@ -180,6 +185,11 @@ int inv_setup_compass_akm()
 	#if defined(RBLE_UART_DEBUG)
 		printf("inv_setup_compass_akm id=0x%x\r\n",data[0]);
 	#endif
+
+#if defined(RBLE_SENOR_TEST_CUSTOM)
+	rble_msensor_id=data[0];
+#endif
+
 	
 	if (data[0] != DATA_AKM_ID) {
         inv_log("Compass not found!!\r\n");

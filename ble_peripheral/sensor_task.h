@@ -57,6 +57,8 @@
 #define RBLE_SEND_RESULT_CMD (0x09)
 
 
+#define RBLE_GSENSOR_ID_OFFSET  (0)
+#define RBLE_MSENSOR_ID_OFFSET  (1)
 
 
 typedef struct RbleSensorControlStruct

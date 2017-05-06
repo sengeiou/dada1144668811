@@ -52,6 +52,10 @@ static uint8_t s_compass_available = 0;
 static uint8_t s_pressure_available = 0;
 #endif
 
+#if defined(RBLE_SENOR_TEST_CUSTOM)
+extern unsigned char rble_gsensor_id;
+#endif
+
 void inv_mems_prevent_lpen_control(void)
 {
 	sAllowLpEn = 0;
@@ -259,6 +263,11 @@ inv_error_t inv_initialize_lower_driver(enum MEMS_SERIAL_INTERFACE type, const u
 	printf("inv_initialize_lower_driver REG_WHO_AM_I=0x%x\n",REG_WHO_AM_I);
 
 	printf("inv_initialize_lower_driver ide=%d\n",data);
+#endif
+
+
+#if defined(RBLE_SENOR_TEST_CUSTOM)
+	rble_gsensor_id=data;
 #endif
 
 
