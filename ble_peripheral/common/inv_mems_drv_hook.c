@@ -135,6 +135,7 @@ int inv_serial_interface_read_hook(uint16_t reg, uint32_t length, uint8_t *data)
 
 	return status;
 }
+#endif
 
 /**
  *  @brief  Sleep function.
