@@ -16,11 +16,79 @@
 #include "platform_devices.h"
 
 #include <ad_i2c.h>
-
+#include "../i2c_driver.h"
 
 extern 	i2c_device i2c_gsensor_dev;
 
 
+
+#if defined(RBLE_DMA_I2C_INTERFACE)
+
+//zhong
+
+
+int inv_serial_interface_write_hook(uint16_t reg, uint32_t length, uint8_t *data)
+{
+	i2c_event_t rble_i2c_event;
+
+    int result=0;
+	i2c_device dev;
+	int res=0;
+	int length_tmp=length+1;
+	 uint16_t data_tmp[length_tmp];
+	 int i=0;
+	 bool result_dma=false;
+
+
+	data_tmp[0]=reg;
+	
+	for(i=1;i<length_tmp;i++)
+	{
+		data_tmp[i]=data[i-1];
+	}
+	
+
+	result_dma=app_write_i2c(ICM20648_ACC, data_tmp, length_tmp,&rble_i2c_event);
+
+
+	if(result_dma)
+	{
+		result=0;
+	}
+	else
+	{
+		result=rble_i2c_event.error;
+	}
+
+    return result;
+}
+
+
+int inv_serial_interface_read_hook(uint16_t reg, uint32_t length, uint8_t *data)
+{
+	i2c_event_t rble_i2c_event;
+	bool result_dma=false;
+
+	int status=0;
+	i2c_device dev;
+	int res=0;
+	uint8_t reg_tmp=(uint8_t)reg;
+
+	result_dma= app_transact_i2c(ICM20648_ACC, reg_tmp, data,length,&rble_i2c_event, 0);
+
+	if(result_dma)
+	{
+		status=0;
+	}
+	else
+	{
+		status=rble_i2c_event.error;
+	}
+
+	return status;
+}
+
+#else
 int inv_serial_interface_write_hook(uint16_t reg, uint32_t length, uint8_t *data)
 {
     int result=0;

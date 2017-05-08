@@ -17,6 +17,7 @@
 #include "inv_mems_load_firmware.h"
 #include "inv_mems_hw_config.h"
 #include "inv_mems_defines.h"
+#include <stdbool.h>
 
 
 #ifndef MEMS_20609

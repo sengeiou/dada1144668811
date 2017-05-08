@@ -1006,6 +1006,10 @@ static void intr_write_buffer_dma_no_stop_handler(HW_I2C_ID id, uint16_t mask)
 /*
  * Interrupt handler used by hw_i2c_prepare_dma_ex() to handle STOP and ABORT for DMA writes
  */
+ 
+//defined(RBLE_DMA_I2C_INTERFACE)
+#define DMA_CHN_REG(reg, chan) ((volatile uint16 *)(&(reg)) + ((chan) * 8))
+
 static void intr_write_buffer_dma_handler(HW_I2C_ID id, uint16_t mask)
 {
         struct i2c *i2c = get_i2c(id);
@@ -1027,9 +1031,23 @@ static void intr_write_buffer_dma_handler(HW_I2C_ID id, uint16_t mask)
         }
 
         if (mask & HW_I2C_INT_STOP_DETECTED) {
-
+#if defined(RBLE_DMA_I2C_INTERFACE)
+				uint16_t dma_xfer_len = *DMA_CHN_REG(DMA->DMA0_LEN_REG, i2c->dma_state.channel + 1);
+#endif
                 if (IBA(id)->I2C_DMA_CR_REG != 0) {
                         hw_i2c_reset_int_stop_detected(id);
+
+#if defined(RBLE_DMA_I2C_INTERFACE)
+
+                        txs->num = dma_xfer_len + 1;
+
+                        if (txs->num == txs->len)
+                        {
+                                dma_tx_reply(id, txs->num == txs->len);
+
+                        }
+#endif
+						
                         /*
                          * A STOP while DMA is still enabled is caused by a NACK from the slave.
                          * While servicing the STOP_DETECTED interrupt we don't need to call the
