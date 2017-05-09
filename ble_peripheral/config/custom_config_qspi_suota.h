@@ -124,6 +124,8 @@
 #define dg_configBATTERY_PRECHARGE_CURRENT      20      // 2.1mA
 #define dg_configBATTERY_CHARGE_NTC             1       // disabled
 
+#define RBLE_BAT_MEASURE
+#define dg_configBATTERY_ADAPTER 	1
 #define dg_configUSE_USB                        0
 #define dg_configUSE_USB_CHARGER                0
 #define dg_configALLOW_CHARGING_NOT_ENUM        1
