@@ -46,8 +46,9 @@
 
 #include "sensor_task.h"
 #include "data.h"
-
-
+#if defined(RBLE_BAT_MEASURE)
+#include "ad_battery.h"
+#endif
 
 
 #if defined(CUSTOM_CONFIG_SERIAL_NUMBER_DEFINE)
@@ -75,6 +76,14 @@ extern acc_gyr_ori[5];
 /*
  * BLE peripheral advertising data
  */
+
+#if defined(RBLE_BAT_MEASURE)
+
+/* Timer used for battery monitoring */
+PRIVILEGED_DATA static OS_TIMER bas_tim;
+PRIVILEGED_DATA static ble_service_t *bas;
+
+#endif
 
 #if 1
 #if defined(CUSTOM_CONFIG_SERIAL_NUMBER_DEFINE)
@@ -288,6 +297,91 @@ static const cts_callbacks_t cts_callbacks = {
 };
 #endif // CFG_CTS
 
+
+
+#if defined(RBLE_BAT_MEASURE)
+#if dg_configUSE_SOC
+static uint8_t read_battery_level(void)
+{
+        int16_t level;
+
+        /*
+         * The return value from soc_get_soc is from 0(0%) to 1000(100.0%).
+         * The input parameter of bas_set_level is from 0(0%) to 100(100%).
+         */
+        level = (socf_get_soc() + 5) / 10;
+
+#if 1  //defined(RBLE_UART_DEBUG)
+		printf("read_battery_level level=%d\n",level);
+        fflush(stdout);
+
+#endif
+		
+
+        return level;
+}
+#else
+/*
+ * The values depend on the battery type.
+ * MIN_BATTERY_LEVEL (in mVolts) must correspond to dg_configBATTERY_LOW_LEVEL (in ADC units)
+ */
+#define MAX_BATTERY_LEVEL 3400
+#define MIN_BATTERY_LEVEL 2000
+
+static uint8_t bat_level(uint16_t voltage)
+{
+        if (voltage >= MAX_BATTERY_LEVEL) {
+                return 100;
+        } else if (voltage <= MIN_BATTERY_LEVEL) {
+                return 0;
+        }
+
+        /*
+         * For demonstration purposes discharging (Volt vs Capacity) is approximated
+         * by a linear function. The exact formula depends on the specific battery being used.
+         */
+        return (uint8_t) ((int) (voltage - MIN_BATTERY_LEVEL) * 100 /
+                (MAX_BATTERY_LEVEL - MIN_BATTERY_LEVEL));
+}
+
+static uint8_t read_battery_level(void)
+{
+        uint8_t level;
+
+        battery_source bat = ad_battery_open();
+        uint16_t bat_voltage = ad_battery_raw_to_mvolt(bat, ad_battery_read(bat));
+
+		
+        level = bat_level(bat_voltage);
+        ad_battery_close(bat);
+
+		#if 1  //defined(RBLE_UART_DEBUG)
+				printf("read_battery_level level=%d,bat_voltage=%d\n",level,bat_voltage);
+				fflush(stdout);
+		
+		#endif
+
+        return level;
+}
+#endif
+
+static void bas_update(void)
+{
+        uint8_t level;
+
+        level = read_battery_level();
+
+        bas_set_level(bas, level, true);
+}
+
+
+static void bas_tim_cb(OS_TIMER timer)
+{
+        OS_TASK task = (OS_TASK)OS_TIMER_GET_TIMER_ID(timer);
+
+        OS_TASK_NOTIFY(task, RBLE_BAS_TMO_NOTIF, OS_NOTIFY_SET_BITS);
+}
+#endif
 
 /*
  * Custom service data
@@ -553,7 +647,41 @@ static void handle_evt_gap_connected(ble_evt_gap_connected_t *evt)
         ble_task_env.conn_idx = evt->conn_idx;
         ble_task_env.conn_intv = evt->conn_params.interval_max;
 
+#if defined(RBLE_BAT_MEASURE)
+		if (!OS_TIMER_IS_ACTIVE(bas_tim)) {
+                bas_update();
+                OS_TIMER_START(bas_tim, OS_TIMER_FOREVER);
+        }
+#endif
 }
+#if defined(RBLE_BAT_MEASURE)
+
+static void handle_evt_gap_disconnected(ble_evt_gap_disconnected_t *evt)
+{
+        size_t num_connected;
+
+
+        /*
+         * Device is still in the list if disconnect happened before timer expired.
+         * In this case stop the timer and free memory.
+         */
+
+
+
+        /*
+         * Stop monitoring battery level if no one is connected.
+         */
+        ble_gap_get_devices(GAP_DEVICE_FILTER_CONNECTED, NULL, &num_connected, NULL);
+        if (num_connected == 0) {
+			
+			#if 1 //defined(RBLE_BAT_MEASURE)
+                OS_TIMER_STOP(bas_tim, OS_TIMER_FOREVER);
+			#endif
+        }
+}
+
+#endif
+
 
 static void handle_evt_gap_adv_completed(ble_evt_gap_adv_completed_t *evt)
 {
@@ -1150,6 +1278,12 @@ void ble_peripheral_task(void *params)
        char serial_number[SERIAL_NUMBER_LEN]; /* 1 byte for '\0' character */ 	
        int serial_len=0; 
 #endif	   
+
+#if defined(RBLE_BAT_MEASURE)
+        bas_tim = OS_TIMER_CREATE("bas", OS_MS_2_TICKS(RBLE_BATTERY_CHECK_INTERVAL), true,
+                (void *) OS_GET_CURRENT_TASK(), bas_tim_cb);
+#endif
+
         for (i = 0; i < 5; i++) {
                 printf("wzb SW_VERSION=%s    SW_VERSION_DATE=%s\r\n", BLACKORCA_SW_VERSION,
                         BLACKORCA_SW_VERSION_DATE);
@@ -1240,6 +1374,12 @@ void ble_peripheral_task(void *params)
         /* register BAS (1st instance) */
         svc = bas_init(NULL, &bas_bat1);
         ble_service_add(svc);
+
+		
+#if defined(RBLE_BAT_MEASURE)
+					bas = svc;
+#endif
+
 #if CFG_DEBUG_SERVICE
         dlgdebug_register_handler(dbgs, "bas", "set", dbg_bas_set, svc);
 #endif /* CFG_DEBUG_SERVICE */
@@ -1352,6 +1492,13 @@ void ble_peripheral_task(void *params)
                         case BLE_EVT_GAP_CONNECTED:
                                 handle_evt_gap_connected((ble_evt_gap_connected_t *)hdr);
                                 break;
+						#if defined(RBLE_BAT_MEASURE)
+                        case BLE_EVT_GAP_DISCONNECTED:
+                                handle_evt_gap_disconnected(
+                                        (ble_evt_gap_disconnected_t *)hdr);
+                                break;						
+						#endif
+						
                         case BLE_EVT_GAP_ADV_COMPLETED:
                                 handle_evt_gap_adv_completed((ble_evt_gap_adv_completed_t *)hdr);
                                 break;
@@ -1381,5 +1528,14 @@ void ble_peripheral_task(void *params)
                         cts_notify_time_all(cts, &cts_time);
                 }
 #endif
+
+	#if defined(RBLE_BAT_MEASURE)
+		if (notif & RBLE_BAS_TMO_NOTIF) {
+								/*
+								 * Read battery level, and notify clients if level changed.
+								 */
+								bas_update();
+						}
+	#endif
         }
 }
