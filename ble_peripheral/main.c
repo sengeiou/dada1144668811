@@ -93,6 +93,21 @@ void ble_peripheral_task(void *params);
 
 static OS_TASK handle = NULL;
 
+#if defined(RBLE_V18P_GPIO_CTRL)
+bool v18p_pin_status=false;
+static const gpio_config test_gpio_cfg[] = {
+	HW_GPIO_PINCONFIG(HW_GPIO_PORT_1		   , HW_GPIO_PIN_5 		 , OUTPUT_PUSH_PULL , GPIO	  , true),
+	 HW_GPIO_PINCONFIG_END // important!!!
+};
+
+static const gpio_config test_gpio_cfg_reverse[] = {
+	HW_GPIO_PINCONFIG(HW_GPIO_PORT_1		   , HW_GPIO_PIN_5 		 , OUTPUT_PUSH_PULL , GPIO	  , false),
+	 HW_GPIO_PINCONFIG_END // important!!!
+};
+
+#endif
+
+
 
 bool rble_led1_opend=false;
 
@@ -333,6 +348,26 @@ int main( void )
 }
 
 
+
+#if defined(RBLE_V18P_GPIO_CTRL)
+void rble_init_sensor_v_pin(void)
+{
+	hw_gpio_set_pin_function(HW_GPIO_PORT_1, HW_GPIO_PIN_5, HW_GPIO_MODE_OUTPUT_OPEN_DRAIN,HW_GPIO_FUNC_GPIO);
+
+	hw_gpio_configure_pin_power(HW_GPIO_PORT_1		 , HW_GPIO_PIN_5		, HW_GPIO_POWER_VDD1V8P);
+
+	if(v18p_pin_status)
+	{
+		hw_gpio_configure(test_gpio_cfg);
+	}
+	else
+	{
+		hw_gpio_configure(test_gpio_cfg_reverse);
+	}
+
+}
+#endif
+
 static void periph_setup(void)
 {
 
@@ -364,8 +399,11 @@ static void periph_setup(void)
         hw_gpio_configure_pin_power(I2C1_SDA_PORT        , I2C1_SDA_PIN         , HW_GPIO_POWER_VDD1V8P);
 
 
+	
+#if defined(RBLE_V18P_GPIO_CTRL)
+	rble_init_sensor_v_pin();
+#endif
 
-		
 
 }
 

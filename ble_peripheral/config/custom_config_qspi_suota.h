@@ -39,6 +39,7 @@
 
 #define RBLE_SENOR_TEST_CUSTOM
 #define RBLE_DMA_I2C_INTERFACE
+#define RBLE_V18P_GPIO_CTRL
 
 #define MEMS_20648
 ////#define RBLE_UART_DEBUG
