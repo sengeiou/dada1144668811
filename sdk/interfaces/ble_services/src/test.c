@@ -329,7 +329,7 @@ void test_tx_data(ble_service_t *svc, uint16_t conn_idx, uint8_t *data, uint16_t
         /* Check if flow control is enabled */
         ble_storage_get_u8(conn_idx, test->test_flow_ctrl_val_h, &flow_ctrl);
         if (flow_ctrl != TEST_FLOW_CONTROL_ON) {
-                return;
+               // return;
         }
 
         length = calculate_length(length);
