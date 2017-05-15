@@ -365,6 +365,11 @@ void rble_init_sensor_v_pin(void)
 		hw_gpio_configure(test_gpio_cfg_reverse);
 	}
 
+	hw_gpio_configure_pin(HW_GPIO_PORT_1, HW_GPIO_PIN_6, HW_GPIO_MODE_OUTPUT,
+																	HW_GPIO_FUNC_GPIO, 0);
+
+	hw_gpio_configure_pin_power(HW_GPIO_PORT_1		 , HW_GPIO_PIN_6		, HW_GPIO_POWER_VDD1V8P);
+
 }
 #endif
 
