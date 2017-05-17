@@ -60,6 +60,7 @@ static ble_service_t *test_service;
 static void reboot(void);
 static int write_mac_addr(const void *data);
 static int write_sn(const void *data);
+static int erase_result_part(size_t size);
 
 /*
  * Notification bits reservation
@@ -735,6 +736,21 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
         for (i = 0; i < length; i++) {
                 printf("%x\r\n", *(value + i));
         }
+        //reset
+        if(length==20){
+            int rx_state=0;
+            for (i = 0; i < length; i++) {
+                if(*(value+i)!=0xff){
+                    rx_state=1;
+                }
+            }
+            if(rx_state==0){
+                ble_task_env.test_rx_data_id=0xff;
+                create_id_data_rx_len=0;
+            }
+        }
+        
+        printf("test_rx_data_id=%x,create_id_data_rx_len=%d\r\n",ble_task_env.test_rx_data_id,create_id_data_rx_len);
         test_data td;
         td.id1 = 0x00;
         memset(bd.id1, 0, sizeof(bd.id1));
@@ -754,6 +770,13 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
                 bd.id1 = 0xFF;
 	            bd.id2 = 0x08;
 	            bd.id3 = 0xFF;
+                rble_write_flash_cmd = true;
+                rble_write_result_flash_cmd = true;
+                //for test
+                //write_track_to_flash();
+               // write_result_to_flash();
+                //end
+                
                 test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
                 ble_task_env.ble2app_id = 0xFF;
             }
@@ -768,6 +791,12 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
                 {
                 //start_collect_data =true;
                 ble_task_env.test_rx_data_id=0xff;
+#if defined(RBLE_SENSOR_CTRL_BY_APP)
+                OS_TASK_NOTIFY(task_sensor_sample, RBLE_SENSOR_STOP_SAMPLE_NOTIF,
+                        OS_NOTIFY_SET_BITS);
+
+#endif
+            inv_sleep(1500);
 
 #if defined(RBLE_SENSOR_CTRL_BY_APP)
                 OS_TASK_NOTIFY(task_sensor_sample, RBLE_SENSOR_START_SAMPLE_NOTIF,
@@ -826,6 +855,9 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
                         OS_NOTIFY_SET_BITS);
 
 #endif
+                rble_write_result_flash_cmd=false;
+                rble_write_flash_cmd=false;
+
         }
         else if ((value_h == RBLE_RECEIVE_DATA_HEADER) && (value_cmd == RBLE_SAVE_SAMPLE_CMD))
                 {
@@ -841,8 +873,8 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
                     }
 	                //test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
                     //ble_task_env.ble2app_id = 0xFF;
-					rble_write_flash_cmd = true;
-                    rble_write_result_flash_cmd = true;
+					//rble_write_flash_cmd = true;
+                    //rble_write_result_flash_cmd = true;
 
         }
         else if ((value_h == RBLE_RECEIVE_DATA_HEADER) && (value_cmd == RBLE_START_CAL_CMD))
@@ -1046,14 +1078,15 @@ static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t leng
                                          bd.id2 = 0x6e;
                                          bd.id3 = 0x64;
                                          ble_task_env.ble2app_id = 0xff;
-                                          rble_read_result_data_addr_offset = 0;
+                                        rble_read_result_data_addr_offset = 0;
                                         int ret=-1;
-                                        hw_watchdog_freeze();
-                                        if(ad_nvms_erase_region(nvms_rble_result_storage_handle, 0,
-                                                RBLE_DATA_RESULT_PATITION_SIZE)){
-                                            ret=0;
-                                        }
-                                        hw_watchdog_unfreeze();
+                                       // hw_watchdog_freeze();
+                                       // if(ad_nvms_erase_region(nvms_rble_result_storage_handle, 0,
+                                        //        RBLE_DATA_RESULT_PATITION_SIZE)){
+                                        //    ret=0;
+                                       // }
+                                        //hw_watchdog_unfreeze();
+                                        ret=erase_result_part(20);
                                         printf("ad_nvms_erase_region RESULT :%d\r\n",ret);
                                          test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
                                        
@@ -1130,6 +1163,43 @@ static test_callbacks_t test_callbacks = {
         .tx_done = test_tx_done_cb,
         .set_flow_control = test_set_flow_control_cb,
 };
+
+static int erase_result_part(size_t size)
+{
+        nvms_t t=ad_nvms_open(NVMS_IMAGE_RESULT_DATA_STORAGE_PART);
+        uint8_t buf[20] = { 0 };
+        memset(buf,0,sizeof(buf));
+        int i;
+        bool j=true;
+        int k=3;
+        while(k>0){
+            hw_watchdog_freeze();
+            if(ad_nvms_erase_region(t, 0,size)){
+                printf("erase_result_part ok k=%x\r\n",k);                             
+            }
+            hw_watchdog_unfreeze();
+            memset(buf,0,sizeof(buf));
+            ad_nvms_read(t,0, buf,sizeof(buf));
+            for (i = 0; i < 20; i++){
+                printf("erase_result_part buf[i=%d]=%x\r\n",i,buf[i]);
+                if (buf[i] != 0xff){
+                       j = false;
+                }                               
+            }
+            k--;
+            if(j){
+                break;
+            }
+        }
+        
+        if(j){
+            return 0;
+        }else{
+            return -1;
+        }
+
+        
+}
 
 /* Buffer must have length at least max_len + 1 */
 #if defined(CUSTOM_CONFIG_SERIAL_NUMBER_DEFINE)
