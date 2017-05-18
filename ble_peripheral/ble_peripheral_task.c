@@ -853,6 +853,8 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
                 {
                 //start_collect_data =true;
                 ble_task_env.test_rx_data_id=0xff;
+            rble_write_result_flash_cmd=false;
+            rble_write_flash_cmd=false;
 #if defined(RBLE_SENSOR_CTRL_BY_APP)
                 OS_TASK_NOTIFY(task_sensor_sample, RBLE_SENSOR_STOP_SAMPLE_NOTIF,
                         OS_NOTIFY_SET_BITS);
