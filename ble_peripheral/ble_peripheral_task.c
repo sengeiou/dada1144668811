@@ -137,6 +137,34 @@ static uint8_t scan_rsp_data[] = {
  };
  */
 
+#if defined(CUSTOM_CONNECTION)
+static const struct {
+        uint16_t min;
+        uint16_t max;
+} adv_intervals[2] = {
+        // "fast connection" interval values
+        {
+                .min = BLE_ADV_INTERVAL_FROM_MS(20),      // 20ms
+                .max = BLE_ADV_INTERVAL_FROM_MS(30),      // 30ms
+        },
+        // "reduced power" interval values
+        {
+                .min = BLE_ADV_INTERVAL_FROM_MS(1000),    // 1000ms
+                .max = BLE_ADV_INTERVAL_FROM_MS(1500),    // 1500ms
+        }
+};
+
+typedef enum {
+        ADV_INTERVAL_FAST = 0,
+        ADV_INTERVAL_POWER = 1,
+} adv_setting_t;
+
+#define ADV_TMO_NOTIF   (1 << 9)
+/* Timer used to switch from "fast connection" to "reduced power" advertising intervals */
+PRIVILEGED_DATA static OS_TIMER adv_tim;
+
+#endif
+
 typedef enum {
         CONN_INTERVAL_FAST = 0,
         CONN_INTERVAL_SLOW = 1,
@@ -640,6 +668,27 @@ static const suota_callbacks_t suota_cb = {
 /*
  * Main code
  */
+#if defined(CUSTOM_CONNECTION)
+/* Advertising intervals change timeout timer callback */
+static void adv_tim_cb(OS_TIMER timer)
+{
+        OS_TASK task = (OS_TASK)OS_TIMER_GET_TIMER_ID(timer);
+
+        OS_TASK_NOTIFY(task, ADV_TMO_NOTIF, OS_NOTIFY_SET_BITS);
+}
+
+
+static void set_advertising_interval(adv_setting_t setting)
+{
+        uint16_t min = adv_intervals[setting].min;
+        uint16_t max = adv_intervals[setting].max;
+
+        ble_gap_adv_intv_set(min, max);
+}
+#endif
+
+
+
 static void handle_evt_gap_connected(ble_evt_gap_connected_t *evt)
 {
         /**
@@ -647,6 +696,13 @@ static void handle_evt_gap_connected(ble_evt_gap_connected_t *evt)
          */
         ble_task_env.conn_idx = evt->conn_idx;
         ble_task_env.conn_intv = evt->conn_params.interval_max;
+
+#if defined(CUSTOM_CONNECTION)
+        OS_TIMER_STOP(adv_tim, OS_TIMER_FOREVER);
+
+        set_advertising_interval(ADV_INTERVAL_POWER);
+        ble_gap_adv_stop();
+#endif
 
 #if defined(RBLE_BAT_MEASURE)
 		if (!OS_TIMER_IS_ACTIVE(bas_tim)) {
@@ -667,7 +723,12 @@ static void handle_evt_gap_disconnected(ble_evt_gap_disconnected_t *evt)
          * In this case stop the timer and free memory.
          */
 
-
+#if defined(CUSTOM_CONNECTION)
+        /* Switch back to fast advertising interval. */
+        set_advertising_interval(ADV_INTERVAL_FAST);
+        ble_gap_adv_stop();
+        OS_TIMER_START(adv_tim, OS_TIMER_FOREVER);
+#endif
 
         /*
          * Stop monitoring battery level if no one is connected.
@@ -766,7 +827,8 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
                 create_id_data_rx_len=0;
                 nvms_t nvms_rble_result_storage_handle;
                 nvms_rble_result_storage_handle = ad_nvms_open(NVMS_IMAGE_RESULT_DATA_STORAGE_PART);
-                ad_nvms_write(nvms_rble_result_storage_handle,48,create_id_data,52);
+                int write_num=ad_nvms_write(nvms_rble_result_storage_handle,48,create_id_data,52);
+                printf("ff08 wirte num=%d\r\n",write_num);
                 bd.id1 = 0xFF;
 	            bd.id2 = 0x08;
 	            bd.id3 = 0xFF;
@@ -1516,13 +1578,23 @@ void ble_peripheral_task(void *params)
         OS_ASSERT(cts_timer);
         OS_TIMER_START(cts_timer, OS_TIMER_FOREVER);
 #endif
-
-        
+#if defined(CUSTOM_CONNECTION)
+        /*
+         * Create timer for switching from "fast connection" to "reduced power" advertising
+         * intervals after 30 seconds.
+         */
+        adv_tim = OS_TIMER_CREATE("adv", OS_MS_2_TICKS(30000), OS_TIMER_FAIL,
+                (void *) OS_GET_CURRENT_TASK(), adv_tim_cb);
+        set_advertising_interval(ADV_INTERVAL_FAST);
+#endif
         app_calc_scan_rsp_data(scan_rsp_data, sizeof(scan_rsp_data));
         printf("scan_rsp_data=%x,%x,%x\r\n",scan_rsp_data[4],scan_rsp_data[5],scan_rsp_data[6]);
         ble_gap_adv_data_set(sizeof(adv_data), adv_data, sizeof(scan_rsp_data), scan_rsp_data);
 
         ble_gap_adv_start(GAP_CONN_MODE_UNDIRECTED);
+#if defined(CUSTOM_CONNECTION)
+        OS_TIMER_START(adv_tim, OS_TIMER_FOREVER);
+#endif
         printf("wzb for(;;)\r\n");
         for (;;) {
                 OS_BASE_TYPE ret;
@@ -1607,5 +1679,19 @@ void ble_peripheral_task(void *params)
 								bas_update();
 						}
 	#endif
+
+    #if defined(CUSTOM_CONNECTION)
+    /* Notified from advertising timer? */
+                    if (notif & ADV_TMO_NOTIF) {
+                            /*
+                             * Change interval values and stop advertising. Once it's stopped, it will
+                             * start again with new parameters.
+                             */
+                            set_advertising_interval(ADV_INTERVAL_POWER);
+                            ble_gap_adv_stop();
+                    }
+
+
+    #endif
         }
 }

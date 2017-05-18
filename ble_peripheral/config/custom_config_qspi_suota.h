@@ -46,6 +46,8 @@
 
 //#define dg_configPOWER_EXT_1V8_PERIPHERALS      (1)
 
+#define CUSTOM_CONNECTION
+
 #define dg_configPOWER_1V8P			(1)
 
 #define RBLE_PCB_B01_CUSTOM
