@@ -61,6 +61,12 @@ static void reboot(void);
 static int write_mac_addr(const void *data);
 static int write_sn(const void *data);
 static int erase_result_part(size_t size);
+static void test_flash();
+static void read_test();
+
+static int read_result_id();
+static void set_result_id(uint8_t id);
+
 
 /*
  * Notification bits reservation
@@ -160,6 +166,10 @@ typedef enum {
 } adv_setting_t;
 
 #define ADV_TMO_NOTIF   (1 << 9)
+
+#define FLASH_TEST_TMO_NOTIF   (1 << 8)
+PRIVILEGED_DATA static OS_TIMER flash_test_tim;
+
 /* Timer used to switch from "fast connection" to "reduced power" advertising intervals */
 PRIVILEGED_DATA static OS_TIMER adv_tim;
 
@@ -688,6 +698,17 @@ static void set_advertising_interval(adv_setting_t setting)
 #endif
 
 
+static void flash_test_tim_cb(OS_TIMER timer)
+{
+        OS_TASK task = (OS_TASK)OS_TIMER_GET_TIMER_ID(timer);
+        printf("flash_test_tim_cb\r\n");
+        OS_TASK_NOTIFY(task, FLASH_TEST_TMO_NOTIF, OS_NOTIFY_SET_BITS);
+        //read_test();
+        
+}
+
+
+
 
 static void handle_evt_gap_connected(ble_evt_gap_connected_t *evt)
 {
@@ -723,6 +744,10 @@ static void handle_evt_gap_disconnected(ble_evt_gap_disconnected_t *evt)
          * In this case stop the timer and free memory.
          */
 
+        //for error ff08
+        ble_task_env.test_rx_data_id=0xff;
+        ble_task_env.ble2app_id=0xff;
+        
 #if defined(CUSTOM_CONNECTION)
         /* Switch back to fast advertising interval. */
         set_advertising_interval(ADV_INTERVAL_FAST);
@@ -838,7 +863,8 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
                 //write_track_to_flash();
                // write_result_to_flash();
                 //end
-                
+                write_result_to_flash();
+                set_result_id(0x01);
                 test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
                 ble_task_env.ble2app_id = 0xFF;
             }
@@ -869,26 +895,11 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
                 bd.id1 = 0xFF;
                 bd.id2 = 0x01;
                 bd.id3 = 0xFF;
-                uint8_t rble_sample_result_data[20] = { 0 };
-                nvms_t nvms_rble_result_storage_handle;
-                int i;
-                bool read_result = false;
-                nvms_rble_result_storage_handle = ad_nvms_open(NVMS_IMAGE_RESULT_DATA_STORAGE_PART);
-                memset(rble_sample_result_data, 0, sizeof(rble_sample_result_data));
-                ad_nvms_read(nvms_rble_result_storage_handle,
-                                        0, rble_sample_result_data,
-                                        sizeof(rble_sample_result_data));
-                read_result = true;
-                for (i = 0; i < 20; i++){
-                    printf("rble_sample_result_data[i=%d]=%x\r\n",i,rble_sample_result_data[i]);
-                    if (rble_sample_result_data[i] != 0xff){
-                       read_result = false;
-                    }                               
-                }
-                if(read_result){
-                    bd.id3=0x00;
-                }else{
+
+                if(read_result_id()==0x01){
                     bd.id3=0x01;
+                }else{
+                    bd.id3=0x00;
                 }
                 
                 test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
@@ -962,6 +973,8 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
                 bd.id1 = 0xFF;
                 bd.id2 = 0x09;
                 bd.id3 = 0xFF;
+                rble_write_result_flash_cmd=false;
+                rble_write_flash_cmd=false;
                 rble_read_result_data_addr_offset=0;
                 test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
                 ble_task_env.ble2app_id = 0x09;
@@ -1121,7 +1134,7 @@ static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t leng
                 memset(rble_sample_result_data, 0, sizeof(rble_sample_result_data));
                 if (rble_read_result_data_addr_offset < RBLE_DATA_RESULT_PATITION_SIZE)
                         {
-                        if (rble_read_result_data_addr_offset != 40)
+                        if (rble_read_result_data_addr_offset >= 100)
                                 {
                                 ad_nvms_read(nvms_rble_result_storage_handle,
                                         rble_read_result_data_addr_offset, rble_sample_result_data,
@@ -1144,13 +1157,14 @@ static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t leng
                                          ble_task_env.ble2app_id = 0xff;
                                         rble_read_result_data_addr_offset = 0;
                                         int ret=-1;
-                                       // hw_watchdog_freeze();
-                                       // if(ad_nvms_erase_region(nvms_rble_result_storage_handle, 0,
-                                        //        RBLE_DATA_RESULT_PATITION_SIZE)){
-                                        //    ret=0;
-                                       // }
-                                        //hw_watchdog_unfreeze();
-                                        ret=erase_result_part(20);
+                                        hw_watchdog_freeze();
+                                        if(ad_nvms_erase_region(nvms_rble_result_storage_handle, 0,
+                                                RBLE_DATA_RESULT_PATITION_SIZE)){
+                                            ret=0;
+                                        }
+                                        hw_watchdog_unfreeze();
+                                        set_result_id(0xff);
+                                       // ret=erase_result_part(20);
                                         printf("ad_nvms_erase_region RESULT :%d\r\n",ret);
                                          test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
                                        
@@ -1167,8 +1181,8 @@ static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t leng
                                                 sizeof(rble_sample_result_data);
                                 }
                         }
-                        else if (rble_read_result_data_addr_offset == 40)
-                                {
+                        else 
+                        {
                                 ad_nvms_read(nvms_rble_result_storage_handle,
                                         rble_read_result_data_addr_offset, rble_sample_result_data,
                                         20);
@@ -1227,6 +1241,49 @@ static test_callbacks_t test_callbacks = {
         .tx_done = test_tx_done_cb,
         .set_flow_control = test_set_flow_control_cb,
 };
+
+
+static int read_result_id()
+{
+    uint8_t buf[1]={0};
+    nvms_t t=ad_nvms_open(NVMS_IMAGE_CUSTOM_CONFIG_PART);
+    memset(buf,0,sizeof(buf));
+    ad_nvms_read(t,10,buf,sizeof(buf));
+    printf("read_result_id=%x\r\n",buf[0]);
+    return buf[0];
+}
+
+static void set_result_id(uint8_t id)
+{
+    uint8_t value=id;
+    nvms_t t=ad_nvms_open(NVMS_IMAGE_CUSTOM_CONFIG_PART);
+    int ret=ad_nvms_write(t,10,&value,1);   
+    printf("set_result_id ret=%x\r\n",ret);
+}
+
+
+static void read_test(){
+    nvms_t t=ad_nvms_open(NVMS_IMAGE_RESULT_DATA_STORAGE_PART);
+    uint8_t buf[20] = { 0 };
+    memset(buf,0,sizeof(buf));
+    int i;
+    bool j=true;
+    ad_nvms_read(t,0, buf,sizeof(buf));
+            for (i = 0; i < 20; i++){
+                printf("erase_result_part buf[i=%d]=%x\r\n",i,buf[i]);
+                if (buf[i] != 0xff){
+                       j = false;
+                }                               
+            }
+
+            OS_TIMER_STOP(flash_test_tim, OS_TIMER_FOREVER);
+            if(!j){
+                printf("erase fail\r\n");
+            }else{
+                printf("erase ok\r\n");
+                test_flash();
+            }
+}
 
 static int erase_result_part(size_t size)
 {
@@ -1402,6 +1459,27 @@ static int write_sn(const void *data)
             return -1;
     }
     return 0;
+}
+
+static void test_flash(){
+    bool flag=true;
+    
+        write_track_to_flash();
+        write_result_to_flash();
+        inv_sleep(1000);
+        //if(erase_result_part(RBLE_DATA_RESULT_PATITION_SIZE)==-1){
+            //flag=false;
+        //}
+        nvms_t t=ad_nvms_open(NVMS_IMAGE_RESULT_DATA_STORAGE_PART);
+        hw_watchdog_freeze();
+        if(ad_nvms_erase_region(t, 0,RBLE_DATA_RESULT_PATITION_SIZE)){
+             printf("test_flash erase_result_part ok \r\n");                             
+        }
+        hw_watchdog_unfreeze();
+        //inv_sleep(1000);
+        OS_TIMER_START(flash_test_tim, OS_TIMER_FOREVER);
+
+    
 }
 
 
@@ -1597,7 +1675,13 @@ void ble_peripheral_task(void *params)
 #if defined(CUSTOM_CONNECTION)
         OS_TIMER_START(adv_tim, OS_TIMER_FOREVER);
 #endif
+
+        flash_test_tim= OS_TIMER_CREATE("flash", OS_MS_2_TICKS(5000), OS_TIMER_FAIL,
+                        (void *) OS_GET_CURRENT_TASK(), flash_test_tim_cb);
+
         printf("wzb for(;;)\r\n");
+
+
         for (;;) {
                 OS_BASE_TYPE ret;
                 uint32_t notif;
@@ -1695,5 +1779,12 @@ void ble_peripheral_task(void *params)
 
 
     #endif
+
+    //test
+        if(notif & FLASH_TEST_TMO_NOTIF){
+               read_test();
+        }
+
+        
         }
 }

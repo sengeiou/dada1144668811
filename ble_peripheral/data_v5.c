@@ -744,7 +744,8 @@ static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gy
 			case WALK:
 				break;
 			case RUN:
-				step_env.total_run += 2;
+				//step_env.total_run += 2;
+				step_env.total_dash += 2;
 				break;
 			case DASH:
 				//default:
@@ -792,8 +793,10 @@ static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gy
 				step_env.stride = 0.782f;
 				break;
 			case RUN:
-				step_env.total_run++;
-				step_env.h_run++;
+				//step_env.total_run++;
+				//step_env.h_run++;
+				step_env.total_dash++;
+				step_env.h_dash++;
 				step_env.stride = 0.81f;
 				break;
 			case DASH:
