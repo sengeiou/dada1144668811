@@ -746,7 +746,7 @@ static void handle_evt_gap_disconnected(ble_evt_gap_disconnected_t *evt)
 
         //for error ff08
         ble_task_env.test_rx_data_id=0xff;
-        ble_task_env.ble2app_id=0xff;
+
         
 #if defined(CUSTOM_CONNECTION)
         /* Switch back to fast advertising interval. */
