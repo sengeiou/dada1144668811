@@ -535,8 +535,8 @@ static const dis_device_info_t dis_info = {
         // sample data
         .serial_number = "SN123456",
         .hw_revision = "Rev.D",
-        .fw_revision = "1.0",
-        .sw_revision = "1.0.0.3",
+        .fw_revision = BLACKORCA_FW_VERSION,
+        .sw_revision = BLACKORCA_SW_VERSION,
         .system_id = &dis_sys_id,
         .reg_cert_length = sizeof(dis_reg_cert),
         .reg_cert = dis_reg_cert,
