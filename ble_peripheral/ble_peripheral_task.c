@@ -940,6 +940,7 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
 	                bd.id2 = 0x08;
 	                bd.id3 = 0xFF;
                     ble_task_env.test_rx_data_id=0x08;
+                    init_yaw_offset(acc_gyr_ori[4]);
                     create_id_data_rx_len=0;
                     memset(create_id_data,0,sizeof(create_id_data));
                     if(length>2){

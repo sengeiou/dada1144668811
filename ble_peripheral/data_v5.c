@@ -769,15 +769,19 @@ static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gy
 			//
 			if (step_env.ori == BACKWARD) {
 				step_env.backward_num += 2;
-				step_env.coord_x -= step_env.stride * 2 * qfp_fsin(step_env.yaw_old*3.14159 / 180);
-				step_env.coord_y -= step_env.stride * 2 * qfp_fcos(step_env.yaw_old*3.14159 / 180);
+                if(step_env.last_step.ori==BACKWARD){
+				    step_env.coord_x -= step_env.stride * 2 * qfp_fsin((step_env.yaw_old-step_env.yaw_offset)*3.14159 / 180);
+				    step_env.coord_y -= step_env.stride * 2 * qfp_fcos((step_env.yaw_old-step_env.yaw_offset)*3.14159 / 180);
+                    write_track_to_flash();
+                }
 			}
 			else {
 				step_env.forward_num += 2;
-				step_env.coord_x += step_env.stride * 2 * qfp_fsin(step_env.yaw_old*3.14159 / 180);
-				step_env.coord_y += step_env.stride * 2 * qfp_fcos(step_env.yaw_old*3.14159 / 180);
+				step_env.coord_x += step_env.stride * 2 * qfp_fsin((step_env.yaw_old-step_env.yaw_offset)*3.14159 / 180);
+				step_env.coord_y += step_env.stride * 2 * qfp_fcos((step_env.yaw_old-step_env.yaw_offset)*3.14159 / 180);
+                write_track_to_flash();
 			}
-            write_track_to_flash();
+            //write_track_to_flash();
 			//printf("====================\n");
 			//printf("step ori=%d\n", step_env.ori);
 			//printf("yaw=%f\n", step_env.yaw_old);
@@ -1036,5 +1040,9 @@ void init_step_env()
     rble_data_result_patition_not_full=true;
 }
 
+void init_yaw_offset(float f)
+{
+    step_env.yaw_offset=f;
+}
 
 #endif

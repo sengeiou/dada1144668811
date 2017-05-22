@@ -277,6 +277,7 @@ typedef struct step_env {
 	float coord_x;
 	float coord_y;
 	float yaw_old;
+    float yaw_offset;
 
 	long time_of_now;
 
@@ -290,9 +291,12 @@ typedef struct step_env {
 
 step_env_t step_env;
 void init_step_env();
+void init_yaw_offset(float f);
 //void detect_new_step_v2(float acc_x, float acc_y, float acc_z, int line);
 void detect_new_step_v5(float acc_x,float acc_y,float acc_z,float gyr_y,float yaw,unsigned short fifo_id);
 void print_result();
+void write_track_to_flash();
+void write_result_to_flash();
 
 #if 0
 void detect_new_step(float values);
