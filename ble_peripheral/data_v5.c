@@ -770,15 +770,23 @@ static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gy
 			if (step_env.ori == BACKWARD) {
 				step_env.backward_num += 2;
                 if(step_env.last_step.ori==BACKWARD){
-				    step_env.coord_x -= step_env.stride * 2 * qfp_fsin((step_env.yaw_old-step_env.yaw_offset)*3.14159 / 180);
-				    step_env.coord_y -= step_env.stride * 2 * qfp_fcos((step_env.yaw_old-step_env.yaw_offset)*3.14159 / 180);
+				    step_env.coord_x0 -= step_env.stride * 2 * qfp_fsin((step_env.yaw_old)*3.14159 / 180);
+				    step_env.coord_y0 -= step_env.stride * 2 * qfp_fcos((step_env.yaw_old)*3.14159 / 180);
+                    //step_env.coord_x=step_env.coord_x0*qfp_fcos(step_env.yaw_offset*3.14159 / 180)+step_env.coord_y0*qfp_fsin(step_env.yaw_offset*3.14159 / 180);
+                    //step_env.coord_y=step_env.coord_y0*qfp_fcos(step_env.yaw_offset*3.14159 / 180)-step_env.coord_x0*qfp_fsin(step_env.yaw_offset*3.14159 / 180);
+                    step_env.coord_x=step_env.coord_x0;
+                    step_env.coord_y=step_env.coord_y0;
                     write_track_to_flash();
                 }
 			}
 			else {
 				step_env.forward_num += 2;
-				step_env.coord_x += step_env.stride * 2 * qfp_fsin((step_env.yaw_old-step_env.yaw_offset)*3.14159 / 180);
-				step_env.coord_y += step_env.stride * 2 * qfp_fcos((step_env.yaw_old-step_env.yaw_offset)*3.14159 / 180);
+				step_env.coord_x0 += step_env.stride * 2 * qfp_fsin((step_env.yaw_old)*3.14159 / 180);
+				step_env.coord_y0 += step_env.stride * 2 * qfp_fcos((step_env.yaw_old)*3.14159 / 180);
+                //step_env.coord_x=step_env.coord_x0*qfp_fcos(step_env.yaw_offset*3.14159 / 180)+step_env.coord_y0*qfp_fsin(step_env.yaw_offset*3.14159 / 180);
+                //step_env.coord_y=step_env.coord_y0*qfp_fcos(step_env.yaw_offset*3.14159 / 180)-step_env.coord_x0*qfp_fsin(step_env.yaw_offset*3.14159 / 180);
+                step_env.coord_x=step_env.coord_x0;
+                step_env.coord_y=step_env.coord_y0;
                 write_track_to_flash();
 			}
             //write_track_to_flash();

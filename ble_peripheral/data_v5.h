@@ -275,7 +275,9 @@ typedef struct step_env {
 
 
 	float coord_x;
+    float coord_x0;
 	float coord_y;
+    float coord_y0;
 	float yaw_old;
     float yaw_offset;
 
