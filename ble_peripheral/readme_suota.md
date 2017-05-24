@@ -113,7 +113,9 @@ Then download the image through SUOTA by the following steps:
 - Transfer the image to Android or iOS device under the Suota folder.
 - MISO GPIO : P0_2	MOSI GPIO : P0_1	CS GPIO : P0_5	CSK GPIO : P0_0   Image bank : 0  Block size : 240 	 
 
-
-
-
+##PLT
+-use plt in option Memory Functions:QSPI Flah,Write1:start address:0x00000000 ble_suota_loader.bin.cached  Write2:Start address :0x01F000  HB01_20170515_Release.bin
+-HB01_20170515_Release.bin is maded with SmartSnippets Toolbox in option ASPI Programmer 
+-bin2image qspi_cached ble_suota_loader.bin ble_suota_loader.bin.cached AD enable_uart
+D:\Project\BLE\DA1458x_DA1468x_PLT_v_4.0\executables\binaries>bin2image qspi_cached ble_suota_loader.bin ble_suota_loader.bin.cached AD enable_uart
 
