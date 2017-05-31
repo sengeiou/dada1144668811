@@ -1043,7 +1043,14 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
                 bd.id3=0x01;
             }
             ble_task_env.ble2app_id = 0x0aFF;
-            test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
+            uint8_t mac_v[9]={0};
+            memset(mac_v,0,sizeof(mac_v));
+            memcpy(mac_v+3,value+5,6);
+            mac_v[0]=bd.id1;
+            mac_v[1]=bd.id2;
+            mac_v[2]=bd.id3;
+            test_tx_data(svc, conn_idx, mac_v, sizeof(mac_v));
+            //test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
         }
         else if((*value)==0x0b && (*(value+1)==0xff) && (*(value+2)==0xff) 
             && (*(value+3)==0xff) && (*(value+4)==0xff) && length==20){
@@ -1219,6 +1226,7 @@ static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t leng
         }
         else if(ble_task_env.ble2app_id == 0x0aff){
             ble_task_env.ble2app_id = 0xff;
+            inv_sleep(1500);
             reboot();
         }
         else if(ble_task_env.ble2app_id == 0x0bff){
