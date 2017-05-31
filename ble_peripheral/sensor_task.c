@@ -68,6 +68,7 @@ bool rble_start_cal_cmd =false;
 nvms_t nvms_rble_test_storage_handle;
 unsigned char rble_gsensor_id=0;
 unsigned char rble_msensor_id=0;
+unsigned char rble_firware_down_ok=0;
 
 #endif
 
@@ -2482,6 +2483,13 @@ void RbleSensorControlTask(void *pvParameters)
 		ad_nvms_write(nvms_rble_test_storage_handle,
                                                 RBLE_MSENSOR_ID_OFFSET, &rble_msensor_id,
                                                 1);
+
+
+
+		ad_nvms_write(nvms_rble_test_storage_handle,
+												RBLE_FIRWARE_DOWNLOAD_OK_OFFSET, &rble_firware_down_ok,
+												1);
+
 #endif
 
 

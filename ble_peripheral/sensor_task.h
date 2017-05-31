@@ -63,6 +63,7 @@
 
 #define RBLE_GSENSOR_ID_OFFSET  (0)
 #define RBLE_MSENSOR_ID_OFFSET  (1)
+#define RBLE_FIRWARE_DOWNLOAD_OK_OFFSET  (2)
 
 
 typedef struct RbleSensorControlStruct

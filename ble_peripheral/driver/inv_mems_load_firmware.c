@@ -40,6 +40,10 @@
 
 #include "../invn/common/invn_types.h"
 
+#if defined(RBLE_SENOR_TEST_CUSTOM)
+
+extern unsigned char rble_firware_down_ok;
+#endif
 
 #if defined(RBLE_DMP_REPEAT_WRITE)
 
@@ -253,6 +257,10 @@ inv_error_t inv_mems_firmware_load(const unsigned char *data_start, unsigned sho
 			printf("inv_mems_firmware_load success\n");
 #endif
 
+#if defined(RBLE_SENOR_TEST_CUSTOM)
+
+	rble_firware_down_ok=1;
+#endif
 
     return INV_SUCCESS;
 }
