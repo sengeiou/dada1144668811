@@ -2591,7 +2591,7 @@ void RbleSensorControlTask(void *pvParameters)
                                 {
 #if 1 //defined(RBLE_UART_DEBUG)
 
-                                printf("START SAMPLE=%d\n");
+                                printf("START SAMPLE=%d\r\n",rble_sample_timer_id);
 
                                 fflush(stdout);
 #endif
@@ -2633,7 +2633,7 @@ void RbleSensorControlTask(void *pvParameters)
                                 handle_char_input('g');
                                 //handle_char_input('c');
                                 handle_char_input('o');
-
+                                printf("STOP SAMPLE=%d\r\n",rble_sample_timer_id);
                                 rble_sample_timer_enable(false);
                                 //rble_sample_destroy_timer();
 #if defined(RBLE_DATA_STORAGE_IN_FLASH)

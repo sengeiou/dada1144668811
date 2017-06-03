@@ -127,6 +127,10 @@
 #define dg_configBATTERY_PRECHARGE_CURRENT      20      // 2.1mA
 #define dg_configBATTERY_CHARGE_NTC             1       // disabled
 
+
+#define STOP_SENSOR_AFTER_THREE_HOUR
+#define THREE_HOUR (3*3600*1000)
+//test
 #define RBLE_BAT_MEASURE
 #define dg_configBATTERY_ADAPTER 	1
 #define dg_configUSE_USB                        0

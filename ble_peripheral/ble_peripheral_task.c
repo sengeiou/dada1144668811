@@ -177,6 +177,19 @@ PRIVILEGED_DATA static OS_TIMER adv_tim;
 
 #endif
 
+#if defined(STOP_SENSOR_AFTER_THREE_HOUR)
+PRIVILEGED_DATA static OS_TIMER stop_sensor_tim; 
+#define STOP_SENSOR_TMO_NOTIF   (1 << 13)
+
+static void stop_sensor_tim_cb(OS_TIMER timer)
+{
+    OS_TASK task = (OS_TASK)OS_TIMER_GET_TIMER_ID(timer);
+
+    OS_TASK_NOTIFY(task, STOP_SENSOR_TMO_NOTIF, OS_NOTIFY_SET_BITS);
+    printf("stop_sensor_tim_cb\r\n");
+}
+#endif
+
 typedef enum {
         CONN_INTERVAL_FAST = 0,
         CONN_INTERVAL_SLOW = 1,
@@ -903,6 +916,11 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
                 OS_TASK_NOTIFY(task_sensor_sample, RBLE_SENSOR_START_SAMPLE_NOTIF,
                         OS_NOTIFY_SET_BITS);
 #endif
+                #if defined(STOP_SENSOR_AFTER_THREE_HOUR)
+                OS_TIMER_STOP(stop_sensor_tim,OS_TIMER_FOREVER);
+                OS_TIMER_START(stop_sensor_tim, OS_TIMER_FOREVER);
+                #endif
+                
                 bd.id1 = 0xFF;
                 bd.id2 = 0x01;
                 bd.id3 = 0xFF;
@@ -1692,6 +1710,12 @@ void ble_peripheral_task(void *params)
         OS_ASSERT(cts_timer);
         OS_TIMER_START(cts_timer, OS_TIMER_FOREVER);
 #endif
+
+#if defined(STOP_SENSOR_AFTER_THREE_HOUR)
+    stop_sensor_tim= OS_TIMER_CREATE("stop", OS_MS_2_TICKS(THREE_HOUR), OS_TIMER_FAIL,
+                (void *) OS_GET_CURRENT_TASK(), stop_sensor_tim_cb);
+#endif
+
 #if defined(CUSTOM_CONNECTION)
         /*
          * Create timer for switching from "fast connection" to "reduced power" advertising
@@ -1799,6 +1823,15 @@ void ble_peripheral_task(void *params)
 								bas_update();
 						}
 	#endif
+
+    #if defined(STOP_SENSOR_AFTER_THREE_HOUR)
+        if(notif & STOP_SENSOR_TMO_NOTIF){
+             OS_TASK_NOTIFY(task_sensor_sample, RBLE_SENSOR_STOP_SAMPLE_NOTIF,
+                        OS_NOTIFY_SET_BITS);
+             rble_write_result_flash_cmd=false;
+             rble_write_flash_cmd=false;
+        }
+    #endif
 
     #if defined(CUSTOM_CONNECTION)
     /* Notified from advertising timer? */
