@@ -312,6 +312,15 @@ void test_tx_data(ble_service_t *svc, uint16_t conn_idx, uint8_t *data, uint16_t
         uint16_t ccc = 0x0000;
         uint8_t flow_ctrl = TEST_FLOW_CONTROL_OFF;
 
+//test begin
+		int i;
+        if (length < 20) {
+
+		for (i = 0; i < length; i++) {
+                printf("test_tx_data tx[%d]:%x\r\n", i,*(data + i));
+        }
+        	}
+//end		
         if (get_tx_length(test, conn_idx) != 0x00) {
                 return;
         }
