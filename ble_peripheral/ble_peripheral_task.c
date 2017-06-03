@@ -916,6 +916,20 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
                 test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
                 ble_task_env.ble2app_id = 0xFF;
         }
+        else if ((value_h == RBLE_RECEIVE_DATA_HEADER) && value_cmd == 0x03) {
+                ble_task_env.test_rx_data_id=0xff;
+                ble_task_env.ble2app_id = 0xFF;
+                bd.id1 = 0xFF;
+                bd.id2 = 0x03;
+                bd.id3 = 0xFF;
+
+               if(read_result_id()==0x01){
+                     bd.id3=0x01;
+               }else{
+                     bd.id3=0x00;
+               }
+               test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
+        }
         else if ((value_h == RBLE_RECEIVE_DATA_HEADER) && (value_cmd == RBLE_RECEIVE_DATA_SEND))
                 {
                 ble_task_env.test_rx_data_id=0xff;
