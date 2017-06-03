@@ -67,6 +67,11 @@ static void read_test();
 static int read_result_id();
 static void set_result_id(uint8_t id);
 
+#if defined(CUSTOM_REBOOT_VOL_RECORD)
+static void save_cur_sys_vol_value(void);
+static void update_reboot_times(void);
+static void reset_reboot_times(void);
+#endif
 
 /*
  * Notification bits reservation
@@ -150,10 +155,10 @@ static const struct {
 } adv_intervals[2] = {
         // "fast connection" interval values
         {
-               // .min = BLE_ADV_INTERVAL_FROM_MS(20),      // 20ms
-                //.max = BLE_ADV_INTERVAL_FROM_MS(30),      // 30ms
-                   .min = BLE_ADV_INTERVAL_FROM_MS(320),      // 320ms
-                   .max = BLE_ADV_INTERVAL_FROM_MS(320),      // 320ms
+                .min = BLE_ADV_INTERVAL_FROM_MS(20),      // 20ms
+                .max = BLE_ADV_INTERVAL_FROM_MS(30),      // 30ms
+                  // .min = BLE_ADV_INTERVAL_FROM_MS(320),      // 320ms
+                  // .max = BLE_ADV_INTERVAL_FROM_MS(320),      // 320ms
         },
         // "reduced power" interval values
         {
@@ -426,6 +431,9 @@ static void bas_update(void)
         level = read_battery_level();
 
         bas_set_level(bas, level, true);
+#if defined(CUSTOM_REBOOT_VOL_RECORD)
+		save_cur_sys_vol_value();
+#endif
 }
 
 
@@ -697,9 +705,9 @@ static const suota_callbacks_t suota_cb = {
 /* Advertising intervals change timeout timer callback */
 static void adv_tim_cb(OS_TIMER timer)
 {
-       // OS_TASK task = (OS_TASK)OS_TIMER_GET_TIMER_ID(timer);
+        OS_TASK task = (OS_TASK)OS_TIMER_GET_TIMER_ID(timer);
 
-        //OS_TASK_NOTIFY(task, ADV_TMO_NOTIF, OS_NOTIFY_SET_BITS);
+        OS_TASK_NOTIFY(task, ADV_TMO_NOTIF, OS_NOTIFY_SET_BITS);
 }
 
 
@@ -734,17 +742,21 @@ static void handle_evt_gap_connected(ble_evt_gap_connected_t *evt)
         ble_task_env.conn_intv = evt->conn_params.interval_max;
 
 #if defined(CUSTOM_CONNECTION)
-       // OS_TIMER_STOP(adv_tim, OS_TIMER_FOREVER);
+        OS_TIMER_STOP(adv_tim, OS_TIMER_FOREVER);
 
-       // set_advertising_interval(ADV_INTERVAL_POWER);
-        ble_gap_adv_stop();
+        set_advertising_interval(ADV_INTERVAL_POWER);
+       /* ble_gap_adv_stop();*/
 #endif
 
 #if defined(RBLE_BAT_MEASURE)
+#if defined(CUSTOM_REBOOT_VOL_RECORD)
+
+#else /*CUSTOM_REBOOT_VOL_RECORD*/
 		if (!OS_TIMER_IS_ACTIVE(bas_tim)) {
                 bas_update();
                 OS_TIMER_START(bas_tim, OS_TIMER_FOREVER);
         }
+#endif/*CUSTOM_REBOOT_VOL_RECORD*/	
 #endif
 }
 #if defined(RBLE_BAT_MEASURE)
@@ -771,7 +783,10 @@ static void handle_evt_gap_disconnected(ble_evt_gap_disconnected_t *evt)
         //ble_gap_adv_stop();
         //OS_TIMER_START(adv_tim, OS_TIMER_FOREVER);
         set_advertising_interval(ADV_INTERVAL_FAST);
-        ble_gap_adv_start(GAP_CONN_MODE_UNDIRECTED);
+        ble_gap_adv_stop();
+        OS_TIMER_START(adv_tim, OS_TIMER_FOREVER);
+       /* set_advertising_interval(ADV_INTERVAL_FAST);
+        ble_gap_adv_start(GAP_CONN_MODE_UNDIRECTED);*/
 #endif
 
         /*
@@ -792,12 +807,12 @@ static void handle_evt_gap_disconnected(ble_evt_gap_disconnected_t *evt)
 static void handle_evt_gap_adv_completed(ble_evt_gap_adv_completed_t *evt)
 {
         // restart advertising so we can connect again
-        //ble_gap_adv_start(GAP_CONN_MODE_UNDIRECTED);
-        if(ble_task_env.conn_idx == BLE_CONN_IDX_INVALID){
+        ble_gap_adv_start(GAP_CONN_MODE_UNDIRECTED);
+        /*if(ble_task_env.conn_idx == BLE_CONN_IDX_INVALID){
                 ble_gap_adv_start(GAP_CONN_MODE_UNDIRECTED);
         }else{
                 //stop adv
-        }
+        }*/
 }
 
 typedef struct test_data
@@ -930,6 +945,9 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
                 }else{
                     bd.id3=0x00;
                 }
+#if defined(CUSTOM_REBOOT_VOL_RECORD)
+				reset_reboot_times();
+#endif				
                 uint8_t battery[4]={0};
                 memset(battery,0,sizeof(battery));
                 battery[0]=bd.id1;
@@ -1380,6 +1398,83 @@ static int erase_result_part(size_t size)
         
 }
 
+#if defined(CUSTOM_REBOOT_VOL_RECORD)
+static void save_cur_sys_vol_value(void)
+{
+	unsigned int vol_high,vol_low = 0;
+	uint8_t vol_buf[2]={0};	
+	unsigned int nvrm_vol_offset = 102;
+	int ret = 0;
+
+	battery_source bat = ad_battery_open();
+	uint16_t bat_voltage = ad_battery_raw_to_mvolt(bat, ad_battery_read(bat));
+	vol_high = bat_voltage / 100 ;
+	vol_low = bat_voltage % 100 ;
+	printf("bat_voltage=%d  vol_high =%d vol_low =%d \r\n",bat_voltage,vol_high ,vol_low);
+
+	memset(vol_buf,0,sizeof(vol_buf));
+
+	nvms_t t = ad_nvms_open(NVMS_IMAGE_CUSTOM_CONFIG_PART);
+	memset(vol_buf,0,sizeof(vol_buf));
+	ad_nvms_read(t,nvrm_vol_offset,vol_buf,sizeof(vol_buf));
+
+	printf("vol_buf[0]=%x vol_buf[1]=%x\r\n",vol_buf[0],vol_buf[1]);
+	vol_buf[0] = vol_high;
+	vol_buf[1] = vol_low;
+
+	printf("vol_buf[0]=%x  vol_buf[1]=%x  \r\n",vol_buf[0],vol_buf[1]);
+
+	ret = ad_nvms_write(t,nvrm_vol_offset,vol_buf,2);
+
+	printf("ad_nvms_write ret=%d\r\n",ret); 
+
+}
+
+
+static void update_reboot_times(void)
+{
+    uint8_t reboot_buf[1]={0};
+	int ret = 0;
+	unsigned int nvrm_reboot_offset = 101;
+	
+	nvms_t t = ad_nvms_open(NVMS_IMAGE_CUSTOM_CONFIG_PART);
+	memset(reboot_buf,0,sizeof(reboot_buf));
+	ad_nvms_read(t,nvrm_reboot_offset,reboot_buf,sizeof(reboot_buf));
+	printf("read_result_id=%x\r\n",reboot_buf[0]);
+
+ 	if (reboot_buf[0] == 0xff) reboot_buf[0] = 0x00;
+	else 
+		++reboot_buf[0];
+	
+	printf("reboot_buf[0]=%x\r\n",reboot_buf[0]);
+
+	ret = ad_nvms_write(t,nvrm_reboot_offset,reboot_buf,1);
+ 
+    printf("ad_nvms_write ret=%d\r\n",ret);	
+}
+
+static void reset_reboot_times(void)
+{
+	uint8_t reboot_buf[1]={0};
+
+	int ret = 0;
+	unsigned int nvrm_reboot_offset = 101;
+	
+	nvms_t t = ad_nvms_open(NVMS_IMAGE_CUSTOM_CONFIG_PART);
+	memset(reboot_buf,0,sizeof(reboot_buf));
+	ad_nvms_read(t,nvrm_reboot_offset,reboot_buf,sizeof(reboot_buf));
+	printf("reset_reboot_times=%x\r\n",reboot_buf[0]);
+
+	reboot_buf[0] = 0xff;
+
+	ret = ad_nvms_write(t,nvrm_reboot_offset,reboot_buf,1);
+ 
+    printf("ad_nvms_write ret=%d\r\n",ret);	
+}
+
+#endif /*CUSTOM_REBOOT_VOL_RECORD*/
+
+
 /* Buffer must have length at least max_len + 1 */
 #if defined(CUSTOM_CONFIG_SERIAL_NUMBER_DEFINE)
 
@@ -1593,6 +1688,11 @@ void ble_peripheral_task(void *params)
 /* Get serial number from nvparam if exist or default otherwise */
       read_serial_number();
 #endif
+
+#if defined(CUSTOM_REBOOT_VOL_RECORD)
+		update_reboot_times();
+#endif
+
         int8_t wdog_id;
 #if CFG_CTS
         ble_service_t *cts;
@@ -1737,7 +1837,7 @@ void ble_peripheral_task(void *params)
 
         ble_gap_adv_start(GAP_CONN_MODE_UNDIRECTED);
 #if defined(CUSTOM_CONNECTION)
-       // OS_TIMER_START(adv_tim, OS_TIMER_FOREVER);
+        OS_TIMER_START(adv_tim, OS_TIMER_FOREVER);
 #endif
 
         flash_test_tim= OS_TIMER_CREATE("flash", OS_MS_2_TICKS(5000), OS_TIMER_FAIL,
@@ -1745,7 +1845,14 @@ void ble_peripheral_task(void *params)
 
         printf("wzb for(;;)\r\n");
 
-
+#if defined(CUSTOM_REBOOT_VOL_RECORD)
+#if defined(RBLE_BAT_MEASURE)
+		if (!OS_TIMER_IS_ACTIVE(bas_tim)) {
+				bas_update();
+				OS_TIMER_START(bas_tim, OS_TIMER_FOREVER);
+		}
+#endif
+#endif /*CUSTOM_REBOOT_VOL_RECORD*/
         for (;;) {
                 OS_BASE_TYPE ret;
                 uint32_t notif;
@@ -1846,8 +1953,8 @@ void ble_peripheral_task(void *params)
                              * Change interval values and stop advertising. Once it's stopped, it will
                              * start again with new parameters.
                              */
-                          //  set_advertising_interval(ADV_INTERVAL_POWER);
-                           // ble_gap_adv_stop();
+                           set_advertising_interval(ADV_INTERVAL_POWER);
+                            ble_gap_adv_stop();
                     }
 
 
