@@ -930,8 +930,14 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
                 }else{
                     bd.id3=0x00;
                 }
-                
-                test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
+                uint8_t battery[4]={0};
+                memset(battery,0,sizeof(battery));
+                battery[0]=bd.id1;
+                battery[1]=bd.id2;
+                battery[2]=bd.id3;
+                battery[3]=read_battery_level();
+                test_tx_data(svc, conn_idx, battery, sizeof(battery));
+                //test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
                 ble_task_env.ble2app_id = 0xFF;
         }
         else if ((value_h == RBLE_RECEIVE_DATA_HEADER) && value_cmd == 0x03) {
