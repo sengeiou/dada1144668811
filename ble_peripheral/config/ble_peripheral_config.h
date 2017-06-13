@@ -20,6 +20,8 @@
 
 // enable debug service (see readme.txt for details)
 #define CFG_DEBUG_SERVICE    (1)
+#define CUSTOM_CONNECTION
+#define RBLE_BAT_MEASURE
 
 #define CFG_BAS              (1)     // register BAS service
 #define CFG_BAS_MULTIPLE     (1)     // add 2 instances of BAS service

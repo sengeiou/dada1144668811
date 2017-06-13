@@ -150,21 +150,27 @@ static const struct {
 } adv_intervals[2] = {
         // "fast connection" interval values
         {
-               // .min = BLE_ADV_INTERVAL_FROM_MS(20),      // 20ms
-                //.max = BLE_ADV_INTERVAL_FROM_MS(30),      // 30ms
-                   .min = BLE_ADV_INTERVAL_FROM_MS(320),      // 320ms
-                   .max = BLE_ADV_INTERVAL_FROM_MS(320),      // 320ms
+                .min = BLE_ADV_INTERVAL_FROM_MS(20),      // 20ms
+                .max = BLE_ADV_INTERVAL_FROM_MS(30),      // 30ms
+
         },
         // "reduced power" interval values
         {
                 .min = BLE_ADV_INTERVAL_FROM_MS(1000),    // 1000ms
                 .max = BLE_ADV_INTERVAL_FROM_MS(1500),    // 1500ms
+        },
+
+                 // "normal" interval values
+        {
+                .min = BLE_ADV_INTERVAL_FROM_MS(330),    // 1000ms
+                .max = BLE_ADV_INTERVAL_FROM_MS(330),    // 1500ms
         }
 };
 
 typedef enum {
         ADV_INTERVAL_FAST = 0,
         ADV_INTERVAL_POWER = 1,
+        ADV_INTERVAL_NORMAL = 2,
 } adv_setting_t;
 
 #define ADV_TMO_NOTIF   (1 << 9)
@@ -697,9 +703,9 @@ static const suota_callbacks_t suota_cb = {
 /* Advertising intervals change timeout timer callback */
 static void adv_tim_cb(OS_TIMER timer)
 {
-       // OS_TASK task = (OS_TASK)OS_TIMER_GET_TIMER_ID(timer);
+        OS_TASK task = (OS_TASK)OS_TIMER_GET_TIMER_ID(timer);
 
-        //OS_TASK_NOTIFY(task, ADV_TMO_NOTIF, OS_NOTIFY_SET_BITS);
+        OS_TASK_NOTIFY(task, ADV_TMO_NOTIF, OS_NOTIFY_SET_BITS);
 }
 
 
@@ -734,10 +740,10 @@ static void handle_evt_gap_connected(ble_evt_gap_connected_t *evt)
         ble_task_env.conn_intv = evt->conn_params.interval_max;
 
 #if defined(CUSTOM_CONNECTION)
-       // OS_TIMER_STOP(adv_tim, OS_TIMER_FOREVER);
-
-       // set_advertising_interval(ADV_INTERVAL_POWER);
-        ble_gap_adv_stop();
+        OS_TIMER_STOP(adv_tim, OS_TIMER_FOREVER);
+        set_advertising_interval(ADV_INTERVAL_POWER);
+        
+        //ble_gap_adv_stop();
 #endif
 
 #if defined(RBLE_BAT_MEASURE)
@@ -767,11 +773,13 @@ static void handle_evt_gap_disconnected(ble_evt_gap_disconnected_t *evt)
         
 #if defined(CUSTOM_CONNECTION)
         /* Switch back to fast advertising interval. */
-        //set_advertising_interval(ADV_INTERVAL_FAST);
-        //ble_gap_adv_stop();
-        //OS_TIMER_START(adv_tim, OS_TIMER_FOREVER);
         set_advertising_interval(ADV_INTERVAL_FAST);
-        ble_gap_adv_start(GAP_CONN_MODE_UNDIRECTED);
+        ble_gap_adv_stop();
+        OS_TIMER_START(adv_tim, OS_TIMER_FOREVER);
+
+       
+        //set_advertising_interval(ADV_INTERVAL_NORMAL);
+        //ble_gap_adv_start(GAP_CONN_MODE_UNDIRECTED);
 #endif
 
         /*
@@ -792,12 +800,13 @@ static void handle_evt_gap_disconnected(ble_evt_gap_disconnected_t *evt)
 static void handle_evt_gap_adv_completed(ble_evt_gap_adv_completed_t *evt)
 {
         // restart advertising so we can connect again
-        //ble_gap_adv_start(GAP_CONN_MODE_UNDIRECTED);
-        if(ble_task_env.conn_idx == BLE_CONN_IDX_INVALID){
+        ble_gap_adv_start(GAP_CONN_MODE_UNDIRECTED);
+
+        /*if(ble_task_env.conn_idx == BLE_CONN_IDX_INVALID){
                 ble_gap_adv_start(GAP_CONN_MODE_UNDIRECTED);
         }else{
                 //stop adv
-        }
+        }*/
 }
 
 typedef struct test_data
@@ -1737,7 +1746,7 @@ void ble_peripheral_task(void *params)
 
         ble_gap_adv_start(GAP_CONN_MODE_UNDIRECTED);
 #if defined(CUSTOM_CONNECTION)
-       // OS_TIMER_START(adv_tim, OS_TIMER_FOREVER);
+        OS_TIMER_START(adv_tim, OS_TIMER_FOREVER);
 #endif
 
         flash_test_tim= OS_TIMER_CREATE("flash", OS_MS_2_TICKS(5000), OS_TIMER_FAIL,
@@ -1846,8 +1855,8 @@ void ble_peripheral_task(void *params)
                              * Change interval values and stop advertising. Once it's stopped, it will
                              * start again with new parameters.
                              */
-                          //  set_advertising_interval(ADV_INTERVAL_POWER);
-                           // ble_gap_adv_stop();
+                            set_advertising_interval(ADV_INTERVAL_POWER);
+                            ble_gap_adv_stop();
                     }
 
 
