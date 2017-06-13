@@ -67,6 +67,11 @@ static void read_test();
 static int read_result_id();
 static void set_result_id(uint8_t id);
 
+#if defined(CUSTOM_REBOOT_VOL_RECORD)
+static void save_cur_sys_vol_value(void);
+static void update_reboot_times(void);
+static void reset_reboot_times(void);
+#endif
 
 /*
  * Notification bits reservation
@@ -112,7 +117,7 @@ static const uint8_t adv_data[] = {
         GAP_DATA_TYPE_UUID16_LIST_INC,
 #ifdef dg_configSUOTA_SUPPORT
         0xF5, 0xFE,     // = 0xFEF5 (DIALOG SUOTA UUID)
-#endif /* dg_configSUOTA_SUPPORT */        
+#endif /* dg_configSUOTA_SUPPORT */
 };
 
 #else
@@ -184,7 +189,7 @@ PRIVILEGED_DATA static OS_TIMER adv_tim;
 #endif
 
 #if defined(STOP_SENSOR_AFTER_THREE_HOUR)
-PRIVILEGED_DATA static OS_TIMER stop_sensor_tim; 
+PRIVILEGED_DATA static OS_TIMER stop_sensor_tim;
 #define STOP_SENSOR_TMO_NOTIF   (1 << 13)
 
 static void stop_sensor_tim_cb(OS_TIMER timer)
@@ -376,7 +381,7 @@ static uint8_t read_battery_level(void)
         fflush(stdout);
 
 #endif
-		
+
 
         return level;
 }
@@ -411,14 +416,14 @@ static uint8_t read_battery_level(void)
         battery_source bat = ad_battery_open();
         uint16_t bat_voltage = ad_battery_raw_to_mvolt(bat, ad_battery_read(bat));
 
-		
+
         level = bat_level(bat_voltage);
         ad_battery_close(bat);
 
 		#if 1  //defined(RBLE_UART_DEBUG)
 				printf("read_battery_level level=%d,bat_voltage=%d\n",level,bat_voltage);
 				fflush(stdout);
-		
+
 		#endif
 
         return level;
@@ -432,6 +437,9 @@ static void bas_update(void)
         level = read_battery_level();
 
         bas_set_level(bas, level, true);
+#if defined(CUSTOM_REBOOT_VOL_RECORD)
+		save_cur_sys_vol_value();
+#endif
 }
 
 
@@ -503,8 +511,8 @@ static void myservice_init(ble_service_t *include_svc)
         sn_uuid[34]=serial_number[14];
         sn_uuid[35]='0';
         sn_uuid[36]='\0';
-        
-        
+
+
        // ble_uuid_from_string("91a7608d-4456-479d-b9b1-4706e8711cf8", &uuid);
        printf("len=%d,sn_uuid=%s\r\n",strlen(sn_uuid),sn_uuid);
         ble_uuid_from_string(sn_uuid, &uuid);
@@ -725,7 +733,7 @@ static void flash_test_tim_cb(OS_TIMER timer)
         printf("flash_test_tim_cb\r\n");
         OS_TASK_NOTIFY(task, FLASH_TEST_TMO_NOTIF, OS_NOTIFY_SET_BITS);
         //read_test();
-        
+
 }
 
 
@@ -742,15 +750,21 @@ static void handle_evt_gap_connected(ble_evt_gap_connected_t *evt)
 #if defined(CUSTOM_CONNECTION)
         OS_TIMER_STOP(adv_tim, OS_TIMER_FOREVER);
         set_advertising_interval(ADV_INTERVAL_POWER);
-        
+
         //ble_gap_adv_stop();
+
+
 #endif
 
 #if defined(RBLE_BAT_MEASURE)
+#if defined(CUSTOM_REBOOT_VOL_RECORD)
+
+#else /*CUSTOM_REBOOT_VOL_RECORD*/
 		if (!OS_TIMER_IS_ACTIVE(bas_tim)) {
                 bas_update();
                 OS_TIMER_START(bas_tim, OS_TIMER_FOREVER);
         }
+#endif/*CUSTOM_REBOOT_VOL_RECORD*/
 #endif
 }
 #if defined(RBLE_BAT_MEASURE)
@@ -770,16 +784,18 @@ static void handle_evt_gap_disconnected(ble_evt_gap_disconnected_t *evt)
         //for error ff08
         ble_task_env.test_rx_data_id=0xff;
 
-        
+
 #if defined(CUSTOM_CONNECTION)
         /* Switch back to fast advertising interval. */
         set_advertising_interval(ADV_INTERVAL_FAST);
         ble_gap_adv_stop();
         OS_TIMER_START(adv_tim, OS_TIMER_FOREVER);
 
-       
+
+
         //set_advertising_interval(ADV_INTERVAL_NORMAL);
         //ble_gap_adv_start(GAP_CONN_MODE_UNDIRECTED);
+
 #endif
 
         /*
@@ -787,7 +803,7 @@ static void handle_evt_gap_disconnected(ble_evt_gap_disconnected_t *evt)
          */
         ble_gap_get_devices(GAP_DEVICE_FILTER_CONNECTED, NULL, &num_connected, NULL);
         if (num_connected == 0) {
-			
+
 			#if 1 //defined(RBLE_BAT_MEASURE)
                 OS_TIMER_STOP(bas_tim, OS_TIMER_FOREVER);
 			#endif
@@ -868,7 +884,7 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
                 create_id_data_rx_len=0;
             }
         }
-        
+
         printf("test_rx_data_id=%x,create_id_data_rx_len=%d\r\n",ble_task_env.test_rx_data_id,create_id_data_rx_len);
         test_data td;
         td.id1 = 0x00;
@@ -907,7 +923,7 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
 #if 1
         value_h = *(value);
         value_cmd = *(value + 1);
-        
+
         if ((value_h == RBLE_RECEIVE_DATA_HEADER) && (value_cmd == RBLE_START_SENSOR_CMD))
                 {
                 //start_collect_data =true;
@@ -929,7 +945,7 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
                 OS_TIMER_STOP(stop_sensor_tim,OS_TIMER_FOREVER);
                 OS_TIMER_START(stop_sensor_tim, OS_TIMER_FOREVER);
                 #endif
-                
+
                 bd.id1 = 0xFF;
                 bd.id2 = 0x01;
                 bd.id3 = 0xFF;
@@ -939,6 +955,9 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
                 }else{
                     bd.id3=0x00;
                 }
+#if defined(CUSTOM_REBOOT_VOL_RECORD)
+				reset_reboot_times();
+#endif
                 uint8_t battery[4]={0};
                 memset(battery,0,sizeof(battery));
                 battery[0]=bd.id1;
@@ -1040,13 +1059,13 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
         }
         else if ((value_h == RBLE_RECEIVE_DATA_HEADER) && value_cmd == 0xff && length == 3 && (*(value + 2) == 0x01)) {
             ble_task_env.test_rx_data_id==0xff;
-               
+
                         bd.id1 = bd.id2 = 0xff;
                         bd.id3 = 0x00;          //start flag
                         test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
                         ble_task_env.ble2app_id = 0x03;
                         t_rble_read_result_data_addr_offset = 0;
-                
+
         }
         else if ((value_h == RBLE_RECEIVE_DATA_HEADER) && value_cmd == 0x69) {
             ble_task_env.test_rx_data_id=0xff;
@@ -1078,7 +1097,7 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
                 ble_task_env.ble2app_id = 0xFF;
 
         }
-        else if((*value)==0x0a && (*(value+1)==0xff) && (*(value+2)==0xff) 
+        else if((*value)==0x0a && (*(value+1)==0xff) && (*(value+2)==0xff)
             && (*(value+3)==0xff) && (*(value+4)==0xff) && length==11){
             //write mac addr
             ble_task_env.test_rx_data_id=0xff;
@@ -1099,7 +1118,7 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
             test_tx_data(svc, conn_idx, mac_v, sizeof(mac_v));
             //test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
         }
-        else if((*value)==0x0b && (*(value+1)==0xff) && (*(value+2)==0xff) 
+        else if((*value)==0x0b && (*(value+1)==0xff) && (*(value+2)==0xff)
             && (*(value+3)==0xff) && (*(value+4)==0xff) && length==20){
             //write sn
             ble_task_env.test_rx_data_id=0xff;
@@ -1115,7 +1134,7 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
 
         }
 
-        else if((*value)==0xaa && (*(value+1)==0x17) && (*(value+2)==0x00) 
+        else if((*value)==0xaa && (*(value+1)==0x17) && (*(value+2)==0x00)
             && (*(value+3)==0xc1) && length==4){
             #if defined(RBLE_SENSOR_CTRL_BY_APP)
                 OS_TASK_NOTIFY(task_sensor_sample, RBLE_SENSOR_START_SAMPLE_NOTIF,
@@ -1170,14 +1189,14 @@ static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t leng
                                 ad_nvms_read(nvms_rble_result_storage_handle,
                                         t_rble_read_result_data_addr_offset, rble_sample_result_data,
                                         sizeof(rble_sample_result_data));
-                    
-                          
+
+
                                         test_tx_data(svc, conn_idx, rble_sample_result_data,
                                                 sizeof(rble_sample_result_data));
                                         ble_task_env.ble2app_id = 0x03;
                                         t_rble_read_result_data_addr_offset +=
                                                 sizeof(rble_sample_result_data);
-                                
+
                         }
                         else if (t_rble_read_result_data_addr_offset == 40)
                                 {
@@ -1187,7 +1206,7 @@ static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t leng
                                 ble_task_env.ble2app_id = 0xff;
                                 test_tx_data(svc, conn_idx, rble_sample_result_data, 8);
                                 t_rble_read_result_data_addr_offset += 8;
-                                
+
                         }
         }
         else if (ble_task_env.ble2app_id == 0x09) {
@@ -1211,8 +1230,8 @@ static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t leng
                                     if (rble_sample_result_data[i] != 0xff){
                                         read_result = false;
                                     }
-                                 
-                                                
+
+
                                 }
                                 if (read_result)
                                 {
@@ -1233,8 +1252,8 @@ static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t leng
                                        // ret=erase_result_part(20);
                                         printf("ad_nvms_erase_region RESULT :%d\r\n",ret);
                                          test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
-                                       
-                                        
+
+
                                         //return;
 
                                 }
@@ -1247,7 +1266,7 @@ static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t leng
                                                 sizeof(rble_sample_result_data);
                                 }
                         }
-                        else 
+                        else
                         {
                                 ad_nvms_read(nvms_rble_result_storage_handle,
                                         rble_read_result_data_addr_offset, rble_sample_result_data,
@@ -1292,7 +1311,7 @@ static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t leng
             memcpy(tx_sensor_data+16, &(acc_gyr_ori[4]),4);
             test_tx_data(svc, conn_idx, tx_sensor_data, 20);
         }
-        
+
         printf("wzb test_tx_done_cb\r\n");
 }
 
@@ -1324,7 +1343,7 @@ static void set_result_id(uint8_t id)
 {
     uint8_t value=id;
     nvms_t t=ad_nvms_open(NVMS_IMAGE_CUSTOM_CONFIG_PART);
-    int ret=ad_nvms_write(t,10,&value,1);   
+    int ret=ad_nvms_write(t,10,&value,1);
     printf("set_result_id ret=%x\r\n",ret);
 }
 
@@ -1340,7 +1359,7 @@ static void read_test(){
                 printf("erase_result_part buf[i=%d]=%x\r\n",i,buf[i]);
                 if (buf[i] != 0xff){
                        j = false;
-                }                               
+                }
             }
 
             OS_TIMER_STOP(flash_test_tim, OS_TIMER_FOREVER);
@@ -1363,7 +1382,7 @@ static int erase_result_part(size_t size)
         while(k>0){
             hw_watchdog_freeze();
             if(ad_nvms_erase_region(t, 0,size)){
-                printf("erase_result_part ok k=%x\r\n",k);                             
+                printf("erase_result_part ok k=%x\r\n",k);
             }
             hw_watchdog_unfreeze();
             memset(buf,0,sizeof(buf));
@@ -1372,22 +1391,99 @@ static int erase_result_part(size_t size)
                 printf("erase_result_part buf[i=%d]=%x\r\n",i,buf[i]);
                 if (buf[i] != 0xff){
                        j = false;
-                }                               
+                }
             }
             k--;
             if(j){
                 break;
             }
         }
-        
+
         if(j){
             return 0;
         }else{
             return -1;
         }
 
-        
+
 }
+
+#if defined(CUSTOM_REBOOT_VOL_RECORD)
+static void save_cur_sys_vol_value(void)
+{
+	unsigned int vol_high,vol_low = 0;
+	uint8_t vol_buf[2]={0};
+	unsigned int nvrm_vol_offset = 102;
+	int ret = 0;
+
+	battery_source bat = ad_battery_open();
+	uint16_t bat_voltage = ad_battery_raw_to_mvolt(bat, ad_battery_read(bat));
+	vol_high = bat_voltage / 100 ;
+	vol_low = bat_voltage % 100 ;
+	printf("bat_voltage=%d  vol_high =%d vol_low =%d \r\n",bat_voltage,vol_high ,vol_low);
+
+	memset(vol_buf,0,sizeof(vol_buf));
+
+	nvms_t t = ad_nvms_open(NVMS_IMAGE_CUSTOM_CONFIG_PART);
+	memset(vol_buf,0,sizeof(vol_buf));
+	ad_nvms_read(t,nvrm_vol_offset,vol_buf,sizeof(vol_buf));
+
+	printf("vol_buf[0]=%x vol_buf[1]=%x\r\n",vol_buf[0],vol_buf[1]);
+	vol_buf[0] = vol_high;
+	vol_buf[1] = vol_low;
+
+	printf("vol_buf[0]=%x  vol_buf[1]=%x  \r\n",vol_buf[0],vol_buf[1]);
+
+	ret = ad_nvms_write(t,nvrm_vol_offset,vol_buf,2);
+
+	printf("ad_nvms_write ret=%d\r\n",ret);
+
+}
+
+
+static void update_reboot_times(void)
+{
+    uint8_t reboot_buf[1]={0};
+	int ret = 0;
+	unsigned int nvrm_reboot_offset = 101;
+
+	nvms_t t = ad_nvms_open(NVMS_IMAGE_CUSTOM_CONFIG_PART);
+	memset(reboot_buf,0,sizeof(reboot_buf));
+	ad_nvms_read(t,nvrm_reboot_offset,reboot_buf,sizeof(reboot_buf));
+	printf("read_result_id=%x\r\n",reboot_buf[0]);
+
+ 	if (reboot_buf[0] == 0xff) reboot_buf[0] = 0x00;
+	else
+		++reboot_buf[0];
+
+	printf("reboot_buf[0]=%x\r\n",reboot_buf[0]);
+
+	ret = ad_nvms_write(t,nvrm_reboot_offset,reboot_buf,1);
+
+    printf("ad_nvms_write ret=%d\r\n",ret);
+}
+
+static void reset_reboot_times(void)
+{
+	uint8_t reboot_buf[1]={0};
+
+	int ret = 0;
+	unsigned int nvrm_reboot_offset = 101;
+
+	nvms_t t = ad_nvms_open(NVMS_IMAGE_CUSTOM_CONFIG_PART);
+	memset(reboot_buf,0,sizeof(reboot_buf));
+	ad_nvms_read(t,nvrm_reboot_offset,reboot_buf,sizeof(reboot_buf));
+	printf("reset_reboot_times=%x\r\n",reboot_buf[0]);
+
+	reboot_buf[0] = 0xff;
+
+	ret = ad_nvms_write(t,nvrm_reboot_offset,reboot_buf,1);
+
+    printf("ad_nvms_write ret=%d\r\n",ret);
+}
+
+#endif /*CUSTOM_REBOOT_VOL_RECORD*/
+
 
 /* Buffer must have length at least max_len + 1 */
 #if defined(CUSTOM_CONFIG_SERIAL_NUMBER_DEFINE)
@@ -1397,8 +1493,8 @@ static void read_serial_number(void)
     static const uint8_t default_sn[SERIAL_NUMBER_LEN] = SERIAL_NUMBER_INVAID;
 
 #if dg_configNVPARAM_ADAPTER
-	//char serial_number[SERIAL_NUMBER_LEN]; /* 1 byte for '\0' character */	 
-	int serial_len=0; 
+	//char serial_number[SERIAL_NUMBER_LEN]; /* 1 byte for '\0' character */
+	int serial_len=0;
 	uint8_t valid = 0xFF;
 	uint16_t read_len = 0,write_len=0;
 	uint16_t param_len;
@@ -1407,13 +1503,13 @@ int i =0;
 	memset(serial_number, 0, sizeof(serial_number));
 
 	param = ad_nvparam_open("ble_platform");
-#if 0	
+#if 0
 	write_len = ad_nvparam_write(param, TAG_BLE_PLATFORM_SERIAL_NUMBER,
                                                         sizeof(serial_number), SERIAL_NUMBER_NAME);
 
         /* Parameter length shall be long enough to store address and validity flag */
         param_len = ad_nvparam_get_length(param, TAG_BLE_PLATFORM_SERIAL_NUMBER, NULL);
-printf("wzb read_serial_number param_len=%d tag=%d default_sn=%d  valid=%d\r\n",param_len,TAG_BLE_PLATFORM_SERIAL_NUMBER,sizeof(default_sn),sizeof(valid));		
+printf("wzb read_serial_number param_len=%d tag=%d default_sn=%d  valid=%d\r\n",param_len,TAG_BLE_PLATFORM_SERIAL_NUMBER,sizeof(default_sn),sizeof(valid));
        // if (param_len < sizeof(default_sn) + sizeof(valid)) {
               //  goto done;
         //}
@@ -1421,15 +1517,15 @@ printf("wzb read_serial_number param_len=%d tag=%d default_sn=%d  valid=%d\r\n",
 		read_len = ad_nvparam_read(param, TAG_BLE_PLATFORM_SERIAL_NUMBER,
 											sizeof(serial_number), serial_number);
 
-printf("wzb read_serial_number 0 serial_number=%s read_len=%d  MODEL_TYPY_STR=%s\r\n",serial_number,read_len,MODEL_TYPY_STR);	
+printf("wzb read_serial_number 0 serial_number=%s read_len=%d  MODEL_TYPY_STR=%s\r\n",serial_number,read_len,MODEL_TYPY_STR);
 
-        /* Read serial number from nvparam only if validity flag is set to 0x00 */		
+        /* Read serial number from nvparam only if validity flag is set to 0x00 */
        if ((strstr(serial_number, MODEL_TYPY_STR)) == NULL){
 		   write_len = ad_nvparam_write(param, TAG_BLE_PLATFORM_SERIAL_NUMBER,
 												SERIAL_NUMBER_LEN, SERIAL_NUMBER_INVAID);
-	printf("wzb read_serial_number write_len=%d\r\n",write_len);			   
+	printf("wzb read_serial_number write_len=%d\r\n",write_len);
         }
-	   
+
 	   read_len = ad_nvparam_read(param, TAG_BLE_PLATFORM_SERIAL_NUMBER,
 										   sizeof(serial_number), serial_number);
 	   printf("wzb read_serial_number 1 serial_number=%s read_len=%d\r\n",serial_number,read_len);
@@ -1471,16 +1567,16 @@ static bool read_nvms_param(uint8_t* param, uint8_t len, uint8_t nvparam_tag, ui
             if (read_len == len) {
                     return true; /* Success */
             }
-                    
-            
+
+
 #else
             nvms_t nvms;
             int i;
-    
+
             nvms = ad_nvms_open(NVMS_PARAM_PART);
-    
+
             ad_nvms_read(nvms, nvms_addr, (uint8_t *) param, len);
-    
+
             for (i = 0; i < len; i++) {
                     if (param[i] != 0xFF) {
                             return true; /* Success */
@@ -1488,7 +1584,7 @@ static bool read_nvms_param(uint8_t* param, uint8_t len, uint8_t nvparam_tag, ui
             }
 #endif /* (dg_configNVPARAM_ADAPTER == 1) */
 #endif /* (dg_configNVMS_ADAPTER == 1) */
-    
+
             return false; /* Failure */
 
 
@@ -1530,7 +1626,7 @@ static int write_sn(const void *data)
 
 static void test_flash(){
     bool flag=true;
-    
+
         write_track_to_flash();
         write_result_to_flash();
         inv_sleep(1000);
@@ -1540,13 +1636,13 @@ static void test_flash(){
         nvms_t t=ad_nvms_open(NVMS_IMAGE_RESULT_DATA_STORAGE_PART);
         hw_watchdog_freeze();
         if(ad_nvms_erase_region(t, 0,RBLE_DATA_RESULT_PATITION_SIZE)){
-             printf("test_flash erase_result_part ok \r\n");                             
+             printf("test_flash erase_result_part ok \r\n");
         }
         hw_watchdog_unfreeze();
         //inv_sleep(1000);
         OS_TIMER_START(flash_test_tim, OS_TIMER_FOREVER);
 
-    
+
 }
 
 
@@ -1554,9 +1650,9 @@ void ble_peripheral_task(void *params)
 {
         int i = 0;
 #if defined(CUSTOM_CONFIG_SERIAL_NUMBER_DEFINE)
-       char serial_number[SERIAL_NUMBER_LEN]; /* 1 byte for '\0' character */ 	
-       int serial_len=0; 
-#endif	   
+       char serial_number[SERIAL_NUMBER_LEN]; /* 1 byte for '\0' character */
+       int serial_len=0;
+#endif
 
 #if defined(RBLE_BAT_MEASURE)
         bas_tim = OS_TIMER_CREATE("bas", OS_MS_2_TICKS(RBLE_BATTERY_CHECK_INTERVAL), true,
@@ -1602,6 +1698,11 @@ void ble_peripheral_task(void *params)
 /* Get serial number from nvparam if exist or default otherwise */
       read_serial_number();
 #endif
+
+#if defined(CUSTOM_REBOOT_VOL_RECORD)
+		update_reboot_times();
+#endif
+
         int8_t wdog_id;
 #if CFG_CTS
         ble_service_t *cts;
@@ -1654,7 +1755,7 @@ void ble_peripheral_task(void *params)
         svc = bas_init(NULL, &bas_bat1);
         ble_service_add(svc);
 
-		
+
 #if defined(RBLE_BAT_MEASURE)
 					bas = svc;
 #endif
@@ -1754,7 +1855,14 @@ void ble_peripheral_task(void *params)
 
         printf("wzb for(;;)\r\n");
 
-
+#if defined(CUSTOM_REBOOT_VOL_RECORD)
+#if defined(RBLE_BAT_MEASURE)
+		if (!OS_TIMER_IS_ACTIVE(bas_tim)) {
+				bas_update();
+				OS_TIMER_START(bas_tim, OS_TIMER_FOREVER);
+		}
+#endif
+#endif /*CUSTOM_REBOOT_VOL_RECORD*/
         for (;;) {
                 OS_BASE_TYPE ret;
                 uint32_t notif;
@@ -1797,9 +1905,9 @@ void ble_peripheral_task(void *params)
                         case BLE_EVT_GAP_DISCONNECTED:
                                 handle_evt_gap_disconnected(
                                         (ble_evt_gap_disconnected_t *)hdr);
-                                break;						
+                                break;
 						#endif
-						
+
                         case BLE_EVT_GAP_ADV_COMPLETED:
                                 handle_evt_gap_adv_completed((ble_evt_gap_adv_completed_t *)hdr);
                                 break;
@@ -1855,7 +1963,9 @@ void ble_peripheral_task(void *params)
                              * Change interval values and stop advertising. Once it's stopped, it will
                              * start again with new parameters.
                              */
+
                             set_advertising_interval(ADV_INTERVAL_POWER);
+
                             ble_gap_adv_stop();
                     }
 
@@ -1867,6 +1977,6 @@ void ble_peripheral_task(void *params)
                read_test();
         }
 
-        
+
         }
 }

@@ -119,3 +119,4 @@ Then download the image through SUOTA by the following steps:
 -bin2image qspi_cached ble_suota_loader.bin ble_suota_loader.bin.cached AD enable_uart
 D:\Project\BLE\DA1458x_DA1468x_PLT_v_4.0\executables\binaries>bin2image qspi_cached ble_suota_loader.bin ble_suota_loader.bin.cached AD enable_uart
 
+-0x095000 for sensor id

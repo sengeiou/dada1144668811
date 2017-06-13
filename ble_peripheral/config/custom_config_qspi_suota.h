@@ -33,7 +33,7 @@
 #define CONFIG_RETARGET_UART    HW_UART1
 #define CONFIG_RETARGET_UART_BAUDRATE    HW_UART_BAUDRATE_1000000
 
-#define dg_configUSE_BOD                (0)
+#define dg_configUSE_BOD                (1)
 
 #define RBLE_SENSOR_CTRL_BY_APP
 
@@ -65,6 +65,8 @@
 #define RBLE_DATA_STORAGE_IN_FLASH
 
 #define CUSTOM_CONFIG_SERIAL_NUMBER_DEFINE
+#define CUSTOM_REBOOT_VOL_RECORD
+
 
 #define RBLE_DMP_REPEAT_WRITE
 #define RBLE_SAMPLE_TIMER_SWITCH
