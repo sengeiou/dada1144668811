@@ -108,7 +108,7 @@ char serial_number[SERIAL_NUMBER_LEN];
 #endif
 static const uint8_t adv_data[] = {
         0x13, GAP_DATA_TYPE_LOCAL_NAME,
-        's', 'z', 'b', 't', '_', 'q', 'i', 'a','o', 'd', 'a', 'n', 'V', '1', '.', '0', '.', '1',
+        's', 'z', 'b', 't', '_', 'q', 'i', 'a','o', 'd', 'a', 'n', 'V', '1', '.', '0', '.', '4',
         0x01
         #ifdef dg_configSUOTA_SUPPORT
         + 0x02
@@ -127,8 +127,13 @@ static const uint8_t adv_data[] = {
 };
 #endif
 
+#if 0
 static uint8_t scan_rsp_data[] = {
         0x06, GAP_DATA_TYPE_MANUFACTURER_SPEC, 0xD2, 0x00, 0xB1, 0xB2, 0xB3,
+};
+#endif
+static uint8_t scan_rsp_data[] = {
+        0x16, GAP_DATA_TYPE_MANUFACTURER_SPEC, 0x1,0x2,0x3,0x4,0x5,0x6,0x7,0x8,0x9,0xa,0xb,0xc,0xd,0xe,0xf,0xB1, 0xB2, 0xB3,0xb4,0xb5,0xb6
 };
 
 /*
@@ -161,8 +166,10 @@ static const struct {
         },
         // "reduced power" interval values
         {
-                .min = BLE_ADV_INTERVAL_FROM_MS(1000),    // 1000ms
-                .max = BLE_ADV_INTERVAL_FROM_MS(1500),    // 1500ms
+               // .min = BLE_ADV_INTERVAL_FROM_MS(1000),    // 1000ms
+               // .max = BLE_ADV_INTERVAL_FROM_MS(1500),    // 1500ms
+                 .min = BLE_ADV_INTERVAL_FROM_MS(4000),    // 4000ms
+                 .max = BLE_ADV_INTERVAL_FROM_MS(4000),    // 4000ms
         },
 
                  // "normal" interval values
@@ -625,23 +632,32 @@ static void dbg_cts_adjust(uint16_t conn_idx, int argc, char **argv, void *ud)
 void app_calc_scan_rsp_data(uint8_t *scan_rsp_data, int scan_rsp_size)
 {
         uint8_t *ptr = NULL;
-        uint8_t str[] = { 0xB1, 0xB2, 0xB3 };
+        uint8_t str[] = { 0xB1, 0xB2, 0xB3 ,0xB4,0xB5,0xB6};
         uint8_t bd_addr[NVDS_LEN_BD_ADDRESS] = { 0 };
         nvds_tag_len_t bd_addr_len = NVDS_LEN_BD_ADDRESS;
 
+#if 0
         ptr = memchr(scan_rsp_data, str[0], scan_rsp_size);
         if (!ptr)
                 return;
 
         if (memcmp(ptr, str, sizeof(str)))
                 return;
-
+#endif
         if (nvds_get(NVDS_TAG_BD_ADDRESS, &bd_addr_len, bd_addr) != NVDS_OK)
                 return;
 
-        *ptr = bd_addr[2];
-        *(ptr + 1) = bd_addr[1];
-        *(ptr + 2) = bd_addr[0];
+        //copy sn and mac
+        memcpy(scan_rsp_data+2,serial_number,15);
+        memcpy(scan_rsp_data+17,bd_addr,6);
+#if 0
+        *ptr = bd_addr[5];
+        *(ptr + 1) = bd_addr[4];
+        *(ptr + 2) = bd_addr[3];
+        *(ptr + 3) = bd_addr[2];
+        *(ptr + 4) = bd_addr[1];
+        *(ptr + 5) = bd_addr[0];
+#endif
 }
 
 /**
