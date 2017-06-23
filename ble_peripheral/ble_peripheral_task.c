@@ -909,6 +909,22 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
         memset(bd.id3, 0, sizeof(bd.id1));
 
         if(ble_task_env.test_rx_data_id==0x08){
+            //
+            if(read_result_id()==0x01){
+                 int ret=-1;
+                 hw_watchdog_freeze();
+                 nvms_t nvms_rble_result_storage_handle__;
+                 nvms_rble_result_storage_handle__ = ad_nvms_open(NVMS_IMAGE_RESULT_DATA_STORAGE_PART);
+                 if(ad_nvms_erase_region(nvms_rble_result_storage_handle__, 0,
+                                    RBLE_DATA_RESULT_PATITION_SIZE)){
+                    ret=0;
+                 }
+                 hw_watchdog_unfreeze();
+                 set_result_id(0xff);
+                 // ret=erase_result_part(20);
+                 printf("ff08 ad_nvms_erase_region RESULT :%d\r\n",ret);
+            }
+            
             memcpy(create_id_data+create_id_data_rx_len,value,length);
             create_id_data_rx_len+=length;
             printf("11 create_id_data_rx_len=%d\r\n",create_id_data_rx_len);
