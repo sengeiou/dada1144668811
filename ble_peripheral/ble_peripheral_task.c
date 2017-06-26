@@ -107,8 +107,8 @@ char serial_number[SERIAL_NUMBER_LEN];
 
 #endif
 static const uint8_t adv_data[] = {
-        0x13, GAP_DATA_TYPE_LOCAL_NAME,
-        's', 'z', 'b', 't', '_', 'q', 'i', 'a','o', 'd', 'a', 'n', 'V', '1', '.', '0', '.', '4',
+        0x11, GAP_DATA_TYPE_LOCAL_NAME,
+        'S', 'm', 'a', 'r', 't', ' ', 'B', 'a','s', 'k', 'e', 't', 'b', 'a', 'l', 'l',
         0x01
         #ifdef dg_configSUOTA_SUPPORT
         + 0x02

@@ -58,7 +58,7 @@ float acc_x_abs_min_run = 12.0f;//15.0f;
 float acc_y_abs_min_run = 12.0f;//15.0f;
 float acc_x_abs_min_dash = 20.0f;//28.0f;
 float acc_y_abs_min_dash = 20.0f;//28.0f;
-float acc_z_abs_min_jump = 40.0f;//15.0f;//40.0f;
+float acc_z_abs_min_jump = 25.0f;//40.0f;//15.0f;//40.0f;
 int acc_y_min_interval_step = 500;//ms
 
 int acc_y_min_interval_normal = 1260;//ms
@@ -537,6 +537,13 @@ static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gy
 								step_env.y_step.fir_peak_value = step_env.acc_value_mode.acc_y_old;
 								//printf("reset y flag=1 line=%d\n", line);
 							}
+#if 1
+							else if ((step_env.time_of_now - step_env.y_step.fir_peak_time)<110 &&(data_abs(step_env.y_step.fir_peak_value)<10 || data_abs(step_env.y_step.sec_peak_value)<10)) {
+								step_env.y_step.flag == 1;
+								step_env.y_step.fir_peak_time = step_env.time_of_now;
+								step_env.y_step.fir_peak_value = step_env.acc_value_mode.acc_y_old;
+							}
+#endif
 							else {
 								step_env.y_step.flag = 2;
 								step_env.y_step.sec_peak_time = step_env.time_of_now;
@@ -617,7 +624,7 @@ static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gy
 						}
 						else if (step_env.temp_step.type == JUMP) {
 							if (step_env.y_step.sec_peak_time - step_env.temp_step.time < 190) {
-								if ((step_env.temp_step.value <= step_env.y_step.value)&&(step_env.y_step.ori==FORWARD)) {
+								if ((step_env.temp_step.value <= step_env.y_step.value)) {
 									copy_y_step_to_temp();
 									reset_y_step_env();
 								}
@@ -658,7 +665,7 @@ static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gy
 					step_env.jump_air_count = 0;
 				}
 				else if (step_env.jump.flag == 1) {
-					if (((step_env.time_of_now - step_env.jump.fir_peak_time) > 145) && ((step_env.time_of_now - step_env.jump.fir_peak_time) < 450)) {
+					if (((step_env.time_of_now - step_env.jump.fir_peak_time) > 145) && ((step_env.time_of_now - step_env.jump.fir_peak_time) < 320)) {
 						if (step_env.jump_air_count >= 0) {
 							step_env.jump.flag = 2;
 							step_env.jump.sec_peak_time = step_env.time_of_now;
@@ -673,7 +680,7 @@ static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gy
 							step_env.jump_air_count = 0;
 						}					
 					}
-					else if ((step_env.time_of_now - step_env.jump.fir_peak_time) >= 450) {
+					else if ((step_env.time_of_now - step_env.jump.fir_peak_time) >= 320) {
 						step_env.jump.flag = 1;
 						step_env.jump.fir_peak_time = step_env.time_of_now;
 						step_env.jump.fir_peak_value = step_env.acc_value_mode.acc_z_old;
@@ -701,6 +708,9 @@ static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gy
 							if (step_env.jump.sec_peak_time - step_env.temp_step.time < 190) {
 
 								if ((step_env.jump.value > step_env.temp_step.value)||(step_env.temp_step.ori==BACKWARD)) {
+									if (step_env.temp_step.ori == BACKWARD) {
+										step_env.jump.value = MAX(step_env.jump.value,step_env.temp_step.value);
+									}
 									copy_jump_to_temp_step();
 									reset_jump_state();
 								}
