@@ -244,6 +244,10 @@ void write_track_to_flash()
     if(rble_track_jump_data_addr_offset+40>RBLE_RESULT_DATA_PATITION_SIZE){
         rble_data_result_patition_not_full=false;
     }
+
+    //write end flag
+    uint8_t null_sample_result_data[20] = { 0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff };
+    ad_nvms_write(nvms_rble_result_storage_handle, rble_track_jump_data_addr_offset, null_sample_result_data,20);
 }
 
 void write_jump_to_flash()
@@ -273,6 +277,9 @@ void write_jump_to_flash()
     if(rble_track_jump_data_addr_offset+40>RBLE_RESULT_DATA_PATITION_SIZE){
         rble_data_result_patition_not_full=false;
     }
+    //write end flag
+        uint8_t null_sample_result_data[20] = { 0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff };
+        ad_nvms_write(nvms_rble_result_storage_handle, rble_track_jump_data_addr_offset, null_sample_result_data,20);
 }
 
 void write_result_to_flash()
@@ -657,7 +664,7 @@ static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gy
 		if (detect_peak(acc_z, step_env.acc_value_mode.acc_z_old)) {
 			//step_env.time_of_now = inv_get_tick_count(line);		
 			if (step_env.time_of_now - MAX(step_env.last_step.time, get_temp_step_time(JUMP)) > 110) {
-				if (step_env.jump.flag == 0) {
+				if (step_env.jump.flag == 0 && step_env.acc_value_mode.acc_z_old>=40) {
 					step_env.jump.flag = 1;
 					step_env.jump.fir_peak_time = step_env.time_of_now;
 					step_env.jump.fir_peak_value = step_env.acc_value_mode.acc_z_old;
@@ -680,7 +687,7 @@ static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gy
 							step_env.jump_air_count = 0;
 						}					
 					}
-					else if ((step_env.time_of_now - step_env.jump.fir_peak_time) >= 320) {
+					else if ((step_env.time_of_now - step_env.jump.fir_peak_time) >= 320 && step_env.acc_value_mode.acc_z_old>=40) {
 						step_env.jump.flag = 1;
 						step_env.jump.fir_peak_time = step_env.time_of_now;
 						step_env.jump.fir_peak_value = step_env.acc_value_mode.acc_z_old;
