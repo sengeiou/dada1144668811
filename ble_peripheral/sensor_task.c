@@ -1471,7 +1471,7 @@ void process_sensor_output(unsigned short fifo_id)
 #elif defined(BLE_USE_DATA_V2)
         detect_new_step_v2(DATA_ABS(accel_float[0]),DATA_ABS(accel_float[1]),accel_float[2],fifo_id);
 #elif defined(BLE_USE_DATA_V5)
-	if(rble_could_write_result_data_to_patition)
+	if(rble_could_write_result_data_to_patition())
 		{
                 #if 0
         memset(print_float_str,0,RBLE_FLOAT_STR_LENTH);
