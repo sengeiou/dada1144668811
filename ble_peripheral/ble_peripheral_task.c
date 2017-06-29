@@ -166,10 +166,12 @@ static const struct {
         },
         // "reduced power" interval values
         {
-               // .min = BLE_ADV_INTERVAL_FROM_MS(1000),    // 1000ms
+                 .min = BLE_ADV_INTERVAL_FROM_MS(800),    // 800ms
+                 .max = BLE_ADV_INTERVAL_FROM_MS(1000),    // 1000ms
+                // .min = BLE_ADV_INTERVAL_FROM_MS(1000),    // 1000ms
                // .max = BLE_ADV_INTERVAL_FROM_MS(1500),    // 1500ms
-                 .min = BLE_ADV_INTERVAL_FROM_MS(4000),    // 4000ms
-                 .max = BLE_ADV_INTERVAL_FROM_MS(4000),    // 4000ms
+               //  .min = BLE_ADV_INTERVAL_FROM_MS(4000),    // 4000ms
+              //   .max = BLE_ADV_INTERVAL_FROM_MS(4000),    // 4000ms
         },
 
                  // "normal" interval values
