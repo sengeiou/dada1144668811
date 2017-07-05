@@ -58,7 +58,7 @@ float acc_x_abs_min_run = 12.0f;//15.0f;
 float acc_y_abs_min_run = 12.0f;//15.0f;
 float acc_x_abs_min_dash = 20.0f;//28.0f;
 float acc_y_abs_min_dash = 20.0f;//28.0f;
-float acc_z_abs_min_jump = 25.0f;//40.0f;//15.0f;//40.0f;
+float acc_z_abs_min_jump = 40.0f;//25.0f;//40.0f;//15.0f;//40.0f;
 int acc_y_min_interval_step = 500;//ms
 
 int acc_y_min_interval_normal = 1260;//ms
@@ -664,7 +664,7 @@ static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gy
 		if (detect_peak(acc_z, step_env.acc_value_mode.acc_z_old)) {
 			//step_env.time_of_now = inv_get_tick_count(line);		
 			if (step_env.time_of_now - MAX(step_env.last_step.time, get_temp_step_time(JUMP)) > 110) {
-				if (step_env.jump.flag == 0 && step_env.acc_value_mode.acc_z_old>=40) {
+				if (step_env.jump.flag == 0 ) {
 					step_env.jump.flag = 1;
 					step_env.jump.fir_peak_time = step_env.time_of_now;
 					step_env.jump.fir_peak_value = step_env.acc_value_mode.acc_z_old;
@@ -672,7 +672,7 @@ static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gy
 					step_env.jump_air_count = 0;
 				}
 				else if (step_env.jump.flag == 1) {
-					if (((step_env.time_of_now - step_env.jump.fir_peak_time) > 145) && ((step_env.time_of_now - step_env.jump.fir_peak_time) < 320)) {
+					if (((step_env.time_of_now - step_env.jump.fir_peak_time) > 145) && ((step_env.time_of_now - step_env.jump.fir_peak_time) < 450)) {
 						if (step_env.jump_air_count >= 0) {
 							step_env.jump.flag = 2;
 							step_env.jump.sec_peak_time = step_env.time_of_now;
@@ -687,7 +687,7 @@ static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gy
 							step_env.jump_air_count = 0;
 						}					
 					}
-					else if ((step_env.time_of_now - step_env.jump.fir_peak_time) >= 320 && step_env.acc_value_mode.acc_z_old>=40) {
+					else if ((step_env.time_of_now - step_env.jump.fir_peak_time) >= 450) {
 						step_env.jump.flag = 1;
 						step_env.jump.fir_peak_time = step_env.time_of_now;
 						step_env.jump.fir_peak_value = step_env.acc_value_mode.acc_z_old;
@@ -700,6 +700,9 @@ static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gy
 					step_env.jump.value = ((step_env.jump.fir_peak_value + step_env.jump.sec_peak_value) / 2 - 25)*0.33333;
 					step_env.jump.time = step_env.jump.sec_peak_time = step_env.time_of_now;
 					step_env.jump.air_time = (step_env.jump.sec_peak_time - step_env.jump.fir_peak_time - 20)*TICK_TO_MS;
+					if (step_env.jump.air_time > 570) {
+						step_env.jump.air_time = step_env.jump.air_time*0.6;
+					}
 					step_env.jump.jump_ori=gyr_y;
 					if (step_env.temp_step.flag == 0) {
 						copy_jump_to_temp_step();
