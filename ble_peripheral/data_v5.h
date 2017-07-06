@@ -270,6 +270,9 @@ typedef struct step_env {
 	float h_distance;
 
 	float max_v;
+	float max_v1;
+	float max_v2;
+	float max_v3;
 	long  step_change;
 	long  step_change_time;
 
