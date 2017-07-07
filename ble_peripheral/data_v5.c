@@ -62,12 +62,12 @@ float acc_z_abs_min_jump = 40.0f; //25.0f;//40.0f;//15.0f;//40.0f;
 int acc_y_min_interval_step = 500; //ms
 
 int acc_y_min_interval_normal = 1260; //ms
-int acc_y_min_interval_run = 650; //ms
-int acc_y_min_interval_dash = 480; //ms
+int acc_y_min_interval_run = 750; //ms
+int acc_y_min_interval_dash = 500; //ms
 
 int acc_x_min_interval_normal = 1260; //ms
-int acc_x_min_interval_run = 600; //ms
-int acc_x_min_interval_dash = 380; //ms
+int acc_x_min_interval_run = 750; //ms
+int acc_x_min_interval_dash = 500; //ms
 #else
 float acc_x_abs_min_normal = 15.0f; //25.2f;
 float acc_y_abs_min_normal = 12.5f;//15.0f;//6.5f;//15.0f;//25.2f;
