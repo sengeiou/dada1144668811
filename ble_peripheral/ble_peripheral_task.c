@@ -871,6 +871,7 @@ extern int rv_accuracy;
 extern int compass_accuracy;
 extern bool rble_write_flash_cmd;
 extern bool rble_write_result_flash_cmd;
+extern int user_length;
 
 extern bool rble_start_cal_cmd;
 uint8_t create_id_data[52];
@@ -964,6 +965,7 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
                 ble_task_env.test_rx_data_id=0xff;
             rble_write_result_flash_cmd=false;
             rble_write_flash_cmd=false;
+            if(length>2)user_length=*(value+2);
 #if defined(RBLE_SENSOR_CTRL_BY_APP)
                 OS_TASK_NOTIFY(task_sensor_sample, RBLE_SENSOR_STOP_SAMPLE_NOTIF,
                         OS_NOTIFY_SET_BITS);

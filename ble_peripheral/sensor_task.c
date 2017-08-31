@@ -62,6 +62,8 @@ float acc_gyr_ori[5] = { 0 };
 bool rble_write_flash_cmd = false;
 bool rble_is_write_cmd = false;
 bool rble_start_cal_cmd =false;
+
+int user_length=170;
 #endif
 
 #if defined(RBLE_SENOR_TEST_CUSTOM)
@@ -1506,6 +1508,7 @@ void process_sensor_output(unsigned short fifo_id)
 #endif
                         detect_new_step_v5(acc_gyr_ori[0], acc_gyr_ori[1], acc_gyr_ori[2], acc_gyr_ori[3],
                                 acc_gyr_ori[4], fifo_id);
+        printf("detect_new_step_v5 \r\n");
 		}
 #endif
         //end
@@ -2610,7 +2613,8 @@ void RbleSensorControlTask(void *pvParameters)
                                 handle_char_input('o');
 
 #if 1//defined(BLE_USE_DATA_V2)
-                                init_step_env();
+                                init_step_env(user_length);
+
 #endif
 
                                 rble_sample_timer_enable(true);

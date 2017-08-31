@@ -355,8 +355,12 @@ void write_result_to_flash()
         RBLE_RESULT_LONG_SIZE);
         rble_smp_reslut_count += RBLE_RESULT_LONG_SIZE;
 
-        memcpy(rble_sample_result_data + rble_smp_reslut_count, &step_env.max_v,
-        RBLE_RESULT_LONG_SIZE);
+       // memcpy(rble_sample_result_data + rble_smp_reslut_count, &step_env.max_v,
+       // RBLE_RESULT_LONG_SIZE);
+        memcpy(rble_sample_result_data + rble_smp_reslut_count, &step_env.aver_n,
+        1);
+        memcpy(rble_sample_result_data + rble_smp_reslut_count+1, &step_env.max_n,
+        1);
         rble_smp_reslut_count += RBLE_RESULT_LONG_SIZE;
 
         memcpy(rble_sample_result_data + rble_smp_reslut_count, &step_env.step_change,
@@ -818,10 +822,12 @@ static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gy
                                                 step_env.time_of_now;
                                         step_env.jump.air_time = (step_env.jump.sec_peak_time
                                                 - step_env.jump.fir_peak_time - 20) * TICK_TO_MS;
-                                        if (step_env.jump.air_time > 570) {
+                                        #if 1
+                                        if (step_env.jump.air_time > 800) {
                                                 step_env.jump.air_time = step_env.jump.air_time
                                                         * 0.6;
                                         }
+                                        #endif
                                         step_env.jump.jump_ori = gyr_y;
                                         if (step_env.temp_step.flag == 0) {
                                                 copy_jump_to_temp_step();
@@ -927,8 +933,9 @@ static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gy
                         default:
                                 break;
                         }
-
-                        step_env.stride = (-0.000608) * step_env.frequency + 1.358;
+                        if(step_env.user_len<160)step_env.user_len=160;
+                        if(step_env.user_len>200)step_env.user_len=200;
+                        step_env.stride = (-0.000608) * step_env.frequency + 1.358+(step_env.user_len-160)*0.008;
                         step_env.distance += step_env.stride * 2;
 			//max v
 			float temp_v = (step_env.stride * 2 / step_env.frequency) * 1000;
@@ -1007,12 +1014,25 @@ static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gy
 
                         step_env.jump_count++;
                         //printf("step_env jump count++\n");
-                        step_env.jump_height = DATA_JUMP_HEIGHT(step_env.jump_air_time / 1000 / 2);
+                        step_env.jump_height = 0.1+DATA_JUMP_HEIGHT(step_env.jump_air_time / 1000 / 2);
 
                         //jump_time_height[jump_row][0] = step_env.jump_air_time;
                         //jump_time_height[jump_row][1] = step_env.jump_height;
                         //jump_time_height[jump_row][2] = step_env.jump_ori;
                         //jump_row++;
+                        
+                        //add 20170831
+                        uint8_t cur_n=(uint8_t)(((step_env.jump.sec_peak_value-2*9.8)/9.8)*10);
+                        if(cur_n>step_env.max_n){
+                           step_env.max_n= cur_n;
+                        }
+
+                        if(step_env.aver_n==0){
+                            step_env.aver_n=cur_n;
+                        }else{
+                           step_env.aver_n=(step_env.aver_n+cur_n)/2; 
+                        }
+                        //end
                         write_jump_to_flash();
 
                 }
@@ -1220,11 +1240,12 @@ static void reset_jump_state()
         //step_env.jump.fir_peak_time = 0;
 }
 
-void init_step_env()
+void init_step_env(int user_len)
 {
         memset(&step_env, 0, sizeof(step_env));
         rble_track_jump_data_addr_offset = 100;
         rble_data_result_patition_not_full = true;
+        step_env.user_len=user_len;
 }
 
 void init_yaw_offset(float f)

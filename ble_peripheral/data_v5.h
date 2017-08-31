@@ -290,12 +290,13 @@ typedef struct step_env {
 
 	continue_up_count_t continue_up_count;
 	continue_up_former_count_t continue_up_former_count;
-
+    int user_len;
+    uint8_t aver_n,max_n;
 
 }step_env_t;
 
 step_env_t step_env;
-void init_step_env();
+void init_step_env(int user_len);
 void init_yaw_offset(float f);
 //void detect_new_step_v2(float acc_x, float acc_y, float acc_z, int line);
 void detect_new_step_v5(float acc_x,float acc_y,float acc_z,float gyr_y,float yaw,unsigned short fifo_id);
