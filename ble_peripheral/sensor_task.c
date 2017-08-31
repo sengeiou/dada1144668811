@@ -963,7 +963,7 @@ bool rble_could_write_data_to_patition(uint32_t addr_offset, int count)
                         {
                         handle_char_input('a');
                         handle_char_input('g');
-                        //handle_char_input('c');
+                        handle_char_input('c');
                         handle_char_input('o');
 
                         rble_sample_timer_enable(false);
@@ -998,7 +998,7 @@ bool rble_could_write_result_data_to_patition()
                         {
                         handle_char_input('a');
                         handle_char_input('g');
-                        //handle_char_input('c');
+                        handle_char_input('c');
                         handle_char_input('o');
 
                         rble_sample_timer_enable(false);
@@ -1229,6 +1229,7 @@ void process_sensor_output(unsigned short fifo_id)
                                 compass_float[0], compass_float[1], compass_float[2],
                                 compass_accuracy, ts);
                         print_command_console(tst);
+                        acc_gyr_ori[4]=compass_float[0];
 
 #if 1 //defined(RBLE_UART_DEBUG)
 
@@ -1352,7 +1353,7 @@ void process_sensor_output(unsigned short fifo_id)
                         fflush(stdout);
 #endif
 
-                        acc_gyr_ori[4] = orientationFloat[0];
+                       // acc_gyr_ori[4] = orientationFloat[0];
 
 #if defined(RBLE_DATA_STORAGE_IN_FLASH)
                         if (rble_data_patition_not_full)
@@ -2609,14 +2610,17 @@ void RbleSensorControlTask(void *pvParameters)
 
                                 handle_char_input('a');
                                 handle_char_input('g');
-                                //handle_char_input('c');
+                                handle_char_input('c');
                                 handle_char_input('o');
 
 #if 1//defined(BLE_USE_DATA_V2)
                                 init_step_env(user_length);
 
 #endif
-
+                                //for test
+                               // write_track_to_flash();
+                                //write_result_to_flash();
+                                //end
                                 rble_sample_timer_enable(true);
                                 //rble_sample_create_timer();
 
@@ -2635,7 +2639,7 @@ void RbleSensorControlTask(void *pvParameters)
                                 {
                                 handle_char_input('a');
                                 handle_char_input('g');
-                                //handle_char_input('c');
+                                handle_char_input('c');
                                 handle_char_input('o');
                                 printf("STOP SAMPLE=%d\r\n",rble_sample_timer_id);
                                 rble_sample_timer_enable(false);
