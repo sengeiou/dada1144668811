@@ -977,7 +977,8 @@
         #if (dg_configBATTERY_TYPE == BATTERY_TYPE_NO_BATTERY) || (dg_configBATTERY_TYPE == BATTERY_TYPE_NO_RECHARGE)
                 #define dg_configBATTERY_LOW_LEVEL      (0)
         #else
-                #define dg_configBATTERY_LOW_LEVEL      (1638) // 2V     //(1473) //1.8V  //(2293)  // 2.8V
+                //#define dg_configBATTERY_LOW_LEVEL      (1638) // 2V     //(1473) //1.8V  //(2293)  // 2.8V
+				#define dg_configBATTERY_LOW_LEVEL      (2129) // 2.6V 
         #endif
 #endif
 

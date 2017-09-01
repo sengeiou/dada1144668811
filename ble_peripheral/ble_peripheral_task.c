@@ -399,8 +399,10 @@ static uint8_t read_battery_level(void)
  * The values depend on the battery type.
  * MIN_BATTERY_LEVEL (in mVolts) must correspond to dg_configBATTERY_LOW_LEVEL (in ADC units)
  */
-#define MAX_BATTERY_LEVEL 3400
-#define MIN_BATTERY_LEVEL 2000
+//#define MAX_BATTERY_LEVEL 3400
+#define MAX_BATTERY_LEVEL 3200
+//#define MIN_BATTERY_LEVEL 2000
+#define MIN_BATTERY_LEVEL 2600
 
 static uint8_t bat_level(uint16_t voltage)
 {
