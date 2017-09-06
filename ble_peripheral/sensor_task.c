@@ -57,7 +57,7 @@ int rble_smp_count = 0;
 
 bool rble_data_patition_not_full = true;
 float acc_gyr_ori[5] = { 0 };
-
+float data_acc_gyr_ori[5] = { 0 };
 
 bool rble_write_flash_cmd = false;
 bool rble_is_write_cmd = false;
@@ -1063,6 +1063,10 @@ void process_sensor_output(unsigned short fifo_id)
                         acc_gyr_ori[1] = accel_float[1];
                         acc_gyr_ori[2] = accel_float[2];
 
+                        data_acc_gyr_ori[0] = accel_float[0];
+                        data_acc_gyr_ori[1] = accel_float[1];
+                        data_acc_gyr_ori[2] = accel_float[2];
+
 #if defined(RBLE_DATA_STORAGE_IN_FLASH)
                         if (rble_data_patition_not_full)
                         {
@@ -1141,6 +1145,7 @@ void process_sensor_output(unsigned short fifo_id)
 #endif
 
                         acc_gyr_ori[3] = gyro_float[1];
+                        data_acc_gyr_ori[3] = gyro_float[1];
 
 #if defined(RBLE_DATA_STORAGE_IN_FLASH)
                         if (rble_data_patition_not_full)
@@ -1354,6 +1359,7 @@ void process_sensor_output(unsigned short fifo_id)
 #endif
 
                        // acc_gyr_ori[4] = orientationFloat[0];
+                        data_acc_gyr_ori[4] = orientationFloat[0];
 
 #if defined(RBLE_DATA_STORAGE_IN_FLASH)
                         if (rble_data_patition_not_full)
@@ -1507,8 +1513,8 @@ void process_sensor_output(unsigned short fifo_id)
         printf("\n");
         fflush(stdout);
 #endif
-                        detect_new_step_v5(acc_gyr_ori[0], acc_gyr_ori[1], acc_gyr_ori[2], acc_gyr_ori[3],
-                                acc_gyr_ori[4], fifo_id);
+                        detect_new_step_v5(data_acc_gyr_ori[0], data_acc_gyr_ori[1], data_acc_gyr_ori[2], data_acc_gyr_ori[3],
+                                data_acc_gyr_ori[4], fifo_id);
         printf("detect_new_step_v5 \r\n");
 		}
 #endif
