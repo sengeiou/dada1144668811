@@ -1168,7 +1168,13 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
                 bd.id3=0x01;
             }
             ble_task_env.ble2app_id = 0x0bFF;
-            test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
+            uint8_t sn_v[18]={0};
+            memset(sn_v,0,sizeof(sn_v));
+            memcpy(sn_v+3,value+5,15);
+            sn_v[0]=bd.id1;
+            sn_v[1]=bd.id2;
+            sn_v[2]=bd.id3;
+            test_tx_data(svc, conn_idx, sn_v, sizeof(sn_v));
 
         }
 

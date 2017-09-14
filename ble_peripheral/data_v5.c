@@ -62,8 +62,8 @@ float acc_z_abs_min_jump = 40.0f; //25.0f;//40.0f;//15.0f;//40.0f;
 int acc_y_min_interval_step = 500; //ms
 
 int acc_y_min_interval_normal = 1260; //ms
-int acc_y_min_interval_run = 750; //ms
-int acc_y_min_interval_dash = 500; //ms
+int acc_y_min_interval_run = 790; //ms
+int acc_y_min_interval_dash = 600; //ms
 
 int acc_x_min_interval_normal = 1260; //ms
 int acc_x_min_interval_run = 750; //ms
@@ -591,7 +591,17 @@ static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gy
         }
         else {
                 step_env.detect_peak_mode = ACC_PEAK_Y2;
-                step_env.min_acc_value = acc_y_abs_min_normal;
+                //step_env.min_acc_value = acc_y_abs_min_normal;
+                		//test
+#if 1
+		if (step_env.acc_value_mode.acc_y_old < 0) {
+			step_env.min_acc_value = acc_y_abs_min_normal;
+		}
+		else {
+			step_env.min_acc_value = 0.5;
+		}
+#endif
+		//en
                 if (detect_peak(acc_y2, step_env.acc_value_mode.acc_y2_old)) {
                         //step_env.time_of_now = inv_get_tick_count(line);
                         if (step_env.time_of_now - MAX(step_env.time, get_temp_step_time(VERTICAL))
@@ -936,6 +946,13 @@ static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gy
                         if(step_env.user_len<160)step_env.user_len=160;
                         if(step_env.user_len>200)step_env.user_len=200;
                         step_env.stride = (-0.000608) * step_env.frequency + 1.358+(step_env.user_len-160)*0.008;
+                        if(step_env.last_step.mode==DASH){
+                            step_env.stride+=0.45;
+                        }
+                         if(step_env.last_step.mode==RUN){
+                            step_env.stride+=0.25;
+                        }
+
                         step_env.distance += step_env.stride * 2;
 			//max v
 			float temp_v = (step_env.stride * 2 / step_env.frequency) * 1000;
@@ -978,7 +995,7 @@ static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gy
 
                 }
                 else if (step_env.type == HORIZONTAL) {
-                        step_env.total_step++;
+                        step_env.total_step+=2;
                         step_env.h_step++;
                         switch (step_env.mode) {
                         case WALK:
@@ -1001,7 +1018,7 @@ static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gy
                                 break;
                         }
 
-			step_env.distance += step_env.stride;
+			step_env.distance += step_env.stride*2;
 			step_env.h_distance += step_env.stride;
 			if (step_env.ori == LEFT) {
 				step_env.left_num++;
@@ -1009,6 +1026,21 @@ static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gy
 			else if(step_env.ori == RIGHT){
 				step_env.right_num++;
 			}
+            //add 20170909
+            #if 1
+                //if(step_env.last_step.type==VERTICAL){
+                    step_env.coord_x0 += 1.35 * 2
+                                        * qfp_fsin((step_env.yaw_old) * 3.14159 / 180);
+                                step_env.coord_y0 += 1.35 * 2
+                                        * qfp_fcos((step_env.yaw_old) * 3.14159 / 180);
+                                //step_env.coord_x=step_env.coord_x0*qfp_fcos(step_env.yaw_offset*3.14159 / 180)+step_env.coord_y0*qfp_fsin(step_env.yaw_offset*3.14159 / 180);
+                                //step_env.coord_y=step_env.coord_y0*qfp_fcos(step_env.yaw_offset*3.14159 / 180)-step_env.coord_x0*qfp_fsin(step_env.yaw_offset*3.14159 / 180);
+                                step_env.coord_x = step_env.coord_x0;
+                                step_env.coord_y = step_env.coord_y0;
+                                write_track_to_flash();
+                //}
+            #endif
+            //end
 		}
 		else if (step_env.type == JUMP) {
 
@@ -1034,6 +1066,23 @@ static void w_detect_new_step_v5(float acc_x, float acc_y, float acc_z, float gy
                         }
                         //end
                         write_jump_to_flash();
+                         //add 20170909
+            #if 1
+                if(step_env.last_step.type!= JUMP && step_env.last_step.time!=0){
+                    step_env.total_step += 2;
+                    step_env.distance +=1.35*2;
+                    step_env.coord_x0 += 1.35 * 2
+                                        * qfp_fsin((step_env.yaw_old) * 3.14159 / 180);
+                                step_env.coord_y0 += 1.35 * 2
+                                        * qfp_fcos((step_env.yaw_old) * 3.14159 / 180);
+                                //step_env.coord_x=step_env.coord_x0*qfp_fcos(step_env.yaw_offset*3.14159 / 180)+step_env.coord_y0*qfp_fsin(step_env.yaw_offset*3.14159 / 180);
+                                //step_env.coord_y=step_env.coord_y0*qfp_fcos(step_env.yaw_offset*3.14159 / 180)-step_env.coord_x0*qfp_fsin(step_env.yaw_offset*3.14159 / 180);
+                                step_env.coord_x = step_env.coord_x0;
+                                step_env.coord_y = step_env.coord_y0;
+                                write_track_to_flash();
+                }
+            #endif
+            //end
 
                 }
 
