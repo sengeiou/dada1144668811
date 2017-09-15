@@ -100,7 +100,7 @@ PRIVILEGED_DATA static ble_service_t *bas;
 #if 1
 #if defined(CUSTOM_CONFIG_SERIAL_NUMBER_DEFINE)
 //#define SERIAL_NUMBER_NAME		"AS0170518ECG0001"
-#define SERIAL_NUMBER_INVAID	"AS017518ECG0004"//"AS017518ECG####"
+#define SERIAL_NUMBER_INVAID	"QD0000000000000"//"AS017518ECG####"
 #define MODEL_TYPY_STR 			"AS0"
 #define SERIAL_NUMBER_LEN	16
 char serial_number[SERIAL_NUMBER_LEN];
@@ -1549,38 +1549,11 @@ int i =0;
 	memset(serial_number, 0, sizeof(serial_number));
 
 	param = ad_nvparam_open("ble_platform");
-#if 0
-	write_len = ad_nvparam_write(param, TAG_BLE_PLATFORM_SERIAL_NUMBER,
-                                                        sizeof(serial_number), SERIAL_NUMBER_NAME);
-
-        /* Parameter length shall be long enough to store address and validity flag */
-        param_len = ad_nvparam_get_length(param, TAG_BLE_PLATFORM_SERIAL_NUMBER, NULL);
-printf("wzb read_serial_number param_len=%d tag=%d default_sn=%d  valid=%d\r\n",param_len,TAG_BLE_PLATFORM_SERIAL_NUMBER,sizeof(default_sn),sizeof(valid));
-       // if (param_len < sizeof(default_sn) + sizeof(valid)) {
-              //  goto done;
-        //}
-#endif
-		read_len = ad_nvparam_read(param, TAG_BLE_PLATFORM_SERIAL_NUMBER,
+	read_len = ad_nvparam_read(param, TAG_BLE_PLATFORM_SERIAL_NUMBER,
 											sizeof(serial_number), serial_number);
 
-printf("wzb read_serial_number 0 serial_number=%s read_len=%d  MODEL_TYPY_STR=%s\r\n",serial_number,read_len,MODEL_TYPY_STR);
+printf("wzb read_serial_number 0 serial_number=%s read_len=%d  MODEL_TYPY_STR=%s\r\n",serial_number,read_len,MODEL_TYPY_STR);	
 
-        /* Read serial number from nvparam only if validity flag is set to 0x00 */
-       if ((strstr(serial_number, MODEL_TYPY_STR)) == NULL){
-		   write_len = ad_nvparam_write(param, TAG_BLE_PLATFORM_SERIAL_NUMBER,
-												SERIAL_NUMBER_LEN, SERIAL_NUMBER_INVAID);
-	printf("wzb read_serial_number write_len=%d\r\n",write_len);
-        }
-
-	   read_len = ad_nvparam_read(param, TAG_BLE_PLATFORM_SERIAL_NUMBER,
-										   sizeof(serial_number), serial_number);
-	   printf("wzb read_serial_number 1 serial_number=%s read_len=%d\r\n",serial_number,read_len);
-
-done:
-        /* If address read from nvparam is invalid, replace with default one */
-        if (read_len != sizeof(default_sn)) {
-                memcpy(serial_number, SERIAL_NUMBER_INVAID, sizeof(serial_number));
-        }
 #else
         static const uint8_t empty_sn[SERIAL_NUMBER_LEN] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
         nvms_t nvms;
