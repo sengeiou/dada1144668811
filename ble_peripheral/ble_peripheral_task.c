@@ -478,57 +478,7 @@ static void myservice_init(ble_service_t *include_svc)
          */
 
         //test
-        char sn_uuid[37];
-        int i=0;
-        for(i=0;i<4;i++){
-            sn_uuid[i]='0';
-        }
-        sn_uuid[4]=serial_number[2];
-        sn_uuid[5]='0';
-        sn_uuid[6]=serial_number[3];
-        sn_uuid[7]='0';
-
-        sn_uuid[8]='-';
-
-        sn_uuid[9]=serial_number[4];
-        sn_uuid[10]='0';
-        sn_uuid[11]=serial_number[5];
-        sn_uuid[12]='0';
-
-        sn_uuid[13]='-';
-
-        sn_uuid[14]=serial_number[6];
-        sn_uuid[15]='0';
-        sn_uuid[16]=serial_number[7];
-        sn_uuid[17]='0';
-
-        sn_uuid[18]='-';
-
-        sn_uuid[19]='0';
-        sn_uuid[20]='0';
-        sn_uuid[21]='0';
-        sn_uuid[22]='0';
-
-        sn_uuid[23]='-';
-
-        for(i=24;i<28;i++){
-            sn_uuid[i]='0';
-        }
-
-        sn_uuid[28]=serial_number[11];
-        sn_uuid[29]='0';
-        sn_uuid[30]=serial_number[12];
-        sn_uuid[31]='0';
-        sn_uuid[32]=serial_number[13];
-        sn_uuid[33]='0';
-        sn_uuid[34]=serial_number[14];
-        sn_uuid[35]='0';
-        sn_uuid[36]='\0';
-
-
-       // ble_uuid_from_string("91a7608d-4456-479d-b9b1-4706e8711cf8", &uuid);
-       printf("len=%d,sn_uuid=%s\r\n",strlen(sn_uuid),sn_uuid);
-        ble_uuid_from_string(sn_uuid, &uuid);
+        ble_uuid_from_string("91a7608d-4456-479d-b9b1-4706e8711cf8", &uuid);
         ble_gatts_add_service(&uuid, GATT_SERVICE_PRIMARY, ble_gatts_get_num_attr(1, 1, 1));
 
         if (include_svc) {
@@ -1552,10 +1502,9 @@ static void read_serial_number(void)
 	read_len = ad_nvparam_read(param, TAG_BLE_PLATFORM_SERIAL_NUMBER,
 											sizeof(serial_number), serial_number);
 
-printf("wzb read_serial_number 0 serial_number=%s read_len=%d  MODEL_TYPY_STR=%s\r\n",serial_number,read_len,MODEL_TYPY_STR);	
-
+printf("wzb read_serial_number 0 serial_number=%s read_len=%d  MODEL_TYPY_STR=%s  MODEL_TYPY_STR1=%s\r\n",serial_number,read_len,MODEL_TYPY_STR,MODEL_TYPY_STR1);	
         /* Read serial number from nvparam only if validity flag is set to 0x00 */
-       if (((strstr(serial_number, MODEL_TYPY_STR)) == NULL)||((strstr(serial_number, MODEL_TYPY_STR1)) == NULL)){
+       if (((strstr(serial_number, MODEL_TYPY_STR)) == NULL)&&((strstr(serial_number, MODEL_TYPY_STR1)) == NULL)){
 		   write_len = ad_nvparam_write(param, TAG_BLE_PLATFORM_SERIAL_NUMBER,
 												SERIAL_NUMBER_LEN, SERIAL_NUMBER_INVAID);
 	printf("wzb read_serial_number write_len=%d\r\n",write_len);
