@@ -99,9 +99,11 @@ PRIVILEGED_DATA static ble_service_t *bas;
 
 #if 1
 #if defined(CUSTOM_CONFIG_SERIAL_NUMBER_DEFINE)
-//#define SERIAL_NUMBER_NAME		"AS0170518ECG0001"
-#define SERIAL_NUMBER_INVAID	"QD0000000000000"//"AS017518ECG####"
-#define MODEL_TYPY_STR 			"AS0"
+//#define SERIAL_NUMBER_NAME	"AS0170518ECG0001"
+#define SERIAL_NUMBER_INVAID	"QD00000000000000"//"AS017518ECG####"
+#define MODEL_TYPY_STR 			"QD0"
+#define MODEL_TYPY_STR1 		"AS0"
+
 #define SERIAL_NUMBER_LEN	16
 char serial_number[SERIAL_NUMBER_LEN];
 
@@ -476,11 +478,57 @@ static void myservice_init(ble_service_t *include_svc)
          */
 
         //test
+        char sn_uuid[37];
+        int i=0;
+        for(i=0;i<4;i++){
+            sn_uuid[i]='0';
+        }
+        sn_uuid[4]=serial_number[2];
+        sn_uuid[5]='0';
+        sn_uuid[6]=serial_number[3];
+        sn_uuid[7]='0';
 
-        
-        
-       ble_uuid_from_string("91a7608d-4456-479d-b9b1-4706e8711cf8", &uuid);
+        sn_uuid[8]='-';
 
+        sn_uuid[9]=serial_number[4];
+        sn_uuid[10]='0';
+        sn_uuid[11]=serial_number[5];
+        sn_uuid[12]='0';
+
+        sn_uuid[13]='-';
+
+        sn_uuid[14]=serial_number[6];
+        sn_uuid[15]='0';
+        sn_uuid[16]=serial_number[7];
+        sn_uuid[17]='0';
+
+        sn_uuid[18]='-';
+
+        sn_uuid[19]='0';
+        sn_uuid[20]='0';
+        sn_uuid[21]='0';
+        sn_uuid[22]='0';
+
+        sn_uuid[23]='-';
+
+        for(i=24;i<28;i++){
+            sn_uuid[i]='0';
+        }
+
+        sn_uuid[28]=serial_number[11];
+        sn_uuid[29]='0';
+        sn_uuid[30]=serial_number[12];
+        sn_uuid[31]='0';
+        sn_uuid[32]=serial_number[13];
+        sn_uuid[33]='0';
+        sn_uuid[34]=serial_number[14];
+        sn_uuid[35]='0';
+        sn_uuid[36]='\0';
+
+
+       // ble_uuid_from_string("91a7608d-4456-479d-b9b1-4706e8711cf8", &uuid);
+       printf("len=%d,sn_uuid=%s\r\n",strlen(sn_uuid),sn_uuid);
+        ble_uuid_from_string(sn_uuid, &uuid);
         ble_gatts_add_service(&uuid, GATT_SERVICE_PRIMARY, ble_gatts_get_num_attr(1, 1, 1));
 
         if (include_svc) {
@@ -1490,8 +1538,6 @@ static void reset_reboot_times(void)
 
 static void read_serial_number(void)
 {
-    static const uint8_t default_sn[SERIAL_NUMBER_LEN] = SERIAL_NUMBER_INVAID;
-
 #if dg_configNVPARAM_ADAPTER
 	//char serial_number[SERIAL_NUMBER_LEN]; /* 1 byte for '\0' character */
 	int serial_len=0;
@@ -1499,7 +1545,7 @@ static void read_serial_number(void)
 	uint16_t read_len = 0,write_len=0;
 	uint16_t param_len;
 	nvparam_t param;
-int i =0;
+	int i =0;
 	memset(serial_number, 0, sizeof(serial_number));
 
 	param = ad_nvparam_open("ble_platform");
@@ -1507,6 +1553,17 @@ int i =0;
 											sizeof(serial_number), serial_number);
 
 printf("wzb read_serial_number 0 serial_number=%s read_len=%d  MODEL_TYPY_STR=%s\r\n",serial_number,read_len,MODEL_TYPY_STR);	
+
+        /* Read serial number from nvparam only if validity flag is set to 0x00 */
+       if (((strstr(serial_number, MODEL_TYPY_STR)) == NULL)||((strstr(serial_number, MODEL_TYPY_STR1)) == NULL)){
+		   write_len = ad_nvparam_write(param, TAG_BLE_PLATFORM_SERIAL_NUMBER,
+												SERIAL_NUMBER_LEN, SERIAL_NUMBER_INVAID);
+	printf("wzb read_serial_number write_len=%d\r\n",write_len);
+        }
+
+	   read_len = ad_nvparam_read(param, TAG_BLE_PLATFORM_SERIAL_NUMBER,
+										   sizeof(serial_number), serial_number);
+	   printf("wzb read_serial_number 1 serial_number=%s read_len=%d\r\n",serial_number,read_len);
 
 #else
         static const uint8_t empty_sn[SERIAL_NUMBER_LEN] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
@@ -1587,7 +1644,7 @@ static int write_mac_addr(const void *data)
 static int write_sn(const void *data)
 {
     nvparam_t custm_param=ad_nvparam_open("ble_platform");
-    uint8_t custom_sn[SERIAL_NUMBER_LEN] = "AS017425ECG0009";
+    uint8_t custom_sn[SERIAL_NUMBER_LEN] = "QD017425ECG0009";
     memcpy(custom_sn,data,15);
     custom_sn[15]='\0';
     printf("write_sn custom_sn=%s\r\n",custom_sn);

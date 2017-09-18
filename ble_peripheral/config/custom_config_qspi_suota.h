@@ -33,7 +33,7 @@
 #define CONFIG_RETARGET_UART    HW_UART1
 #define CONFIG_RETARGET_UART_BAUDRATE    HW_UART_BAUDRATE_1000000
 
-#define dg_configUSE_BOD                (0)
+#define dg_configUSE_BOD                (1)
 
 #define RBLE_SENSOR_CTRL_BY_APP
 
