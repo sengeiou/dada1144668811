@@ -1236,7 +1236,7 @@ void process_sensor_output(unsigned short fifo_id)
                         print_command_console(tst);
                         acc_gyr_ori[4]=compass_float[0];
 
-#if 1 //defined(RBLE_UART_DEBUG)
+#if 0 //defined(RBLE_UART_DEBUG)
 
                         memset(print_float_str, 0, RBLE_FLOAT_STR_LENTH);
                         qfp_float2str(compass_float[0], print_float_str, 0);
@@ -1247,7 +1247,7 @@ void process_sensor_output(unsigned short fifo_id)
                         fflush(stdout);
 #endif
 
-#if 1 //defined(RBLE_UART_DEBUG)
+#if 0 //defined(RBLE_UART_DEBUG)
                         memset(print_float_str, 0, RBLE_FLOAT_STR_LENTH);
                         qfp_float2str(compass_float[1], print_float_str, 0);
                         printf("cps1:");
@@ -1256,7 +1256,7 @@ void process_sensor_output(unsigned short fifo_id)
                         fflush(stdout);
 #endif
 
-#if 1 //defined(RBLE_UART_DEBUG)
+#if 0 //defined(RBLE_UART_DEBUG)
                         memset(print_float_str, 0, RBLE_FLOAT_STR_LENTH);
                         qfp_float2str(compass_float[2], print_float_str, 0);
                         printf("cps2:");

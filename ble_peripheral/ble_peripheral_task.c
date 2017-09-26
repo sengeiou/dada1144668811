@@ -66,6 +66,9 @@ static void read_test();
 
 static int read_result_id();
 static void set_result_id(uint8_t id);
+static void test_writesnmac();
+static int write_test_mac_addr();
+static void test_readsnmac();
 
 #if defined(CUSTOM_REBOOT_VOL_RECORD)
 static void save_cur_sys_vol_value(void);
@@ -192,6 +195,9 @@ typedef enum {
 #define ADV_TMO_NOTIF   (1 << 9)
 
 #define FLASH_TEST_TMO_NOTIF   (1 << 8)
+#define TWO_SECOND_TMO_NOTIF   (1 << 6)
+PRIVILEGED_DATA static OS_TIMER two_second_tim;
+
 PRIVILEGED_DATA static OS_TIMER flash_test_tim;
 
 /* Timer used to switch from "fast connection" to "reduced power" advertising intervals */
@@ -240,6 +246,7 @@ typedef struct ble_task_env {
         uint16_t mtu;
         int ble2app_id;
         uint8_t test_rx_data_id;
+        ble_service_t *svc;
 
 } ble_task_env_t;
 
@@ -705,7 +712,16 @@ static void flash_test_tim_cb(OS_TIMER timer)
         printf("flash_test_tim_cb\r\n");
         OS_TASK_NOTIFY(task, FLASH_TEST_TMO_NOTIF, OS_NOTIFY_SET_BITS);
         //read_test();
+        
+}
 
+static void two_second_tim_cb(OS_TIMER timer)
+{
+        OS_TASK task = (OS_TASK)OS_TIMER_GET_TIMER_ID(timer);
+        
+        OS_TASK_NOTIFY(task, TWO_SECOND_TMO_NOTIF, OS_NOTIFY_SET_BITS);
+       
+        
 }
 
 
@@ -834,6 +850,8 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
         uint16_t length)
 {
         printf("wzb %s,rec len=%x\r\n", __func__, length);
+        ble_task_env.svc=svc;
+        
         nvms_t nvms_rble_storage_handle;
         nvms_rble_storage_handle = ad_nvms_open(NVMS_IMAGE_DATA_STORAGE_PART);
 
@@ -1290,12 +1308,31 @@ static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t leng
         }
         else if(ble_task_env.ble2app_id == 0x0aff){
             ble_task_env.ble2app_id = 0xff;
-            inv_sleep(1500);
-            reboot();
+            //inv_sleep(1500);
+            //reboot();
+            OS_TIMER_STOP(flash_test_tim, OS_TIMER_FOREVER);
+            OS_TIMER_START(flash_test_tim, OS_TIMER_FOREVER);
         }
         else if(ble_task_env.ble2app_id == 0x0bff){
             ble_task_env.ble2app_id = 0xff;
            // reboot();
+        }else if(ble_task_env.ble2app_id == 0x1234){
+                ble_task_env.ble2app_id = 0xff;
+                uint8_t read_mac_addr[BD_ADDR_LEN];
+                memset(read_mac_addr, 0, sizeof(read_mac_addr));
+                nvparam_t param;
+                uint16_t param_len;
+                param = ad_nvparam_open("ble_platform");
+                param_len = ad_nvparam_read(param, TAG_BLE_PLATFORM_BD_ADDRESS,sizeof(read_mac_addr), read_mac_addr);
+                uint8_t mac_v[9]={0};
+                memset(mac_v,0,sizeof(mac_v));
+                memcpy(mac_v+3,read_mac_addr,6);
+                mac_v[0]=0x0a;
+                mac_v[1]=0xff;
+                mac_v[2]=0x01;
+                test_tx_data(svc, conn_idx, mac_v, 9);
+                OS_TIMER_STOP(two_second_tim, OS_TIMER_FOREVER);
+                OS_TIMER_START(two_second_tim, OS_TIMER_FOREVER);
         }
 
         else if(ble_task_env.ble2app_id == 0xaa17){
@@ -1504,16 +1541,19 @@ static void read_serial_number(void)
 
 printf("wzb read_serial_number 0 serial_number=%s read_len=%d  MODEL_TYPY_STR=%s  MODEL_TYPY_STR1=%s\r\n",serial_number,read_len,MODEL_TYPY_STR,MODEL_TYPY_STR1);	
         /* Read serial number from nvparam only if validity flag is set to 0x00 */
+    #if 0
        if (((strstr(serial_number, MODEL_TYPY_STR)) == NULL)&&((strstr(serial_number, MODEL_TYPY_STR1)) == NULL)){
-		   write_len = ad_nvparam_write(param, TAG_BLE_PLATFORM_SERIAL_NUMBER,
+            printf("*******sn set to default \r\n");
+           write_len = ad_nvparam_write(param, TAG_BLE_PLATFORM_SERIAL_NUMBER,
 												SERIAL_NUMBER_LEN, SERIAL_NUMBER_INVAID);
 	printf("wzb read_serial_number write_len=%d\r\n",write_len);
+
         }
 
 	   read_len = ad_nvparam_read(param, TAG_BLE_PLATFORM_SERIAL_NUMBER,
 										   sizeof(serial_number), serial_number);
 	   printf("wzb read_serial_number 1 serial_number=%s read_len=%d\r\n",serial_number,read_len);
-
+#endif
 #else
         static const uint8_t empty_sn[SERIAL_NUMBER_LEN] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
         nvms_t nvms;
@@ -1602,6 +1642,114 @@ static int write_sn(const void *data)
     }
     return 0;
 }
+
+
+static int test_count=0;
+static uint8_t test_mac_addr1[BD_ADDR_LEN]={0x3A, 0xAD, 0xD5, 0x27, 0xE0, 0x70};
+static uint8_t test_mac_addr2[BD_ADDR_LEN]={0x3B, 0xAD, 0xD5, 0x27, 0xE0, 0x70};
+static char *test_sn1="QD017425ECG1234";
+static char *test_sn2="QD017425ECG4321";
+
+static void test_readsnmac()
+{
+    //char *sn="QD017425ECGTEST";
+    char sn[16]={0};
+    uint8_t mac_addr[BD_ADDR_LEN]={0x3A, 0xAD, 0xD5, 0x27, 0xE0, 0x70};
+    if(test_count==0){
+        memcpy(sn,test_sn1,16);
+        memcpy(mac_addr,test_mac_addr1,6);
+        test_count=1;
+    }else if(test_count==1){
+        memcpy(sn,test_sn2,16);
+        memcpy(mac_addr,test_mac_addr2,6);
+        test_count=0;
+    }
+    char readsn[16]={0};
+    nvparam_t param;
+    uint16_t param_len;
+    memset(readsn, 0, sizeof(readsn));
+    param = ad_nvparam_open("ble_platform");
+    param_len = ad_nvparam_read(param, TAG_BLE_PLATFORM_SERIAL_NUMBER,
+											sizeof(readsn), readsn);
+    if(strcmp(sn,readsn)==0){
+        printf("read sn ok \r\n");
+    }else{
+        printf("read sn err \r\n");
+    }
+
+    uint8_t read_mac_addr[BD_ADDR_LEN];
+    memset(read_mac_addr, 0, sizeof(read_mac_addr));
+    param_len = ad_nvparam_read(param, TAG_BLE_PLATFORM_BD_ADDRESS,
+											sizeof(read_mac_addr), read_mac_addr);
+    int i;
+    for(i=0;i<6;i++){
+        if(mac_addr[i]!=read_mac_addr[i]){
+            printf("read mac err\r\n");
+            printf("read mac err:%x:%x:%x:%x:%x:%x\r\n",read_mac_addr[0],read_mac_addr[1],read_mac_addr[2],read_mac_addr[3],read_mac_addr[4],read_mac_addr[5]);
+        }
+    }
+    //OS_TIMER_STOP(flash_test_tim, OS_TIMER_FOREVER);
+    test_writesnmac();
+    
+
+    
+    
+}
+
+static void test_writesnmac(){
+    //char *testsn="QD017425ECGTEST";
+    char testsn[16]={0};
+    char testmac[6]={0x3A, 0xAD, 0xD5, 0x27, 0xE0, 0x70};
+     if(test_count==0){
+        memcpy(testsn,test_sn1,16);
+        memcpy(testmac,test_mac_addr1,6);
+    }else if(test_count==1){
+        memcpy(testsn,test_sn2,16);
+        memcpy(testmac,test_mac_addr2,6);
+    }
+    int ret=write_sn(testsn);
+    if(ret==0){
+        printf("write sn ok\r\n");
+    }
+    inv_sleep(1000);
+
+    ret=write_mac_addr(testmac);
+    if(ret==0){
+        printf("write mac ok\r\n");
+    }
+    OS_TIMER_START(flash_test_tim, OS_TIMER_FOREVER);
+}
+
+static int write_test_mac_addr()
+{
+    nvparam_t custm_param=ad_nvparam_open("ble_platform");
+    uint8_t custom_addr[BD_ADDR_LEN]={0x22, 0x00, 0x80, 0xCA, 0xEA, 0x80};
+    printf("write_mac_addr:%x:%x:%x:%x:%x:%x\r\n",custom_addr[0],custom_addr[1],custom_addr[2],custom_addr[3],custom_addr[4],custom_addr[5]);
+    if (ad_nvparam_write(custm_param, TAG_BLE_PLATFORM_BD_ADDRESS,6, custom_addr)!=6){
+            return -1;
+    }
+    return 0;
+}
+
+static void report_sn_mac(){
+    char readsn[16]={0};
+    nvparam_t param;
+    uint16_t param_len;
+    memset(readsn, 0, sizeof(readsn));
+    param = ad_nvparam_open("ble_platform");
+    param_len = ad_nvparam_read(param, TAG_BLE_PLATFORM_SERIAL_NUMBER,
+											sizeof(readsn), readsn);
+
+    ble_task_env.ble2app_id = 0x1234;
+            uint8_t sn_v[18]={0};
+            memset(sn_v,0,sizeof(sn_v));
+            memcpy(sn_v+3,readsn,15);
+            sn_v[0]=0x0b;
+            sn_v[1]=0xff;
+            sn_v[2]=0x01;
+            test_tx_data(ble_task_env.svc, ble_task_env.conn_idx, sn_v, sizeof(sn_v));
+}
+
 
 static void test_flash(){
     bool flag=true;
@@ -1821,7 +1969,7 @@ void ble_peripheral_task(void *params)
         set_advertising_interval(ADV_INTERVAL_FAST);
 #endif
         app_calc_scan_rsp_data(scan_rsp_data, sizeof(scan_rsp_data));
-        printf("scan_rsp_data=%x,%x,%x\r\n",scan_rsp_data[4],scan_rsp_data[5],scan_rsp_data[6]);
+        printf("scan_rsp_data=%x,%x,%x\r\n",scan_rsp_data[17],scan_rsp_data[18],scan_rsp_data[19]);
         ble_gap_adv_data_set(sizeof(adv_data), adv_data, sizeof(scan_rsp_data), scan_rsp_data);
 
         ble_gap_adv_start(GAP_CONN_MODE_UNDIRECTED);
@@ -1829,8 +1977,10 @@ void ble_peripheral_task(void *params)
         OS_TIMER_START(adv_tim, OS_TIMER_FOREVER);
 #endif
 
-        flash_test_tim= OS_TIMER_CREATE("flash", OS_MS_2_TICKS(5000), OS_TIMER_FAIL,
+        flash_test_tim= OS_TIMER_CREATE("flash", OS_MS_2_TICKS(2000), OS_TIMER_FAIL,
                         (void *) OS_GET_CURRENT_TASK(), flash_test_tim_cb);
+        two_second_tim= OS_TIMER_CREATE("two_second", OS_MS_2_TICKS(2000), OS_TIMER_FAIL,
+                               (void *) OS_GET_CURRENT_TASK(), two_second_tim_cb);
 
         printf("wzb for(;;)\r\n");
 
@@ -1953,9 +2103,15 @@ void ble_peripheral_task(void *params)
 
     //test
         if(notif & FLASH_TEST_TMO_NOTIF){
-               read_test();
+               //read_test();
+               //test_readsnmac();
+               //reboot();
+               report_sn_mac();
         }
 
+        if(notif & TWO_SECOND_TMO_NOTIF){
+               reboot();   
+        }
 
         }
 }
