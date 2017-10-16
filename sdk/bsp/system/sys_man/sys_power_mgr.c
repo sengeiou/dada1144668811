@@ -128,7 +128,9 @@ PRIVILEGED_DATA adapter_call_backs_t *pm_adapters_cb[dg_configPM_MAX_ADAPTERS_CN
 
 
 #if (dg_configDISABLE_BACKGROUND_FLASH_OPS == 0)
-PRIVILEGED_DATA static qspi_ops *qspi_pending_ops;
+//PRIVILEGED_DATA static qspi_ops *qspi_pending_ops;
+PRIVILEGED_DATA static qspi_ops *qspi_pending_ops=NULL;//wzb
+
 #endif
 
 #if (CPM_DEBUG == 1)
@@ -2107,7 +2109,7 @@ void pm_execute_active_wfi(void)
 
                                 flash_erase_sector_manual_mode(op->addr);
 
-                                DBG_SET_LOW(FLASH_DEBUG, FLASHDBG_SECTOR_ERASE);
+                                //DBG_SET_LOW(FLASH_DEBUG, FLASHDBG_SECTOR_ERASE);//wzb
                         } else {                        // program
                                 flash_activate_command_entry_mode();
                                 skip_wfi = process_qspi_program();
@@ -2135,6 +2137,15 @@ void pm_execute_active_wfi(void)
                 if (qspi_check_and_suspend()) {
                         op->suspended = true;
                 }
+                //add by wzb
+                else {
+                    if (op->op_type == false) {
+                        op->written = 1;
+                    }
+                    DBG_SET_LOW(FLASH_DEBUG, FLASHDBG_SECTOR_ERASE);
+                }
+
+                //end
 
                 DBG_SET_LOW(FLASH_DEBUG, FLASHDBG_SUSPEND);
         }
@@ -2147,21 +2158,25 @@ void pm_process_completed_qspi_operations(void)
         op = qspi_pending_ops;
 
         if (op && (op->suspended == false)) {
-                DBG_SET_HIGH(FLASH_DEBUG, FLASHDBG_TASK_NOTIFY);
+           //     DBG_SET_HIGH(FLASH_DEBUG, FLASHDBG_TASK_NOTIFY);
 
-                if ((op->op_type == false)
+           //     if ((op->op_type == false)
+           if (((op->op_type == false) && (op->written == 1))
                         || ((op->op_type == true) && (op->written == *(op->size)))) {
                         // The QSPI operation has been completed
-                        if (op->written != 0) {
+                        DBG_SET_HIGH(FLASH_DEBUG, FLASHDBG_TASK_NOTIFY);
+                      //  if (op->written != 0) {
+                       if ((op->op_type == true)  && (op->written != 0)) {
                                 *(op->size) = op->written;
                         }
                         qspi_pending_ops = op->next;
 
                         OS_TASK_RESUME_FROM_ISR(op->handle);
                         // Calling portYIELD() here is needless (and an error...)
+                        DBG_SET_LOW(FLASH_DEBUG, FLASHDBG_TASK_NOTIFY);
                 }
 
-                DBG_SET_LOW(FLASH_DEBUG, FLASHDBG_TASK_NOTIFY);
+              //  DBG_SET_LOW(FLASH_DEBUG, FLASHDBG_TASK_NOTIFY);
         }
 }
 
@@ -2171,6 +2186,7 @@ bool pm_register_qspi_operation(OS_TASK handle, uint32_t addr, const uint8_t *bu
         qspi_ops *op;
 
         if (xSemaphorePM == NULL) {
+             ASSERT_WARNING(0);
                 return false;
         }
 
