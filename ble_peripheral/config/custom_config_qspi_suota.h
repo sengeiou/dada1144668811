@@ -65,7 +65,7 @@
 #define RBLE_DATA_STORAGE_IN_FLASH
 
 #define CUSTOM_CONFIG_SERIAL_NUMBER_DEFINE
-//#define CUSTOM_REBOOT_VOL_RECORD
+#define CUSTOM_REBOOT_VOL_RECORD
 
 
 #define RBLE_DMP_REPEAT_WRITE
@@ -80,7 +80,7 @@
 #define dg_configCODE_LOCATION                  NON_VOLATILE_IS_FLASH
 #define dg_configEXT_CRYSTAL_FREQ               EXT_CRYSTAL_IS_16M
 
-#define dg_configIMAGE_SETUP                    DEVELOPMENT_MODE
+#define dg_configIMAGE_SETUP                    PRODUCTION_MODE	//DEVELOPMENT_MODE
 #define dg_configEMULATE_OTP_COPY               (0)
 
 #define dg_configIMAGE_FLASH_OFFSET             (0x20000)
