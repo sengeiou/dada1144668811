@@ -70,6 +70,10 @@ static void test_writesnmac();
 static int write_test_mac_addr();
 static void test_readsnmac();
 
+static int STOP_SENSOR_TMO_NOTIF_count=0;
+
+//#define STOP_ADV_WHEN_CONNECTED
+
 #if defined(CUSTOM_REBOOT_VOL_RECORD)
 static void save_cur_sys_vol_value(void);
 static void update_reboot_times(void);
@@ -690,9 +694,16 @@ static const suota_callbacks_t suota_cb = {
 /* Advertising intervals change timeout timer callback */
 static void adv_tim_cb(OS_TIMER timer)
 {
-        OS_TASK task = (OS_TASK)OS_TIMER_GET_TIMER_ID(timer);
+       // OS_TASK task = (OS_TASK)OS_TIMER_GET_TIMER_ID(timer);
 
-        OS_TASK_NOTIFY(task, ADV_TMO_NOTIF, OS_NOTIFY_SET_BITS);
+       // OS_TASK_NOTIFY(task, ADV_TMO_NOTIF, OS_NOTIFY_SET_BITS);
+       #if defined(STOP_ADV_WHEN_CONNECTED)
+       
+       #else
+       OS_TASK task = (OS_TASK)OS_TIMER_GET_TIMER_ID(timer);
+
+       OS_TASK_NOTIFY(task, ADV_TMO_NOTIF, OS_NOTIFY_SET_BITS);
+       #endif
 }
 
 
@@ -721,7 +732,7 @@ static void two_second_tim_cb(OS_TIMER timer)
         
         OS_TASK_NOTIFY(task, TWO_SECOND_TMO_NOTIF, OS_NOTIFY_SET_BITS);
        
-        
+        printf("wzb two_second_tim_cb \r\n");
 }
 
 
@@ -736,12 +747,15 @@ static void handle_evt_gap_connected(ble_evt_gap_connected_t *evt)
         ble_task_env.conn_intv = evt->conn_params.interval_max;
 
 #if defined(CUSTOM_CONNECTION)
-        OS_TIMER_STOP(adv_tim, OS_TIMER_FOREVER);
-        set_advertising_interval(ADV_INTERVAL_POWER);
 
-        //ble_gap_adv_stop();
+        #if defined(STOP_ADV_WHEN_CONNECTED)
+            ble_gap_adv_stop();
 
+        #else
+            OS_TIMER_STOP(adv_tim, OS_TIMER_FOREVER);
+            set_advertising_interval(ADV_INTERVAL_POWER);
 
+        #endif
 #endif
 
 #if defined(RBLE_BAT_MEASURE)
@@ -772,18 +786,19 @@ static void handle_evt_gap_disconnected(ble_evt_gap_disconnected_t *evt)
         //for error ff08
         ble_task_env.test_rx_data_id=0xff;
 
-
+        
 #if defined(CUSTOM_CONNECTION)
         /* Switch back to fast advertising interval. */
+
+
+       #if defined(STOP_ADV_WHEN_CONNECTED)
         set_advertising_interval(ADV_INTERVAL_FAST);
-        ble_gap_adv_stop();
-        OS_TIMER_START(adv_tim, OS_TIMER_FOREVER);
-
-
-
-        //set_advertising_interval(ADV_INTERVAL_NORMAL);
-        //ble_gap_adv_start(GAP_CONN_MODE_UNDIRECTED);
-
+        ble_gap_adv_start(GAP_CONN_MODE_UNDIRECTED);
+       #else
+            set_advertising_interval(ADV_INTERVAL_FAST);
+            ble_gap_adv_stop();
+            OS_TIMER_START(adv_tim, OS_TIMER_FOREVER);
+       #endif
 #endif
 
         /*
@@ -804,13 +819,17 @@ static void handle_evt_gap_disconnected(ble_evt_gap_disconnected_t *evt)
 static void handle_evt_gap_adv_completed(ble_evt_gap_adv_completed_t *evt)
 {
         // restart advertising so we can connect again
-        ble_gap_adv_start(GAP_CONN_MODE_UNDIRECTED);
-
-        /*if(ble_task_env.conn_idx == BLE_CONN_IDX_INVALID){
+       // ble_gap_adv_start(GAP_CONN_MODE_UNDIRECTED);
+#if defined(STOP_ADV_WHEN_CONNECTED)
+        if(ble_task_env.conn_idx == BLE_CONN_IDX_INVALID){
                 ble_gap_adv_start(GAP_CONN_MODE_UNDIRECTED);
         }else{
                 //stop adv
-        }*/
+        }
+#else
+ble_gap_adv_start(GAP_CONN_MODE_UNDIRECTED);
+
+#endif
 }
 
 typedef struct test_data
@@ -952,6 +971,7 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
                 #if defined(STOP_SENSOR_AFTER_THREE_HOUR)
                 OS_TIMER_STOP(stop_sensor_tim,OS_TIMER_FOREVER);
                 OS_TIMER_START(stop_sensor_tim, OS_TIMER_FOREVER);
+                STOP_SENSOR_TMO_NOTIF_count=0;
                 #endif
 
                 bd.id1 = 0xFF;
@@ -1324,6 +1344,7 @@ static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t leng
                 uint16_t param_len;
                 param = ad_nvparam_open("ble_platform");
                 param_len = ad_nvparam_read(param, TAG_BLE_PLATFORM_BD_ADDRESS,sizeof(read_mac_addr), read_mac_addr);
+                ad_nvparam_close(param);
                 uint8_t mac_v[9]={0};
                 memset(mac_v,0,sizeof(mac_v));
                 memcpy(mac_v+3,read_mac_addr,6);
@@ -1553,6 +1574,7 @@ printf("wzb read_serial_number 0 serial_number=%s read_len=%d  MODEL_TYPY_STR=%s
 	   read_len = ad_nvparam_read(param, TAG_BLE_PLATFORM_SERIAL_NUMBER,
 										   sizeof(serial_number), serial_number);
 	   printf("wzb read_serial_number 1 serial_number=%s read_len=%d\r\n",serial_number,read_len);
+       ad_nvparam_close(param); 
 #endif
 #else
         static const uint8_t empty_sn[SERIAL_NUMBER_LEN] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
@@ -1625,8 +1647,15 @@ static int write_mac_addr(const void *data)
     memcpy(custom_addr,data,6);
     printf("write_mac_addr:%x:%x:%x:%x:%x:%x\r\n",custom_addr[0],custom_addr[1],custom_addr[2],custom_addr[3],custom_addr[4],custom_addr[5]);
     if (ad_nvparam_write(custm_param, TAG_BLE_PLATFORM_BD_ADDRESS,6, custom_addr)!=6){
+            
+            //hw_watchdog_unfreeze();
+            ad_nvparam_close(custm_param);
+            
             return -1;
     }
+    ad_nvparam_close(custm_param);
+  
+    
     return 0;
 }
 
@@ -1638,17 +1667,24 @@ static int write_sn(const void *data)
     custom_sn[15]='\0';
     printf("write_sn custom_sn=%s\r\n",custom_sn);
     if (ad_nvparam_write(custm_param, TAG_BLE_PLATFORM_SERIAL_NUMBER,SERIAL_NUMBER_LEN, custom_sn)!=16){
+            
+            
+            ad_nvparam_close(custm_param);
+            
             return -1;
     }
+
+    ad_nvparam_close(custm_param);
+   
     return 0;
 }
 
 
 static int test_count=0;
-static uint8_t test_mac_addr1[BD_ADDR_LEN]={0x3A, 0xAD, 0xD5, 0x27, 0xE0, 0x70};
-static uint8_t test_mac_addr2[BD_ADDR_LEN]={0x3B, 0xAD, 0xD5, 0x27, 0xE0, 0x70};
-static char *test_sn1="QD017425ECG1234";
-static char *test_sn2="QD017425ECG4321";
+static uint8_t test_mac_addr1[BD_ADDR_LEN]={0xE3, 0xBA, 0xD5, 0x27, 0xE0, 0x70};
+static uint8_t test_mac_addr2[BD_ADDR_LEN]={0x88, 0xA6, 0xD5, 0x27, 0xE0, 0x70};
+static char *test_sn1="QD011738A000232";
+static char *test_sn2="QD011738A006325";
 
 static void test_readsnmac()
 {
@@ -1675,12 +1711,15 @@ static void test_readsnmac()
         printf("read sn ok \r\n");
     }else{
         printf("read sn err \r\n");
+        printf("err sn :%s \r\n",readsn);
     }
 
     uint8_t read_mac_addr[BD_ADDR_LEN];
     memset(read_mac_addr, 0, sizeof(read_mac_addr));
     param_len = ad_nvparam_read(param, TAG_BLE_PLATFORM_BD_ADDRESS,
 											sizeof(read_mac_addr), read_mac_addr);
+    ad_nvparam_close(param);
+
     int i;
     for(i=0;i<6;i++){
         if(mac_addr[i]!=read_mac_addr[i]){
@@ -1720,17 +1759,6 @@ static void test_writesnmac(){
     OS_TIMER_START(flash_test_tim, OS_TIMER_FOREVER);
 }
 
-static int write_test_mac_addr()
-{
-    nvparam_t custm_param=ad_nvparam_open("ble_platform");
-    uint8_t custom_addr[BD_ADDR_LEN]={0x22, 0x00, 0x80, 0xCA, 0xEA, 0x80};
-    printf("write_mac_addr:%x:%x:%x:%x:%x:%x\r\n",custom_addr[0],custom_addr[1],custom_addr[2],custom_addr[3],custom_addr[4],custom_addr[5]);
-    if (ad_nvparam_write(custm_param, TAG_BLE_PLATFORM_BD_ADDRESS,6, custom_addr)!=6){
-            return -1;
-    }
-    return 0;
-}
-
 static void report_sn_mac(){
     char readsn[16]={0};
     nvparam_t param;
@@ -1739,7 +1767,7 @@ static void report_sn_mac(){
     param = ad_nvparam_open("ble_platform");
     param_len = ad_nvparam_read(param, TAG_BLE_PLATFORM_SERIAL_NUMBER,
 											sizeof(readsn), readsn);
-
+    ad_nvparam_close(param);
     ble_task_env.ble2app_id = 0x1234;
             uint8_t sn_v[18]={0};
             memset(sn_v,0,sizeof(sn_v));
@@ -1955,7 +1983,7 @@ void ble_peripheral_task(void *params)
 #endif
 
 #if defined(STOP_SENSOR_AFTER_THREE_HOUR)
-    stop_sensor_tim= OS_TIMER_CREATE("stop", OS_MS_2_TICKS(THREE_HOUR), OS_TIMER_FAIL,
+    stop_sensor_tim= OS_TIMER_CREATE("stop", OS_MS_2_TICKS(THREE_HOUR/3), OS_TIMER_FAIL,
                 (void *) OS_GET_CURRENT_TASK(), stop_sensor_tim_cb);
 #endif
 
@@ -2078,10 +2106,17 @@ void ble_peripheral_task(void *params)
 
     #if defined(STOP_SENSOR_AFTER_THREE_HOUR)
         if(notif & STOP_SENSOR_TMO_NOTIF){
+            STOP_SENSOR_TMO_NOTIF_count++;
+            if(STOP_SENSOR_TMO_NOTIF_count==3){
              OS_TASK_NOTIFY(task_sensor_sample, RBLE_SENSOR_STOP_SAMPLE_NOTIF,
                         OS_NOTIFY_SET_BITS);
              rble_write_result_flash_cmd=false;
              rble_write_flash_cmd=false;
+             STOP_SENSOR_TMO_NOTIF_count=0;
+            }else{
+                OS_TIMER_STOP(stop_sensor_tim,OS_TIMER_FOREVER);
+                OS_TIMER_START(stop_sensor_tim, OS_TIMER_FOREVER);
+            }
         }
     #endif
 

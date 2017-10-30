@@ -1516,7 +1516,7 @@ void process_sensor_output(unsigned short fifo_id)
 #endif
                         detect_new_step_v5(data_acc_gyr_ori[0], data_acc_gyr_ori[1], data_acc_gyr_ori[2], data_acc_gyr_ori[3],
                                 data_acc_gyr_ori[4], fifo_id);
-        printf("detect_new_step_v5 \r\n");
+        //printf("detect_new_step_v5 \r\n");
 		}
 #endif
         //end
