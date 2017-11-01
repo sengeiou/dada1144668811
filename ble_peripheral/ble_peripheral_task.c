@@ -200,9 +200,12 @@ typedef enum {
 
 #define FLASH_TEST_TMO_NOTIF   (1 << 8)
 #define TWO_SECOND_TMO_NOTIF   (1 << 6)
+#define ONE_SECOND_TMO_NOTIF   (1 << 10)
+
 PRIVILEGED_DATA static OS_TIMER two_second_tim;
 
 PRIVILEGED_DATA static OS_TIMER flash_test_tim;
+PRIVILEGED_DATA static OS_TIMER one_second_tim;
 
 /* Timer used to switch from "fast connection" to "reduced power" advertising intervals */
 PRIVILEGED_DATA static OS_TIMER adv_tim;
@@ -735,6 +738,14 @@ static void two_second_tim_cb(OS_TIMER timer)
         printf("wzb two_second_tim_cb \r\n");
 }
 
+static void one_second_tim_cb(OS_TIMER timer)
+{
+        OS_TASK task = (OS_TASK)OS_TIMER_GET_TIMER_ID(timer);
+        
+        OS_TASK_NOTIFY(task, ONE_SECOND_TMO_NOTIF, OS_NOTIFY_SET_BITS);
+       
+        printf("wzb one_second_tim_cb \r\n");
+}
 
 
 
@@ -1136,6 +1147,10 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
             }else{
                 bd.id3=0x01;
             }
+
+            OS_TIMER_STOP(one_second_tim, OS_TIMER_FOREVER);
+            OS_TIMER_START(one_second_tim, OS_TIMER_FOREVER);
+            #if 0
             ble_task_env.ble2app_id = 0x0aFF;
             uint8_t mac_v[9]={0};
             memset(mac_v,0,sizeof(mac_v));
@@ -1145,6 +1160,8 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
             mac_v[2]=bd.id3;
             test_tx_data(svc, conn_idx, mac_v, sizeof(mac_v));
             //test_tx_data(svc, conn_idx, (uint8_t *)&bd, sizeof(bd));
+            #endif
+            
         }
         else if((*value)==0x0b && (*(value+1)==0xff) && (*(value+2)==0xff)
             && (*(value+3)==0xff) && (*(value+4)==0xff) && length==20){
@@ -1157,6 +1174,8 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
             }else{
                 bd.id3=0x01;
             }
+            
+            #if 0
             ble_task_env.ble2app_id = 0x0bFF;
             uint8_t sn_v[18]={0};
             memset(sn_v,0,sizeof(sn_v));
@@ -1165,6 +1184,9 @@ static void test_rx_data_cb(ble_service_t *svc, uint16_t conn_idx, const uint8_t
             sn_v[1]=bd.id2;
             sn_v[2]=bd.id3;
             test_tx_data(svc, conn_idx, sn_v, sizeof(sn_v));
+            #endif
+            OS_TIMER_STOP(flash_test_tim, OS_TIMER_FOREVER);
+            OS_TIMER_START(flash_test_tim, OS_TIMER_FOREVER);
 
         }
 
@@ -1328,32 +1350,19 @@ static void test_tx_done_cb(ble_service_t *svc, uint16_t conn_idx, uint16_t leng
         }
         else if(ble_task_env.ble2app_id == 0x0aff){
             ble_task_env.ble2app_id = 0xff;
-            //inv_sleep(1500);
-            //reboot();
-            OS_TIMER_STOP(flash_test_tim, OS_TIMER_FOREVER);
-            OS_TIMER_START(flash_test_tim, OS_TIMER_FOREVER);
+
         }
         else if(ble_task_env.ble2app_id == 0x0bff){
             ble_task_env.ble2app_id = 0xff;
-           // reboot();
+           
         }else if(ble_task_env.ble2app_id == 0x1234){
                 ble_task_env.ble2app_id = 0xff;
-                uint8_t read_mac_addr[BD_ADDR_LEN];
-                memset(read_mac_addr, 0, sizeof(read_mac_addr));
-                nvparam_t param;
-                uint16_t param_len;
-                param = ad_nvparam_open("ble_platform");
-                param_len = ad_nvparam_read(param, TAG_BLE_PLATFORM_BD_ADDRESS,sizeof(read_mac_addr), read_mac_addr);
-                ad_nvparam_close(param);
-                uint8_t mac_v[9]={0};
-                memset(mac_v,0,sizeof(mac_v));
-                memcpy(mac_v+3,read_mac_addr,6);
-                mac_v[0]=0x0a;
-                mac_v[1]=0xff;
-                mac_v[2]=0x01;
-                test_tx_data(svc, conn_idx, mac_v, 9);
+               
                 OS_TIMER_STOP(two_second_tim, OS_TIMER_FOREVER);
                 OS_TIMER_START(two_second_tim, OS_TIMER_FOREVER);
+        }
+        else if(ble_task_env.ble2app_id == 0x1235){
+            ble_task_env.ble2app_id = 0xff;
         }
 
         else if(ble_task_env.ble2app_id == 0xaa17){
@@ -1759,6 +1768,47 @@ static void test_writesnmac(){
     OS_TIMER_START(flash_test_tim, OS_TIMER_FOREVER);
 }
 
+
+static void report_sn()
+{
+    char readsn[16]={0};
+    nvparam_t param;
+    uint16_t param_len;
+    memset(readsn, 0, sizeof(readsn));
+    param = ad_nvparam_open("ble_platform");
+    param_len = ad_nvparam_read(param, TAG_BLE_PLATFORM_SERIAL_NUMBER,
+											sizeof(readsn), readsn);
+    ad_nvparam_close(param);
+
+    ble_task_env.ble2app_id = 0x1235;
+            uint8_t sn_v[18]={0};
+            memset(sn_v,0,sizeof(sn_v));
+            memcpy(sn_v+3,readsn,15);
+            sn_v[0]=0x0b;
+            sn_v[1]=0xff;
+            sn_v[2]=0x01;
+            test_tx_data(ble_task_env.svc, ble_task_env.conn_idx, sn_v, sizeof(sn_v));
+}
+
+static void report_mac()
+{
+     uint8_t read_mac_addr[BD_ADDR_LEN];
+                memset(read_mac_addr, 0, sizeof(read_mac_addr));
+                nvparam_t param;
+                uint16_t param_len;
+                param = ad_nvparam_open("ble_platform");
+                param_len = ad_nvparam_read(param, TAG_BLE_PLATFORM_BD_ADDRESS,sizeof(read_mac_addr), read_mac_addr);
+                ad_nvparam_close(param);
+                ble_task_env.ble2app_id = 0x1234;
+                uint8_t mac_v[9]={0};
+                memset(mac_v,0,sizeof(mac_v));
+                memcpy(mac_v+3,read_mac_addr,6);
+                mac_v[0]=0x0a;
+                mac_v[1]=0xff;
+                mac_v[2]=0x01;
+                test_tx_data(ble_task_env.svc, ble_task_env.conn_idx, mac_v, 9);
+
+}
 static void report_sn_mac(){
     char readsn[16]={0};
     nvparam_t param;
@@ -2009,6 +2059,8 @@ void ble_peripheral_task(void *params)
                         (void *) OS_GET_CURRENT_TASK(), flash_test_tim_cb);
         two_second_tim= OS_TIMER_CREATE("two_second", OS_MS_2_TICKS(2000), OS_TIMER_FAIL,
                                (void *) OS_GET_CURRENT_TASK(), two_second_tim_cb);
+        one_second_tim= OS_TIMER_CREATE("one_second", OS_MS_2_TICKS(2000), OS_TIMER_FAIL,
+                               (void *) OS_GET_CURRENT_TASK(), one_second_tim_cb);
 
         printf("wzb for(;;)\r\n");
 
@@ -2138,15 +2190,16 @@ void ble_peripheral_task(void *params)
 
     //test
         if(notif & FLASH_TEST_TMO_NOTIF){
-               //read_test();
-               //test_readsnmac();
-               //reboot();
-               report_sn_mac();
+               report_sn();
         }
 
         if(notif & TWO_SECOND_TMO_NOTIF){
                reboot();   
         }
+        if(notif & ONE_SECOND_TMO_NOTIF){
+                       report_mac();   
+         }
 
+        
         }
 }
