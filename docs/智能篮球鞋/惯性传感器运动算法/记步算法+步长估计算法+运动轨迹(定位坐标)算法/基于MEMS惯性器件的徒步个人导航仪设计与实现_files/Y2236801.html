@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<!-- saved from url=(0043)http://d.wanfangdata.com.cn/Thesis/Y2236801 -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=1170">
+    <title>基于MEMS惯性器件的徒步个人导航仪设计与实现</title>
+    <link href="./animate.min.css" rel="stylesheet">
+    <link href="./global.min.css" rel="stylesheet">
+    <!--[if lt IE 9 ]><link href="http://static.wanfangdata.com.cn/wfks/css/ltie9.min.css?v=201610091258" rel="stylesheet"/><![endif]-->
+    <link href="./detail.min.css" rel="stylesheet">
+    <link rel="shortcut icon" href="http://d.wanfangdata.com.cn/favicon.ico">
+    <link rel="apple-touch-icon" href="http://d.wanfangdata.com.cn/favicon.ico">
+    <meta content="微机电系统 MEMS惯性器件 个人导航仪 卫星导航定位系统 测量传感器" name="keywords">
+    <meta content="在现代生活中，各种便携式个人导航设备已经成为人们日常生活的不可或缺的一部分。作为美国军方专用的卫星导航定位系统，GPS已经被广泛应用于个人导航装置，在其信号状况良好时具有全方位实时定位功能，能提供准确的个人导航定位服务。但是，在浓密的深林、高楼林立的城市以及封闭的室内环境中，GPS接收机不能正常接收卫星信号，定位精度大大降低。为克服这些缺点，达到个人导航的连续性和可靠性，基于各种传感器(惯性传感器、超声波以及红外线传感器等)的组合导航系统应运而生。&amp;lt;br&amp;gt;　　
+ 本文研究开发一种由测向定位装置、计步器、液晶显示终端组合构成的个人导航仪，以体积小，成本低的MEMS器件为核心测量传感器，构造自治系统并实现连续的个人导航。测向定位装置捆绑于腰部，采用MEMS IMU及磁阻传感器实现高精度定向，结合计步器相关信息完成定位推算。计步器安装于脚部，利用三轴MEMS加速度计测量行人行进的加速度信号，估计行人步态的站立期、迈步期以及步数和步长。在站立期，测向定位装置根据计步器的输出采用零速校正算法(ZUPT)和零角速率校正算法(ZARU)以提高定向精度。在GPS信号正常时，测向定位装置接收GPS信息，并采用卡尔曼滤波算法估计系统误差，以提高定位精度。手持液晶显示终端采用CAN总线与测向定位装置通信，用于显示导航参数。&amp;lt;br&amp;gt;　　
+ 测向定位装置还设计了SD卡、语音输入输出、键盘等电路。SD卡用于存储导航数据便于用户在计算机上查看和复现自己的行走轨迹；语音输入输出电路用于提高导航仪的操作效率和丰富工作的人机接口；键盘电路用于控制计步器工作和语音播放。&amp;lt;br&amp;gt;　　
+ 为验证个人导航仪的定位性能，在室内环境下以正常的行走速度，进行了行走试验。通过对试验数据结果的分析，得出了个人导航仪设计方案具有较好准确性和可行性的结论。" name="description">
+    
+    <!--[if lt IE 9 ]><style>
+        .citeRelation .refciteMap .map-item{filter:progid:DXImageTransform.Microsoft.Matrix(M11=1.4142135623730951, M12=-1.414213562373095, M21=1.414213562373095, M22=1.4142135623730951, SizingMethod='auto expand') progid:DXImageTransform.Microsoft.Alpha(Opacity=80);}
+        .citeRelation .refciteMap .map-item div{*font-size:8px;*filter:progid:DXImageTransform.Microsoft.Matrix(M11=0.707107, M12=0.707107, M21=-0.707107, M22=0.707107,0,0, SizingMethod='auto expand');}
+        .citeRelation .refciteMap .same,.citeRelation .refciteMap .text{width:50px;height:50px}
+        .citeRelation .refciteMap .cite1,.citeRelation .refciteMap .ref1{width:60px;height:60px}
+        .citeRelation .refciteMap .cite2,.citeRelation .refciteMap .ref2{width:40px;height:40px}
+    </style><link href="/Content/css/citeRelation.ltie9.min.css" rel="stylesheet" /><![endif]-->
+
+</head>
+<body>
+    <div class="header">
+        <div class="nav clear">
+            <a href="http://www.wanfangdata.com.cn/">
+                <img class="logo" src="./logo_new.png" alt=""></a>
+            <ul>
+                <li class="active fixed" data-target="search-wrap">检索</li>
+                <li id="navResource" data-target="resource-wrap">资源</li>
+                <li id="navService" data-target="service-wrap">服务</li>
+                <li class="profile" title="请登录"></li>
+            </ul>
+        </div>
+        <div class="width-wrap search-wrap active fixed">
+            <div class="panel search-panel clear">
+                <div class="drp res-drp clear">
+                    <div class="res-lb">
+                        <span id="res" class="lb">学位</span>
+                        <i class="icon-more"></i>
+                    </div>
+                    <div class="res-list bd pop" data-open=".res-lb">
+                        <span class="clear-shadow"></span>
+                        <ul class="resource clear"><li><a data-action="http://s.wanfangdata.com.cn/Paper.aspx" data-id="paper" data-tip="在期刊、学位、会议、外文文献、OA论文库 77, 779, 841篇论文中检索">学术论文</a></li><li><a data-action="http://s.wanfangdata.com.cn/Paper.aspx" data-id="qk" data-tip="在35, 860, 834篇论文中检索">期刊</a></li><li><a data-action="http://s.wanfangdata.com.cn/Paper.aspx" data-id="xw" data-tip="在3, 762, 791篇论文中检索">学位</a></li><li><a data-action="http://s.wanfangdata.com.cn/Paper.aspx" data-id="hy" data-tip="在3, 220, 745篇论文中检索">会议</a></li><li><a data-action="http://s.wanfangdata.com.cn/Paper.aspx" data-id="nstl" data-tip="在34, 935, 471篇论文中检索">外文文献</a></li><li><a data-action="http://s.wanfangdata.com.cn/NSTR.aspx" data-id="nstr" data-tip="在1, 169, 599份科技报告中检索">科技报告</a></li><li><a data-action="http://s.wanfangdata.com.cn/patent.aspx" data-id="patent" data-tip="在54, 421, 936件专利中检索">专利</a></li><li><a data-action="http://s.wanfangdata.com.cn/standard.aspx" data-id="standard" data-tip="在430, 530项标准中检索">标准</a></li><li><a data-action="http://s.wanfangdata.com.cn/localChronicleItem.aspx" data-id="localchronicleitem" data-tip="在7, 703, 596条条目中检索">地方志</a></li><li><a data-action="http://s.wanfangdata.com.cn/Cstad.aspx" data-id="cstad" data-tip="在873, 870项成果中检索">成果</a></li><li><a data-action="http://s.wanfangdata.com.cn/Claw.aspx" data-id="claw" data-tip="在935, 611条法规中检索">法规</a></li><li><a data-action="http://s.wanfangdata.com.cn/Cecdb.aspx" data-id="institution" data-tip="在193, 896个机构中检索">机构</a></li><li><a data-action="http://s.wanfangdata.com.cn/Book.aspx" data-id="book" data-tip="在48, 352本图书中检索">图书</a></li><li><a data-action="http://s.wanfangdata.com.cn/Expert.aspx" data-id="expert" data-tip="在12, 120位专家中检索">专家</a></li><li><a data-action="http://social.wanfangdata.com.cn/Scholar.aspx" data-id="scholar" data-tip="在16, 754, 878位学者中检索">学者</a></li></ul>
+                        <ul class="library clear"><li><a data-action="http://s.wanfangdata.com.cn/Journal.aspx" data-id="magazine" data-tip="在5, 000本期刊中检索">刊名库</a></li><li><a data-action="http://s.wanfangdata.com.cn/Meeting.aspx" data-id="meeting" data-tip="在100个会议中检索">会议名库</a></li><li><a data-action="http://s.wanfangdata.com.cn/LocalChronicle.aspx" data-id="localchronicle" data-tip="在1本地方志中检索">志书名库</a></li></ul>
+                    </div>
+                </div>
+                <input class="search-input ui-autocomplete-input" type="search" name="q" autocomplete="off" placeholder="在3, 762, 791篇论文中检索">
+                <div id="adSearchBtn" class="icon-search-ad" type="button">
+		<div class="search-ad pop">
+                    <a target="_blank" id="adSearchLink" href="http://librarian.wanfangdata.com.cn/">跨库检索</a>
+                    <a target="_blank" href="http://www.wanfangdata.com.cn/NewGuide?helpitem=searchepaper">检索帮助</a>
+                </div>
+		</div>
+                <button class="btn icon-search search-btn" type="submit"></button>
+                <div class="search-tip-field pop"></div>
+            <ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" id="ui-id-1" tabindex="0" style="display: none;"></ul></div>
+        </div>
+        <div class="width-wrap resource-wrap">
+            <div class="panel resource-panel"><a href="http://c.wanfangdata.com.cn/Periodical.aspx">期刊</a><a href="http://c.wanfangdata.com.cn/Thesis.aspx">学位</a><a href="http://c.wanfangdata.com.cn/Conference.aspx">会议</a><a href="http://www.wanfangdata.com.cn/ResourceBrowse/NSTL">外文文献</a><a href="http://c.wanfangdata.com.cn/NSTR.aspx">科技报告</a><a href="http://c.wanfangdata.com.cn/PatentIndex.aspx">专利</a><a href="http://c.wanfangdata.com.cn/Standard.aspx">标准</a><a href="http://c.wanfangdata.com.cn/LocalChronicle.aspx">地方志</a><a href="http://c.wanfangdata.com.cn/Cstad.aspx">成果</a><a href="http://c.wanfangdata.com.cn/Claw.aspx">法规</a><a href="http://c.wanfangdata.com.cn/Institution.aspx">机构</a><a href="http://c.wanfangdata.com.cn/Book.aspx">图书</a><a href="http://www.wanfangdata.com.cn/ResourceBrowse/Expert">专家</a><a href="http://www.wanfangdata.com.cn/ResourceBrowse/Scholar">学者</a></div>
+        </div>
+        <div class="width-wrap service-wrap">
+            <div class="panel service-panel clear">
+                <div class="md">
+                    <div class="hd clear">
+                        <i class="icon icon-zzfu"></i>
+                        <h6 class="tt">增值服务</h6>
+                    </div>
+                    <div class="bd">
+                        <a target="_blank" href="http://social.wanfangdata.com.cn/">万方学术圈</a>
+                        <a target="_blank" href="http://trend.wanfangdata.com.cn/">知识脉络分析</a>
+                        <a target="_blank" href="http://librarian.wanfangdata.com.cn/">查新/跨库检索</a>
+                        <a target="_blank" href="http://librarian.wanfangdata.com.cn/ScientificLiterature">科技文献分析</a>                        
+                    </div>
+                </div>
+                <div class="md">
+                    <div class="hd clear">
+                        <i class="icon icon-gjlfu"></i>
+                        <h6 class="tt">工具类服务</h6>
+                    </div>
+                    <div class="bd">
+                        <a target="_blank" href="http://check.wanfangdata.com.cn/">论文相似性检测</a>
+                        <a target="_blank" href="http://stats.wanfangdata.com.cn/">国家经济统计数据库</a>
+                        <a target="_blank" href="http://patentool.wanfangdata.com.cn/">专利工具</a>
+                    </div>
+                </div>
+                <div class="md">
+                    <div class="hd clear">
+                        <i class="icon icon-bjbzyfu"></i>
+                        <h6 class="tt">编辑部专用服务</h6>
+                    </div>
+                    <div class="bd">
+                        <a target="_blank" href="http://stats.editors.wanfangdata.com.cn/">期刊统计分析与评价</a>
+                        <a target="_blank" href="http://www.wanfangdata.com.cn/ResourceDescription/DOI">中文DOI</a>
+                        <a target="_blank" href="http://publish.wanfangdata.com.cn/">优先出版</a>
+                        <a target="_blank" href="http://publish.wanfangdata.com.cn/Regular">同步出版</a>
+                        <a target="_blank" href="http://editors.wanfangdata.com.cn/">编审平台</a>
+                    </div>
+                </div>
+                <div class="md">
+                    <div class="hd clear">
+                        <i class="icon icon-zzzyff"></i>
+                        <h6 class="tt">作者专用服务</h6>
+                    </div>
+                    <div class="bd">
+                        <a target="_blank" href="http://www.wanfangdata.com.cn/UserService?tab=citenotice">引用通知</a>
+                        <a target="_blank" href="http://contribute.wanfangdata.com.cn/">投稿</a>
+                        <a target="_blank" href="http://oa.wanfangdata.com.cn/">OA论文托管</a>
+                    </div>
+                </div>
+                <div class="md last-md">
+                    <div class="hd clear">
+                        <i class="icon icon-yqzl"></i>
+                        <h6 class="tt">舆情专栏</h6>
+                    </div>
+                    <div class="bd">
+                        <a target="_blank" href="http://subject.wanfangdata.com.cn/">专题</a>
+                        <a target="_blank" href="http://message.wanfangdata.com.cn/">科技动态</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="width-wrap account-wrap">
+            <div class="panel account-panel clear">
+                <div class="top-link">
+                    <a class="login-link">登录</a>
+                    <a href="http://login.wanfangdata.com.cn/Register/Index">注册</a>
+                    <a href="http://login.wanfangdata.com.cn/Logout.aspx">退出</a>
+                </div>
+                <div class="account-container">
+                    <div class="account person-account">
+                        <i class="icon icon-point"></i>
+                        <span class="display-name"></span>
+                        <span class="my-link">
+                            <a target="_blank" href="http://www.wanfangdata.com.cn/UserService?tab=myorder">查看订单</a>
+                            <a target="_blank" href="http://www.wanfangdata.com.cn/UserService?tab=citenotice">引用通知</a>
+                            <a target="_blank" href="http://www.wanfangdata.com.cn/UserService?tab=mywallet">我的钱包</a>
+                            <a target="_blank" href="http://tran.wanfangdata.com.cn/Charge.aspx">充值</a>
+                            <a target="_blank" class="last-item" href="http://www.wanfangdata.com.cn/UserService?tab=edituser">个人信息管理</a>
+                        </span>
+                    </div>
+                    <div class="account group-account">
+                        <i class="icon icon-point"></i>
+                        <span class="display-name"></span>
+                        <span class="my-link">
+                            <a target="_blank" class="order-link" href="http://istic.wanfangdata.com.cn/Order">查看订单</a>
+                            <a target="_blank" class="last-item group-center" href="http://www.wanfangdata.com.cn/Organization">服务站</a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+                            
+    <script src="./jquery-1.11.3.min.js" type="text/javascript"></script>
+    <script src="./jquery-ui-1.11.4.custom.min.js" type="text/javascript"></script>
+    
+    <div class="breadcrumbs-wrap">
+        <div class="breadcrumbs">
+            <a href="http://www.wanfangdata.com.cn/">首页</a>
+                 <span class="joiner">&gt;</span>   
+
+                        <a href="http://c.wanfangdata.com.cn/Thesis.aspx">学位首页</a>     <span class="joiner">&gt;</span>   
+                        <a href="http://s.wanfangdata.com.cn/Paper.aspx?q=%e4%b8%93%e4%b8%9a%3a%22%e5%af%bc%e8%88%aa%e3%80%81%e5%88%b6%e5%af%bc%e4%b8%8e%e6%8e%a7%e5%88%b6%22">导航、制导与控制</a>     <span class="joiner">&gt;</span>   
+                            <span>基于MEMS惯性器件的徒步个人导航仪设计与实现</span>
+        </div>
+    </div>    
+
+<div class="fixed-width baseinfo clear">
+    <div class="section-baseinfo">
+            <h1>基于MEMS惯性器件的徒步个人导航仪设计与实现</h1>
+        <div class="record-action-link clear">
+    <a class="btn btn-thesisCatalog">目录</a>
+    <iframe src="./Thesis_Y2236801.html" frameborder="0" class="thesisCatalog-frame" name="iframe"></iframe>
+    <script>
+        var $thesisCatalogFrame = $('.thesisCatalog-frame');
+        var $thesisCatalogOverlay = $('.thesisCatalog-overlay');
+        $('.btn-thesisCatalog').click(function () {
+            $thesisCatalogFrame.show();
+            $('html').css({ 'overflow-y': 'hidden' });
+        });
+    </script>
+                <a class="download" href="http://f.wanfangdata.com.cn/download/Thesis_Y2236801.aspx" title="下载全文" target="_blank">
+        <i class="icon iconfont icon-download "></i>
+    </a>
+    <a class="view" href="http://f.wanfangdata.com.cn/view/%E5%9F%BA%E4%BA%8EMEMS%E6%83%AF%E6%80%A7%E5%99%A8%E4%BB%B6%E7%9A%84%E5%BE%92%E6%AD%A5%E4%B8%AA%E4%BA%BA%E5%AF%BC%E8%88%AA%E4%BB%AA%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0.aspx?ID=Thesis_Y2236801" title="查看全文" target="_blank">
+        <i class="icon iconfont icon-view "></i>
+    </a>
+                <a class="export exportLink" data-resourceid="Thesis_Y2236801" title="导出">
+        <i class="icon iconfont icon-export "></i>
+    </a>
+
+    <a class="citenotice" target="_blank" data-resourceid="Thesis_Y2236801" data-href="http://www.wanfangdata.com.cn/UserService?tab=citenotice" title="想第一时间知道自己论文被引用的次数吗？想随时知道牛人的论文又被谁引用了吗？用我们的新功能吧！（目前限于中文期刊和学位论文）">
+        <i class="icon iconfont icon-citeNotice "></i>
+    </a>
+                <a class="share">
+        <i class="icon iconfont icon-share "></i>
+        <div class="share-md">
+            <div class="share-item share-weibo clear" data-target="weibo">
+                <i class="icon iconfont icon-weibo "></i>
+                <span class="text">新浪微博</span>
+            </div>
+            <div class="share-item share-tenxun clear" data-target="tenxun">
+                <i class="icon iconfont icon-tenxun "></i>
+                <span class="text">腾讯微博</span>
+            </div>
+            <div class="share-item share-douban clear" data-target="douban">
+                <i class="icon iconfont icon-douban "></i>
+                <span class="text">豆瓣</span>
+            </div>
+            <div class="share-item share-renren clear" data-target="renren">
+                <i class="icon iconfont icon-renren "></i>
+                <span class="text">人人网</span>
+            </div>
+            <input type="hidden" name="shareContent" value="推荐阅读：基于MEMS惯性器件的徒步个人导航仪设计与实现 来自 @万方数据知识服务平台">
+            <input type="hidden" name="sharelogo" value="http://static.wanfangdata.com.cn/wfks/img/sharewflogo.gif">
+        </div>
+    </a>
+
+        </div>
+            <div class="baseinfo-feild abstract abstract-short">
+                    <div class="row clear zh">
+                        <div class="text">在现代生活中，各种便携式个人导航设备已经成为人们日常生活的不可或缺的一部分。作为美国军方专用的卫星导航定位系统，GPS已经被广泛应用于个人导航装置，在其信号状况良好时具有全方位实时定位功能，能提供准确的个人导航定位服务。但是，在浓密的深林、高楼林立的城市以及封闭的室内环境中，GPS接收机不能正常接收卫星信号，定位精度大大降低。为克服这些缺点，达到个人导航的连续性和可靠性，基于各种传感器(惯性传感器、超声波以及红外线传感器等)的组合导航系统应运而生。&lt;br&gt;　　
+ 本文研究开发一种由测向定位装置、计步器、液晶显示终端组合构成的个人...</div>
+                    </div>
+                    <div class="row clear fl">
+                        <div class="text">在现代生活中，各种便携式个人导航设备已经成为人们日常生活的不可或缺的一部分。作为美国军方专用的卫星导航定位系统，GPS已经被广泛应用于个人导航装置，在其信号状况良好时具有全方位实时定位功能，能提供准确的个人导航定位服务。但是，在浓密的深林、高楼林立的城市以及封闭的室内环境中，GPS接收机不能正常接收卫星信号，定位精度大大降低。为克服这些缺点，达到个人导航的连续性和可靠性，基于各种传感器(惯性传感器、超声波以及红外线传感器等)的组合导航系统应运而生。<br>　　
+ 本文研究开发一种由测向定位装置、计步器、液晶显示终端组合构成的个人导航仪，以体积小，成本低的MEMS器件为核心测量传感器，构造自治系统并实现连续的个人导航。测向定位装置捆绑于腰部，采用MEMS IMU及磁阻传感器实现高精度定向，结合计步器相关信息完成定位推算。计步器安装于脚部，利用三轴MEMS加速度计测量行人行进的加速度信号，估计行人步态的站立期、迈步期以及步数和步长。在站立期，测向定位装置根据计步器的输出采用零速校正算法(ZUPT)和零角速率校正算法(ZARU)以提高定向精度。在GPS信号正常时，测向定位装置接收GPS信息，并采用卡尔曼滤波算法估计系统误差，以提高定位精度。手持液晶显示终端采用CAN总线与测向定位装置通信，用于显示导航参数。<br>　　
+ 测向定位装置还设计了SD卡、语音输入输出、键盘等电路。SD卡用于存储导航数据便于用户在计算机上查看和复现自己的行走轨迹；语音输入输出电路用于提高导航仪的操作效率和丰富工作的人机接口；键盘电路用于控制计步器工作和语音播放。<br>　　
+ 为验证个人导航仪的定位性能，在室内环境下以正常的行走速度，进行了行走试验。通过对试验数据结果的分析，得出了个人导航仪设计方案具有较好准确性和可行性的结论。</div>
+                        <div class="pre expend-short">
+                            <span>展开</span>
+                            <i class="icon iconfont icon-arrow-down "></i>
+                        </div>
+                    </div>
+            </div>
+    </div>
+</div>
+<div class="fixed-width-wrap fixed-width-wrap-feild">
+    <div class="fixed-width baseinfo-feild">
+        
+        <div class="row">
+            <span class="pre">作者：</span>
+            <span class="text">
+<a href="http://s.wanfangdata.com.cn/Paper.aspx?q=%e4%bd%9c%e8%80%85%3a%22%e5%ba%9e%e6%99%97%22">庞晗</a>            </span>
+        </div>
+            <div class="row">
+        <span class="pre">学科专业：</span>
+        <span class="text"><a href="http://s.wanfangdata.com.cn/Paper.aspx?f=detail&amp;q=AuthorSubject%3a%e5%af%bc%e8%88%aa%e3%80%81%e5%88%b6%e5%af%bc%e4%b8%8e%e6%8e%a7%e5%88%b6+DBID%3aWF_XW">导航、制导与控制</a></span>
+    </div>
+
+            <div class="row">
+        <span class="pre">授予学位：</span>
+        <span class="text">硕士</span>
+    </div>
+
+        <div class="row">
+            <span class="pre">学位授予单位：</span>
+            <span class="text">
+<a href="http://s.wanfangdata.com.cn/Paper.aspx?f=detail&amp;q=School%3a%e5%93%88%e5%b0%94%e6%bb%a8%e5%b7%a5%e7%a8%8b%e5%a4%a7%e5%ad%a6+DBID%3aWF_XW">哈尔滨工程大学</a>            </span>
+        </div>
+        <div class="row">
+            <span class="pre">导师姓名：</span>
+            <span class="text">
+<a href="http://s.wanfangdata.com.cn/Paper.aspx?f=detail&amp;q=Teacher%3a%e5%88%98%e7%b9%81%e6%98%8e+DBID%3aWF_XW">刘繁明</a>            </span>
+        </div>
+            <div class="row">
+        <span class="pre">学位年度：</span>
+        <span class="text">2012</span>
+    </div>
+
+            <div class="row">
+        <span class="pre">语 种：</span>
+        <span class="text">chi</span>
+    </div>
+
+            <div class="row">
+        <span class="pre">分类号：</span>
+        <span class="text">TN967.1</span>
+    </div>
+
+            <div class="row row-keyword">
+                <span class="pre">关键词：</span>
+                <span class="text">
+<a href="http://s.wanfangdata.com.cn/Paper.aspx?f=detail&amp;q=%e5%85%b3%e9%94%ae%e8%af%8d%3a%22%e5%be%ae%e6%9c%ba%e7%94%b5%e7%b3%bb%e7%bb%9f%22+DBID%3aWF_XW">微机电系统</a><a href="http://trend.wanfangdata.com.cn/vein?wd=%e5%be%ae%e6%9c%ba%e7%94%b5%e7%b3%bb%e7%bb%9f" title="微机电系统的知识脉络"><img alt="知识脉络" src="./zsml.jpg"></a><a href="http://s.wanfangdata.com.cn/Paper.aspx?f=detail&amp;q=%e5%85%b3%e9%94%ae%e8%af%8d%3a%22MEMS%e6%83%af%e6%80%a7%e5%99%a8%e4%bb%b6%22+DBID%3aWF_XW">MEMS惯性器件</a><a href="http://trend.wanfangdata.com.cn/vein?wd=MEMS%e6%83%af%e6%80%a7%e5%99%a8%e4%bb%b6" title="MEMS惯性器件的知识脉络"><img alt="知识脉络" src="./zsml.jpg"></a><a href="http://s.wanfangdata.com.cn/Paper.aspx?f=detail&amp;q=%e5%85%b3%e9%94%ae%e8%af%8d%3a%22%e4%b8%aa%e4%ba%ba%e5%af%bc%e8%88%aa%e4%bb%aa%22+DBID%3aWF_XW">个人导航仪</a><a href="http://trend.wanfangdata.com.cn/vein?wd=%e4%b8%aa%e4%ba%ba%e5%af%bc%e8%88%aa%e4%bb%aa" title="个人导航仪的知识脉络"><img alt="知识脉络" src="./zsml.jpg"></a><a href="http://s.wanfangdata.com.cn/Paper.aspx?f=detail&amp;q=%e5%85%b3%e9%94%ae%e8%af%8d%3a%22%e5%8d%ab%e6%98%9f%e5%af%bc%e8%88%aa%e5%ae%9a%e4%bd%8d%e7%b3%bb%e7%bb%9f%22+DBID%3aWF_XW">卫星导航定位系统</a><a href="http://trend.wanfangdata.com.cn/vein?wd=%e5%8d%ab%e6%98%9f%e5%af%bc%e8%88%aa%e5%ae%9a%e4%bd%8d%e7%b3%bb%e7%bb%9f" title="卫星导航定位系统的知识脉络"><img alt="知识脉络" src="./zsml.jpg"></a><a href="http://s.wanfangdata.com.cn/Paper.aspx?f=detail&amp;q=%e5%85%b3%e9%94%ae%e8%af%8d%3a%22%e6%b5%8b%e9%87%8f%e4%bc%a0%e6%84%9f%e5%99%a8%22+DBID%3aWF_XW">测量传感器</a><a href="http://trend.wanfangdata.com.cn/vein?wd=%e6%b5%8b%e9%87%8f%e4%bc%a0%e6%84%9f%e5%99%a8" title="测量传感器的知识脉络"><img alt="知识脉络" src="./zsml.jpg"></a>                </span>
+            </div>
+        
+            <div class="row">
+        <span class="pre" title="&quot;论文在万方数据网站上(Online)公开出版的日期，即上线日期&quot;">在线出版日期：</span>
+        <span class="text">2013年4月26日</span>
+    </div>
+
+        
+    </div>
+</div>
+    <div class="citeRelation clear" data-url="/CiteRelation/Map" data-id="Y2236801" style="display: block;"><div class="refciteMap">
+        <div class="map-item cite cite1" data-url="/CiteRelation/Cite" data-mark="mark-cite1">
+            <div class="tt">引证文献</div>
+            <div class="count">(16)</div>
+        </div>
+        <div class="map-item cite cite2" data-url="/CiteRelation/Cite2" data-mark="mark-cite2">
+            <div class="tt">二级引证文献</div>
+            <div class="count">(16)</div>
+        </div>
+        <div class="map-item ref ref1" data-url="/CiteRelation/Ref" data-mark="mark-ref1">
+            <div class="tt">参考文献</div>
+            <div class="count">(26)</div>
+        </div>
+        <div class="map-item ref ref2" data-url="/CiteRelation/Ref2" data-mark="mark-ref2">
+            <div class="tt">二级参考文献</div>
+            <div class="count">(329)</div>
+        </div>
+        <div class="map-item same cite sameCite" data-url="/CiteRelation/SameCite" data-mark="mark-sameCite">
+            <div class="tt">同被引文献</div>
+            <div class="count">(295)</div>
+        </div>
+        <div class="map-item same ref sameRef" data-url="/CiteRelation/SameRef" data-mark="mark-sameRef">
+            <div class="tt">共引文献</div>
+            <div class="count">(647)</div>
+        </div>
+        <div class="map-item text" data-mark="mark-mtext">
+            <div class="tt">本文</div>
+        </div>
+        <div id="markLine"></div>
+    </div>
+    <div class="papers"></div></div>
+    <div class="md related">
+            <div class="hd-wrap wrap-expend wrap-expended clear">
+        <div class="hd clear">
+            <span class="title">相关知识</span>
+            <span class="expend expended clear">
+                <span class="text">收起</span>
+                <i class="icon iconfont icon-arrow-down "></i>
+            </span>
+        </div>
+    </div> 
+
+        <div class="bd">
+            <div class="tab-wrap">
+                <div class="tab">
+                    
+        
+    <span class="tab-item show active" data-target="similar">
+        <span class="text">相似文献</span>
+        <span class="count">(10)</span>
+    </span>    
+    <span class="tab-item show" data-target="blog">
+        <span class="text">相关博文</span>
+        <span class="count">(33)</span>
+    </span>    
+        
+    <span class="tab-item show" data-target="relatedResearcher">
+        <span class="text">相关学者</span>
+        <span class="count">(10)</span>
+    </span>    
+    <span class="tab-item show" data-target="relatedword">
+        <span class="text">相关检索词</span>
+        <span class="count">(20)</span>
+    </span>    
+                </div>
+            </div>
+            <div class="tab-target">
+                    
+                    <div class="related-item show" id="similar" data-url="/RelatedResource/Similar" data-param="{&quot;id&quot;:&quot;Thesis_Y2236801&quot;,&quot;Keywords&quot;:&quot;%5b%22%e5%be%ae%e6%9c%ba%e7%94%b5%e7%b3%bb%e7%bb%9f%22%2c%22MEMS%e6%83%af%e6%80%a7%e5%99%a8%e4%bb%b6%22%2c%22%e4%b8%aa%e4%ba%ba%e5%af%bc%e8%88%aa%e4%bb%aa%22%2c%22%e5%8d%ab%e6%98%9f%e5%af%bc%e8%88%aa%e5%ae%9a%e4%bd%8d%e7%b3%bb%e7%bb%9f%22%2c%22%e6%b5%8b%e9%87%8f%e4%bc%a0%e6%84%9f%e5%99%a8%22%5d&quot;}">
+    
+    <div class="paper-item ">
+            <a href="http://f.wanfangdata.com.cn/download/Thesis_Y2054055.aspx" class="left fulltext has-fulltext">全文</a>
+
+        <div class="right">
+            学位论文
+            <a href="http://d.wanfangdata.com.cn/Thesis/Y2054055">基于陀螺冗余的微惯性系统关键技术研究</a>
+
+            <span> - 2011</span>
+        </div>
+    </div>
+    <div class="paper-item ">
+            <a href="http://f.wanfangdata.com.cn/download/Periodical_htkz201303010.aspx" class="left fulltext has-fulltext">全文</a>
+
+        <div class="right">
+            期刊论文
+            <a href="http://d.wanfangdata.com.cn/Periodical/htkz201303010">磁强计辅助基于MEMS惯性器件SINS的初始对准方法研究</a>
+
+            <span>航天控制 - 2013, 31(3)</span>
+        </div>
+    </div>
+    <div class="paper-item ">
+            <a href="http://f.wanfangdata.com.cn/download/Thesis_Y2236651.aspx" class="left fulltext has-fulltext">全文</a>
+
+        <div class="right">
+            学位论文
+            <a href="http://d.wanfangdata.com.cn/Thesis/Y2236651">基于MEMS-IMU的捷联式惯性导航系统技术与实现研究</a>
+
+            <span> - 2012</span>
+        </div>
+    </div>
+    <div class="paper-item ">
+            <a href="http://f.wanfangdata.com.cn/download/Thesis_D416616.aspx" class="left fulltext has-fulltext">全文</a>
+
+        <div class="right">
+            学位论文
+            <a href="http://d.wanfangdata.com.cn/Thesis/D416616">微机电系统惯性测量装置温度稳定技术研究</a>
+
+            <span> - 2013</span>
+        </div>
+    </div>
+    <div class="paper-item ">
+            <a href="http://f.wanfangdata.com.cn/download/Thesis_Y2053211.aspx" class="left fulltext has-fulltext">全文</a>
+
+        <div class="right">
+            学位论文
+            <a href="http://d.wanfangdata.com.cn/Thesis/Y2053211">基于MEMS惯性器件的小型姿态测量系统设计</a>
+
+            <span> - 2011</span>
+        </div>
+    </div>
+    <div class="paper-item ">
+            <a href="http://f.wanfangdata.com.cn/download/Thesis_Y1489317.aspx" class="left fulltext has-fulltext">全文</a>
+
+        <div class="right">
+            学位论文
+            <a href="http://d.wanfangdata.com.cn/Thesis/Y1489317">MEMS惯性器件参数辨识及系统误差补偿技术</a>
+
+            <span> - 2009</span>
+        </div>
+    </div>
+    <div class="paper-item ">
+            <a href="http://f.wanfangdata.com.cn/download/Thesis_D687748.aspx" class="left fulltext has-fulltext">全文</a>
+
+        <div class="right">
+            学位论文
+            <a href="http://d.wanfangdata.com.cn/Thesis/D687748">MEMS惯性器件误差分析与补偿方法研究</a>
+
+            <span> - 2015</span>
+        </div>
+    </div>
+    <div class="paper-item ">
+            <a href="http://f.wanfangdata.com.cn/download/Conference_7345398.aspx" class="left fulltext has-fulltext">全文</a>
+
+        <div class="right">
+            会议论文
+            <a href="http://d.wanfangdata.com.cn/Conference/7345398">MEMS惯性器件的新进展及应用</a>
+
+            <span>2010年全国半导体器件技术研讨会 - 2010</span>
+        </div>
+    </div>
+    <div class="paper-item ">
+            <a href="http://f.wanfangdata.com.cn/download/Conference_7962639.aspx" class="left fulltext has-fulltext">全文</a>
+
+        <div class="right">
+            会议论文
+            <a href="http://d.wanfangdata.com.cn/Conference/7962639">硅基MEMS惯性器件系统集成技术</a>
+
+            <span>2011’全国半导体器件产业发展、创新产品和新技术研讨会 - 2011</span>
+        </div>
+    </div>
+    <div class="paper-item ">
+                <div class="left fulltext no-fulltext"></div>
+
+        <div class="right">
+            学位论文
+            <a href="http://d.wanfangdata.com.cn/Thesis/Y2961436">基于MEMS惯性器件的个人导航系统研究</a>
+
+            <span> - 2015</span>
+        </div>
+    </div>
+</div>
+                    <div class="related-item" id="blog" data-url="/RelatedResource/Blog" data-param="{&quot;id&quot;:&quot;Thesis_Y2236801&quot;,&quot;Keywords&quot;:&quot;%5b%22%e5%be%ae%e6%9c%ba%e7%94%b5%e7%b3%bb%e7%bb%9f%22%2c%22MEMS%e6%83%af%e6%80%a7%e5%99%a8%e4%bb%b6%22%2c%22%e4%b8%aa%e4%ba%ba%e5%af%bc%e8%88%aa%e4%bb%aa%22%2c%22%e5%8d%ab%e6%98%9f%e5%af%bc%e8%88%aa%e5%ae%9a%e4%bd%8d%e7%b3%bb%e7%bb%9f%22%2c%22%e6%b5%8b%e9%87%8f%e4%bc%a0%e6%84%9f%e5%99%a8%22%5d&quot;}">
+    
+        <div class="paper-item ">
+            <a href="http://www.sciencenet.cn/m/user_content.aspx?id=376893" target="_blank">
+                <img src="./blog_link.gif"></a>
+            <a href="http://www.sciencenet.cn/m/user_content.aspx?id=376893" target="_blank">推荐3本MEMS书籍</a>
+             - kexue - 2010年10月25日
+        </div>
+        <div class="paper-item ">
+            <a href="http://blog.sciencenet.cn/blog-278905-628244.html" target="_blank">
+                <img src="./blog_link.gif"></a>
+            <a href="http://blog.sciencenet.cn/blog-278905-628244.html" target="_blank">微观在握---不可小看的微机电系统</a>
+             - kexue - 2012年11月1日
+        </div>
+        <div class="paper-item ">
+            <a href="http://blog.sciencenet.cn/home.php?mod=space&amp;uid=393548&amp;do=blog&amp;id=376893" target="_blank">
+                <img src="./blog_link.gif"></a>
+            <a href="http://blog.sciencenet.cn/home.php?mod=space&amp;uid=393548&amp;do=blog&amp;id=376893" target="_blank">推荐3本MEMS书籍</a>
+             - kexue
+        </div>
+        <div class="paper-item ">
+            <a href="http://blog.sciencenet.cn/blog-278905-627601.html" target="_blank">
+                <img src="./blog_link.gif"></a>
+            <a href="http://blog.sciencenet.cn/blog-278905-627601.html" target="_blank">小如蚂蚁—硅的新时代</a>
+             - kexue - 2012年10月30日
+        </div>
+        <div class="paper-item ">
+            <a href="http://www.sciencenet.cn/m/user_content.aspx?id=403413" target="_blank">
+                <img src="./blog_link.gif"></a>
+            <a href="http://www.sciencenet.cn/m/user_content.aspx?id=403413" target="_blank">全球最畅销的MEMS书籍介绍给大家</a>
+             - kexue - 2011年1月11日
+        </div>
+        <div class="paper-item ">
+            <a href="http://blog.sciencenet.cn/blog-1557-746331.html" target="_blank">
+                <img src="./blog_link.gif"></a>
+            <a href="http://blog.sciencenet.cn/blog-1557-746331.html" target="_blank">得益于尺度减小的技术及其他</a>
+             - 武夷山 - 2013年12月2日
+        </div>
+        <div class="paper-item ">
+            <a href="http://blog.sciencenet.cn/blog-393548-403413.html" target="_blank">
+                <img src="./blog_link.gif"></a>
+            <a href="http://blog.sciencenet.cn/blog-393548-403413.html" target="_blank">全球最畅销的MEMS书籍介绍给大家</a>
+             - kexue - 2011年1月11日
+        </div>
+        <div class="paper-item ">
+            <a href="http://blog.sciencenet.cn/blog-207251-243976.html" target="_blank">
+                <img src="./blog_link.gif"></a>
+            <a href="http://blog.sciencenet.cn/blog-207251-243976.html" target="_blank">学术文章的几种类型</a>
+             - kexue - 2009年7月17日
+        </div>
+        <div class="paper-item ">
+            <a href="http://blog.sciencenet.cn/blog-249512-284934.html" target="_blank">
+                <img src="./blog_link.gif"></a>
+            <a href="http://blog.sciencenet.cn/blog-249512-284934.html" target="_blank">微米级太阳能电池 小兵能立大功</a>
+             - kexue - 2010年1月7日
+        </div>
+        <div class="paper-item ">
+            <a href="http://blog.sciencenet.cn/blog-249512-301302.html" target="_blank">
+                <img src="./blog_link.gif"></a>
+            <a href="http://blog.sciencenet.cn/blog-249512-301302.html" target="_blank">[转载]任天堂勇超三星 成消费电子与手机用MEMS最大买家</a>
+             - kexue - 2010年3月9日
+        </div>
+        <div class="paper-item more">
+            <a href="http://blog.sciencenet.cn/home.php?mod=space&amp;uid=336909&amp;do=blog&amp;id=550175" target="_blank">
+                <img src="./blog_link.gif"></a>
+            <a href="http://blog.sciencenet.cn/home.php?mod=space&amp;uid=336909&amp;do=blog&amp;id=550175" target="_blank">CMOS单片集成MEMS无源器件——一种双赢的选择</a>
+             - kexue - 2012年3月21日
+        </div>
+        <div class="paper-item more">
+            <a href="http://blog.caing.com/article/11597/" target="_blank">
+                <img src="./blog_link.gif"></a>
+            <a href="http://blog.caing.com/article/11597/" target="_blank">应重视物联网的负面影响</a>
+             - 财新网 - 2010年7月9日
+        </div>
+        <div class="paper-item more">
+            <a href="http://blog.sciencenet.cn/home.php?mod=space&amp;uid=249512&amp;do=blog&amp;id=284934" target="_blank">
+                <img src="./blog_link.gif"></a>
+            <a href="http://blog.sciencenet.cn/home.php?mod=space&amp;uid=249512&amp;do=blog&amp;id=284934" target="_blank">微米级太阳能电池 小兵能立大功</a>
+             - kexue
+        </div>
+        <div class="paper-item more">
+            <a href="http://blog.sciencenet.cn/home.php?mod=space&amp;uid=249512&amp;do=blog&amp;id=301302" target="_blank">
+                <img src="./blog_link.gif"></a>
+            <a href="http://blog.sciencenet.cn/home.php?mod=space&amp;uid=249512&amp;do=blog&amp;id=301302" target="_blank">[转载]任天堂勇超三星 成消费电子与手机用MEMS最大买家</a>
+             - kexue
+        </div>
+        <div class="paper-item more">
+            <a href="http://blog.sciencenet.cn/home.php?mod=space&amp;uid=393548&amp;do=blog&amp;id=403413" target="_blank">
+                <img src="./blog_link.gif"></a>
+            <a href="http://blog.sciencenet.cn/home.php?mod=space&amp;uid=393548&amp;do=blog&amp;id=403413" target="_blank">全球最畅销的MEMS书籍介绍给大家</a>
+             - kexue
+        </div>
+        <div class="paper-item more">
+            <a href="http://blog.sciencenet.cn/home.php?mod=space&amp;uid=207251&amp;do=blog&amp;id=243976" target="_blank">
+                <img src="./blog_link.gif"></a>
+            <a href="http://blog.sciencenet.cn/home.php?mod=space&amp;uid=207251&amp;do=blog&amp;id=243976" target="_blank">学术文章的几种类型</a>
+             - kexue
+        </div>
+        <div class="paper-item more">
+            <a href="http://blog.sciencenet.cn/home.php?mod=space&amp;uid=215064&amp;do=blog&amp;id=282276" target="_blank">
+                <img src="./blog_link.gif"></a>
+            <a href="http://blog.sciencenet.cn/home.php?mod=space&amp;uid=215064&amp;do=blog&amp;id=282276" target="_blank">(转载）日立制作所与日立粉末冶金开发出能在400℃以下粘接的无铅玻璃</a>
+             - kexue
+        </div>
+        <div class="paper-item more">
+            <a href="http://www.51xuewen.com/blog/b_ashow.aspx?blog=lingzhi&amp;id=24289" target="_blank">
+                <img src="./blog_link.gif"></a>
+            <a href="http://www.51xuewen.com/blog/b_ashow.aspx?blog=lingzhi&amp;id=24289" target="_blank">交大的一篇NATURE</a>
+             - lingzhi - 2010年1月21日
+        </div>
+        <div class="paper-item more">
+            <a href="http://www.51xuewen.com/blog/b_ashow.aspx?blog=fulongyuan&amp;id=29109" target="_blank">
+                <img src="./blog_link.gif"></a>
+            <a href="http://www.51xuewen.com/blog/b_ashow.aspx?blog=fulongyuan&amp;id=29109" target="_blank">长寿命传感器（100322）</a>
+             - fulongyuan - 2010年3月30日
+        </div>
+        <div class="paper-item more">
+            <a href="http://www.sciencenet.cn/m/user_content.aspx?id=394829" target="_blank">
+                <img src="./blog_link.gif"></a>
+            <a href="http://www.sciencenet.cn/m/user_content.aspx?id=394829" target="_blank">难忘的历程：回顾申办TRANSDUCERS'11国际会议</a>
+             - kexue - 2010年12月18日
+        </div>
+        <div class="paper-item more">
+            <a href="http://www.sciencenet.cn/m/user_content.aspx?id=284934" target="_blank">
+                <img src="./blog_link.gif"></a>
+            <a href="http://www.sciencenet.cn/m/user_content.aspx?id=284934" target="_blank">微米级太阳能电池 小兵能立大功</a>
+             - kexue - 2010年1月7日
+        </div>
+        <div class="paper-item more">
+            <a href="http://www.sciencenet.cn/m/user_content.aspx?id=301302" target="_blank">
+                <img src="./blog_link.gif"></a>
+            <a href="http://www.sciencenet.cn/m/user_content.aspx?id=301302" target="_blank">[转载]任天堂勇超三星 成消费电子与手机用MEMS最大买家</a>
+             - kexue - 2010年3月9日
+        </div>
+        <div class="paper-item more">
+            <a href="http://www.sciencenet.cn/m/user_content.aspx?id=371136" target="_blank">
+                <img src="./blog_link.gif"></a>
+            <a href="http://www.sciencenet.cn/m/user_content.aspx?id=371136" target="_blank">[转载]日立将使用MEMS技术制造平板显示器</a>
+             - kexue - 2010年10月8日
+        </div>
+        <div class="paper-item more">
+            <a href="http://www.sciencenet.cn/m/user_content.aspx?id=243976" target="_blank">
+                <img src="./blog_link.gif"></a>
+            <a href="http://www.sciencenet.cn/m/user_content.aspx?id=243976" target="_blank">学术文章的几种类型</a>
+             - kexue - 2009年7月17日
+        </div>
+        <div class="paper-item more">
+            <a href="http://www.sciencenet.cn/m/user_content.aspx?id=282276" target="_blank">
+                <img src="./blog_link.gif"></a>
+            <a href="http://www.sciencenet.cn/m/user_content.aspx?id=282276" target="_blank">(转载）日立制作所与日立粉末冶金开发出能在400℃以下粘接的无铅玻璃</a>
+             - kexue - 2009年12月29日
+        </div>
+        <div class="paper-item more">
+            <a href="http://www.sciencenet.cn/m/user_content.aspx?id=360297" target="_blank">
+                <img src="./blog_link.gif"></a>
+            <a href="http://www.sciencenet.cn/m/user_content.aspx?id=360297" target="_blank">纳米科技网站上的纳米艺术资源</a>
+             - 沈海军 - 2010年9月7日
+        </div>
+        <div class="paper-item more">
+            <a href="http://www.sciencenet.cn/blog/user_content.aspx?id=311987" target="_blank">
+                <img src="./blog_link.gif"></a>
+            <a href="http://www.sciencenet.cn/blog/user_content.aspx?id=311987" target="_blank">我喜欢教学</a>
+             - 刘建林 - 2010年4月14日
+        </div>
+        <div class="paper-item more">
+            <a href="http://www.sciencenet.cn/blog/user_content.aspx?id=263711" target="_blank">
+                <img src="./blog_link.gif"></a>
+            <a href="http://www.sciencenet.cn/blog/user_content.aspx?id=263711" target="_blank">表面浸润的内在机制：最小作用量原理</a>
+             - 刘建林 - 2009年10月20日
+        </div>
+        <div class="paper-item more">
+            <a href="http://www.sciencenet.cn/blog/user_content.aspx?id=260421" target="_blank">
+                <img src="./blog_link.gif"></a>
+            <a href="http://www.sciencenet.cn/blog/user_content.aspx?id=260421" target="_blank">SCI收录期刊——纳米科学与纳米技术学科</a>
+             - 万跃华 - 2009年10月8日
+        </div>
+        <div class="paper-item more">
+            <a href="http://www.sciencenet.cn/blog/user_content.aspx?id=214334" target="_blank">
+                <img src="./blog_link.gif"></a>
+            <a href="http://www.sciencenet.cn/blog/user_content.aspx?id=214334" target="_blank">国家重点基础研究发展计划2009年度重要支持方向（材料、纳米领域）</a>
+             - 李江 - 2009年2月11日
+        </div>
+        <div class="paper-item more">
+            <a href="http://www.sciencenet.cn/blog/user_content.aspx?id=213169" target="_blank">
+                <img src="./blog_link.gif"></a>
+            <a href="http://www.sciencenet.cn/blog/user_content.aspx?id=213169" target="_blank">机械工程学科三年平均影响因子前20位期刊</a>
+             - 万跃华 - 2009年2月6日
+        </div>
+        <div class="paper-item more">
+            <a href="http://www.sciencenet.cn/blog/user_content.aspx?id=28583" target="_blank">
+                <img src="./blog_link.gif"></a>
+            <a href="http://www.sciencenet.cn/blog/user_content.aspx?id=28583" target="_blank">共享和思考"留学是实现人生转折的重大机遇"</a>
+             - 刘景海 - 2008年6月11日
+        </div>
+        <div class="paper-item more">
+            <a href="http://www.sciencenet.cn/blog/user_content.aspx?id=224845" target="_blank">
+                <img src="./blog_link.gif"></a>
+            <a href="http://www.sciencenet.cn/blog/user_content.aspx?id=224845" target="_blank">比较高校机械类专业——专业与就业谈</a>
+             - 张莹 - 2009年4月7日
+        </div>
+    <button class="expend btn"><span class="text">更多</span><i>＋</i></button>
+</div>
+                    
+                    <div class="related-item" id="relatedResearcher" data-url="" data-param="[&quot;微机电系统&quot;,&quot;MEMS惯性器件&quot;]"><a class="keyword-item" target="_blank" href="http://social.wanfangdata.com.cn/Locate.ashx?ArticleId=sjdzyqj200110010&amp;Name=%E5%91%A8%E5%85%86%E8%8B%B1">周兆英</a><a class="keyword-item" target="_blank" href="http://social.wanfangdata.com.cn/Locate.ashx?ArticleId=cqdxxb-shkx200503001&amp;Name=%E9%BB%84%E5%B0%9A%E5%BB%89">黄尚廉</a><a class="keyword-item" target="_blank" href="http://social.wanfangdata.com.cn/Locate.ashx?ArticleId=hkgyjs200824007&amp;Name=%E6%9D%8E%E5%9C%A3%E6%80%A1">李圣怡</a><a class="keyword-item" target="_blank" href="http://social.wanfangdata.com.cn/Locate.ashx?ArticleId=nmjsyjmgc200401001&amp;Name=%E8%83%A1%E5%B0%8F%E5%94%90">胡小唐</a><a class="keyword-item" target="_blank" href="http://social.wanfangdata.com.cn/Locate.ashx?ArticleId=wndzjs200501007&amp;Name=%E8%B5%B5%E5%B0%8F%E6%9E%97">赵小林</a><a class="keyword-item" target="_blank" href="http://social.wanfangdata.com.cn/Locate.ashx?ArticleId=zhjc200307003&amp;Name=%E5%AD%99%E7%AB%8B%E5%AE%81">孙立宁</a><a class="keyword-item" target="_blank" href="http://social.wanfangdata.com.cn/Locate.ashx?ArticleId=tianjdxxb200301008&amp;Name=%E5%BC%A0%E5%9B%BD%E9%9B%84">张国雄</a><a class="keyword-item" target="_blank" href="http://social.wanfangdata.com.cn/Locate.ashx?ArticleId=zght201004011&amp;Name=%E5%B0%A4%E6%94%BF">尤政</a><a class="keyword-item" target="_blank" href="http://social.wanfangdata.com.cn/Locate.ashx?ArticleId=dllgdxxb200005001&amp;Name=%E7%8E%8B%E7%AB%8B%E9%BC%8E">王立鼎</a><a class="keyword-item" target="_blank" href="http://social.wanfangdata.com.cn/Locate.ashx?ArticleId=gnclyqjxb200001001&amp;Name=%E7%8E%8B%E8%B7%83%E6%9E%97">王跃林</a></div>
+                    <div class="related-item" id="relatedword" data-url="/RelatedResource/RelatedWord" data-param="{&quot;seed&quot;:&quot;%e5%9c%a8%e7%8e%b0%e4%bb%a3%e7%94%9f%e6%b4%bb%e4%b8%ad%ef%bc%8c%e5%90%84%e7%a7%8d%e4%be%bf%e6%90%ba%e5%bc%8f%e4%b8%aa%e4%ba%ba%e5%af%bc%e8%88%aa%e8%ae%be%e5%a4%87%e5%b7%b2%e7%bb%8f%e6%88%90%e4%b8%ba%e4%ba%ba%e4%bb%ac%e6%97%a5%e5%b8%b8%e7%94%9f%e6%b4%bb%e7%9a%84%e4%b8%8d%e5%8f%af%e6%88%96%e7%bc%ba%e7%9a%84%e4%b8%80%e9%83%a8%e5%88%86%e3%80%82%e4%bd%9c%e4%b8%ba%e7%be%8e%e5%9b%bd%e5%86%9b%e6%96%b9%e4%b8%93%e7%94%a8%e7%9a%84%e5%8d%ab%e6%98%9f%e5%af%bc%e8%88%aa%e5%ae%9a%e4%bd%8d%e7%b3%bb%e7%bb%9f%ef%bc%8cGPS%e5%b7%b2%e7%bb%8f%e8%a2%ab%e5%b9%bf%e6%b3%9b%e5%ba%94%e7%94%a8%e4%ba%8e%e4%b8%aa%e4%ba%ba%e5%af%bc%e8%88%aa%e8%a3%85%e7%bd%ae%ef%bc%8c%e5%9c%a8%e5%85%b6%e4%bf%a1%e5%8f%b7%e7%8a%b6%e5%86%b5%e8%89%af%e5%a5%bd%e6%97%b6%e5%85%b7%e6%9c%89%e5%85%a8%e6%96%b9%e4%bd%8d%e5%ae%9e%e6%97%b6%e5%ae%9a%e4%bd%8d%e5%8a%9f%e8%83%bd%ef%bc%8c%e8%83%bd%e6%8f%90%e4%be%9b%e5%87%86%e7%a1%ae%e7%9a%84%e4%b8%aa%e4%ba%ba%e5%af%bc%e8%88%aa%e5%ae%9a%e4%bd%8d%e6%9c%8d%e5%8a%a1%e3%80%82%e4%bd%86%e6%98%af%ef%bc%8c%e5%9c%a8%e6%b5%93%e5%af%86%e7%9a%84%e6%b7%b1%e6%9e%97%e3%80%81%e9%ab%98%e6%a5%bc%e6%9e%97%e7%ab%8b%e7%9a%84%e5%9f%8e%e5%b8%82%e4%bb%a5%e5%8f%8a%e5%b0%81%e9%97%ad%e7%9a%84%e5%ae%a4%e5%86%85%e7%8e%af%e5%a2%83%e4%b8%ad%ef%bc%8cGPS%e6%8e%a5%e6%94%b6%e6%9c%ba%e4%b8%8d%e8%83%bd%e6%ad%a3%e5%b8%b8%e6%8e%a5%e6%94%b6%e5%8d%ab%e6%98%9f%e4%bf%a1%e5%8f%b7%ef%bc%8c%e5%ae%9a%e4%bd%8d%e7%b2%be%e5%ba%a6%e5%a4%a7%e5%a4%a7%e9%99%8d%e4%bd%8e%e3%80%82%e4%b8%ba%e5%85%8b%e6%9c%8d%e8%bf%99%e4%ba%9b%e7%bc%ba%e7%82%b9%ef%bc%8c%e8%be%be%e5%88%b0%e4%b8%aa%e4%ba%ba%e5%af%bc%e8%88%aa%e7%9a%84%e8%bf%9e%e7%bb%ad%e6%80%a7%e5%92%8c%e5%8f%af%e9%9d%a0%e6%80%a7%ef%bc%8c%e5%9f%ba%e4%ba%8e%e5%90%84%e7%a7%8d%e4%bc%a0%e6%84%9f%e5%99%a8(%e6%83%af%e6%80%a7%e4%bc%a0%e6%84%9f%e5%99%a8%e3%80%81%e8%b6%85%e5%a3%b0%e6%b3%a2%e4%bb%a5%e5%8f%8a%e7%ba%a2%e5%a4%96%e7%ba%bf%e4%bc%a0%e6%84%9f%e5%99%a8%e7%ad%89)%e7%9a%84%e7%bb%84%e5%90%88%e5%af%bc%e8%88%aa%e7%b3%bb%e7%bb%9f%e5%ba%94%e8%bf%90%e8%80%8c%e7%94%9f%e3%80%82%3cbr%3e%e3%80%80%e3%80%80%0a+%e6%9c%ac%e6%96%87%e7%a0%94%e7%a9%b6%e5%bc%80%e5%8f%91%e4%b8%80%e7%a7%8d%e7%94%b1%e6%b5%8b%e5%90%91%e5%ae%9a%e4%bd%8d%e8%a3%85%e7%bd%ae%e3%80%81%e8%ae%a1%e6%ad%a5%e5%99%a8%e3%80%81%e6%b6%b2%e6%99%b6%e6%98%be%e7%a4%ba%e7%bb%88%e7%ab%af%e7%bb%84%e5%90%88%e6%9e%84%e6%88%90%e7%9a%84%e4%b8%aa%e4%ba%ba%e5%af%bc%e8%88%aa%e4%bb%aa%ef%bc%8c%e4%bb%a5%e4%bd%93%e7%a7%af%e5%b0%8f%ef%bc%8c%e6%88%90%e6%9c%ac%e4%bd%8e%e7%9a%84MEMS%e5%99%a8%e4%bb%b6%e4%b8%ba%e6%a0%b8%e5%bf%83%e6%b5%8b%e9%87%8f%e4%bc%a0%e6%84%9f%e5%99%a8%ef%bc%8c%e6%9e%84%e9%80%a0%e8%87%aa%e6%b2%bb%e7%b3%bb%e7%bb%9f%e5%b9%b6%e5%ae%9e%e7%8e%b0%e8%bf%9e%e7%bb%ad%e7%9a%84%e4%b8%aa%e4%ba%ba%e5%af%bc%e8%88%aa%e3%80%82%e6%b5%8b%e5%90%91%e5%ae%9a%e4%bd%8d%e8%a3%85%e7%bd%ae%e6%8d%86%e7%bb%91%e4%ba%8e%e8%85%b0%e9%83%a8%ef%bc%8c%e9%87%87%e7%94%a8MEMS+IMU%e5%8f%8a%e7%a3%81%e9%98%bb%e4%bc%a0%e6%84%9f%e5%99%a8%e5%ae%9e%e7%8e%b0%e9%ab%98%e7%b2%be%e5%ba%a6%e5%ae%9a%e5%90%91%ef%bc%8c%e7%bb%93%e5%90%88%e8%ae%a1%e6%ad%a5%e5%99%a8%e7%9b%b8%e5%85%b3%e4%bf%a1%e6%81%af%e5%ae%8c%e6%88%90%e5%ae%9a%e4%bd%8d%e6%8e%a8%e7%ae%97%e3%80%82%e8%ae%a1%e6%ad%a5%e5%99%a8%e5%ae%89%e8%a3%85%e4%ba%8e%e8%84%9a%e9%83%a8%ef%bc%8c%e5%88%a9%e7%94%a8%e4%b8%89%e8%bd%b4MEMS%e5%8a%a0%e9%80%9f%e5%ba%a6%e8%ae%a1%e6%b5%8b%e9%87%8f%e8%a1%8c%e4%ba%ba%e8%a1%8c%e8%bf%9b%e7%9a%84%e5%8a%a0%e9%80%9f%e5%ba%a6%e4%bf%a1%e5%8f%b7%ef%bc%8c%e4%bc%b0%e8%ae%a1%e8%a1%8c%e4%ba%ba%e6%ad%a5%e6%80%81%e7%9a%84%e7%ab%99%e7%ab%8b%e6%9c%9f%e3%80%81%e8%bf%88%e6%ad%a5%e6%9c%9f%e4%bb%a5%e5%8f%8a%e6%ad%a5%e6%95%b0%e5%92%8c%e6%ad%a5%e9%95%bf%e3%80%82%e5%9c%a8%e7%ab%99%e7%ab%8b%e6%9c%9f%ef%bc%8c%e6%b5%8b%e5%90%91%e5%ae%9a%e4%bd%8d%e8%a3%85%e7%bd%ae%e6%a0%b9%e6%8d%ae%e8%ae%a1%e6%ad%a5%e5%99%a8%e7%9a%84%e8%be%93%e5%87%ba%e9%87%87%e7%94%a8%e9%9b%b6%e9%80%9f%e6%a0%a1%e6%ad%a3%e7%ae%97%e6%b3%95(ZUPT)%e5%92%8c%e9%9b%b6%e8%a7%92%e9%80%9f%e7%8e%87%e6%a0%a1%e6%ad%a3%e7%ae%97%e6%b3%95(ZARU)%e4%bb%a5%e6%8f%90%e9%ab%98%e5%ae%9a%e5%90%91%e7%b2%be%e5%ba%a6%e3%80%82%e5%9c%a8GPS%e4%bf%a1%e5%8f%b7%e6%ad%a3%e5%b8%b8%e6%97%b6%ef%bc%8c%e6%b5%8b%e5%90%91%e5%ae%9a%e4%bd%8d%e8%a3%85%e7%bd%ae%e6%8e%a5%e6%94%b6GPS%e4%bf%a1%e6%81%af%ef%bc%8c%e5%b9%b6%e9%87%87%e7%94%a8%e5%8d%a1%e5%b0%94%e6%9b%bc%e6%bb%a4%e6%b3%a2%e7%ae%97%e6%b3%95%e4%bc%b0%e8%ae%a1%e7%b3%bb%e7%bb%9f%e8%af%af%e5%b7%ae%ef%bc%8c%e4%bb%a5%e6%8f%90%e9%ab%98%e5%ae%9a%e4%bd%8d%e7%b2%be%e5%ba%a6%e3%80%82%e6%89%8b%e6%8c%81%e6%b6%b2%e6%99%b6%e6%98%be%e7%a4%ba%e7%bb%88%e7%ab%af%e9%87%87%e7%94%a8CAN%e6%80%bb%e7%ba%bf%e4%b8%8e%e6%b5%8b%e5%90%91%e5%ae%9a%e4%bd%8d%e8%a3%85%e7%bd%ae%e9%80%9a%e4%bf%a1%ef%bc%8c%e7%94%a8%e4%ba%8e%e6%98%be%e7%a4%ba%e5%af%bc%e8%88%aa%e5%8f%82%e6%95%b0%e3%80%82%3cbr%3e%e3%80%80%e3%80%80%0a+%e6%b5%8b%e5%90%91%e5%ae%9a%e4%bd%8d%e8%a3%85%e7%bd%ae%e8%bf%98%e8%ae%be%e8%ae%a1%e4%ba%86SD%e5%8d%a1%e3%80%81%e8%af%ad%e9%9f%b3%e8%be%93%e5%85%a5%e8%be%93%e5%87%ba%e3%80%81%e9%94%ae%e7%9b%98%e7%ad%89%e7%94%b5%e8%b7%af%e3%80%82SD%e5%8d%a1%e7%94%a8%e4%ba%8e%e5%ad%98%e5%82%a8%e5%af%bc%e8%88%aa%e6%95%b0%e6%8d%ae%e4%be%bf%e4%ba%8e%e7%94%a8%e6%88%b7%e5%9c%a8%e8%ae%a1%e7%ae%97%e6%9c%ba%e4%b8%8a%e6%9f%a5%e7%9c%8b%e5%92%8c%e5%a4%8d%e7%8e%b0%e8%87%aa%e5%b7%b1%e7%9a%84%e8%a1%8c%e8%b5%b0%e8%bd%a8%e8%bf%b9%ef%bc%9b%e8%af%ad%e9%9f%b3%e8%be%93%e5%85%a5%e8%be%93%e5%87%ba%e7%94%b5%e8%b7%af%e7%94%a8%e4%ba%8e%e6%8f%90%e9%ab%98%e5%af%bc%e8%88%aa%e4%bb%aa%e7%9a%84%e6%93%8d%e4%bd%9c%e6%95%88%e7%8e%87%e5%92%8c%e4%b8%b0%e5%af%8c%e5%b7%a5%e4%bd%9c%e7%9a%84%e4%ba%ba%e6%9c%ba%e6%8e%a5%e5%8f%a3%ef%bc%9b%e9%94%ae%e7%9b%98%e7%94%b5%e8%b7%af%e7%94%a8%e4%ba%8e%e6%8e%a7%e5%88%b6%e8%ae%a1%e6%ad%a5%e5%99%a8%e5%b7%a5%e4%bd%9c%e5%92%8c%e8%af%ad%e9%9f%b3%e6%92%ad%e6%94%be%e3%80%82%3cbr%3e%e3%80%80%e3%80%80%0a+%e4%b8%ba%e9%aa%8c%e8%af%81%e4%b8%aa%e4%ba%ba%e5%af%bc%e8%88%aa%e4%bb%aa%e7%9a%84%e5%ae%9a%e4%bd%8d%e6%80%a7%e8%83%bd%ef%bc%8c%e5%9c%a8%e5%ae%a4%e5%86%85%e7%8e%af%e5%a2%83%e4%b8%8b%e4%bb%a5%e6%ad%a3%e5%b8%b8%e7%9a%84%e8%a1%8c%e8%b5%b0%e9%80%9f%e5%ba%a6%ef%bc%8c%e8%bf%9b%e8%a1%8c%e4%ba%86%e8%a1%8c%e8%b5%b0%e8%af%95%e9%aa%8c%e3%80%82%e9%80%9a%e8%bf%87%e5%af%b9%e8%af%95%e9%aa%8c%e6%95%b0%e6%8d%ae%e7%bb%93%e6%9e%9c%e7%9a%84%e5%88%86%e6%9e%90%ef%bc%8c%e5%be%97%e5%87%ba%e4%ba%86%e4%b8%aa%e4%ba%ba%e5%af%bc%e8%88%aa%e4%bb%aa%e8%ae%be%e8%ae%a1%e6%96%b9%e6%a1%88%e5%85%b7%e6%9c%89%e8%be%83%e5%a5%bd%e5%87%86%e7%a1%ae%e6%80%a7%e5%92%8c%e5%8f%af%e8%a1%8c%e6%80%a7%e7%9a%84%e7%bb%93%e8%ae%ba%e3%80%82&quot;,&quot;pagename&quot;:&quot;Paper.aspx&quot;}">
+
+    <a class="keyword-item" target="_blank" href="http://s.wanfangdata.com.cn/Paper.aspx?n=10&amp;q=%E5%AE%89%E8%A3%85&amp;f=detail.keyword">安装</a>
+    <a class="keyword-item" target="_blank" href="http://s.wanfangdata.com.cn/Paper.aspx?n=10&amp;q=%E8%AF%AD%E9%9F%B3&amp;f=detail.keyword">语音</a>
+    <a class="keyword-item" target="_blank" href="http://s.wanfangdata.com.cn/Paper.aspx?n=10&amp;q=%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%A1%88&amp;f=detail.keyword">设计方案</a>
+    <a class="keyword-item" target="_blank" href="http://s.wanfangdata.com.cn/Paper.aspx?n=10&amp;q=mems&amp;f=detail.keyword">mems</a>
+    <a class="keyword-item" target="_blank" href="http://s.wanfangdata.com.cn/Paper.aspx?n=10&amp;q=%E5%87%86%E7%A1%AE%E6%80%A7&amp;f=detail.keyword">准确性</a>
+    <a class="keyword-item" target="_blank" href="http://s.wanfangdata.com.cn/Paper.aspx?n=10&amp;q=%E9%AB%98%E7%B2%BE%E5%BA%A6&amp;f=detail.keyword">高精度</a>
+    <a class="keyword-item" target="_blank" href="http://s.wanfangdata.com.cn/Paper.aspx?n=10&amp;q=%E6%A0%A1%E6%AD%A3&amp;f=detail.keyword">校正</a>
+    <a class="keyword-item" target="_blank" href="http://s.wanfangdata.com.cn/Paper.aspx?n=10&amp;q=%E6%B6%B2%E6%99%B6&amp;f=detail.keyword">液晶</a>
+    <a class="keyword-item" target="_blank" href="http://s.wanfangdata.com.cn/Paper.aspx?n=10&amp;q=%E5%AF%BC%E8%88%AA&amp;f=detail.keyword">导航</a>
+    <a class="keyword-item" target="_blank" href="http://s.wanfangdata.com.cn/Paper.aspx?n=10&amp;q=%E5%8A%A0%E9%80%9F%E5%BA%A6&amp;f=detail.keyword">加速度</a>
+    <a class="keyword-item" target="_blank" href="http://s.wanfangdata.com.cn/Paper.aspx?n=10&amp;q=%E5%AD%98%E5%82%A8&amp;f=detail.keyword">存储</a>
+    <a class="keyword-item" target="_blank" href="http://s.wanfangdata.com.cn/Paper.aspx?n=10&amp;q=%E7%BA%A2%E5%A4%96%E7%BA%BF&amp;f=detail.keyword">红外线</a>
+    <a class="keyword-item" target="_blank" href="http://s.wanfangdata.com.cn/Paper.aspx?n=10&amp;q=%E5%AE%9A%E4%BD%8D%E7%B2%BE%E5%BA%A6&amp;f=detail.keyword">定位精度</a>
+    <a class="keyword-item" target="_blank" href="http://s.wanfangdata.com.cn/Paper.aspx?n=10&amp;q=%E7%B3%BB%E7%BB%9F%E8%AF%AF%E5%B7%AE&amp;f=detail.keyword">系统误差</a>
+    <a class="keyword-item" target="_blank" href="http://s.wanfangdata.com.cn/Paper.aspx?n=10&amp;q=gis&amp;f=detail.keyword">gis</a>
+    <a class="keyword-item" target="_blank" href="http://s.wanfangdata.com.cn/Paper.aspx?n=10&amp;q=%E8%BF%9E%E7%BB%AD%E6%80%A7&amp;f=detail.keyword">连续性</a>
+    <a class="keyword-item" target="_blank" href="http://s.wanfangdata.com.cn/Paper.aspx?n=10&amp;q=%E6%97%A5%E5%B8%B8%E7%94%9F%E6%B4%BB&amp;f=detail.keyword">日常生活</a>
+    <a class="keyword-item" target="_blank" href="http://s.wanfangdata.com.cn/Paper.aspx?n=10&amp;q=%E6%B6%B2%E6%99%B6%E6%98%BE%E7%A4%BA&amp;f=detail.keyword">液晶显示</a>
+    <a class="keyword-item" target="_blank" href="http://s.wanfangdata.com.cn/Paper.aspx?n=10&amp;q=%E5%B0%81%E9%97%AD&amp;f=detail.keyword">封闭</a>
+    <a class="keyword-item" target="_blank" href="http://s.wanfangdata.com.cn/Paper.aspx?n=10&amp;q=%E4%BE%BF%E6%90%BA%E5%BC%8F&amp;f=detail.keyword">便携式</a>
+</div>
+            </div>
+        </div>
+    </div>  
+
+
+
+    <div class="footer-wrap">
+        <div class="lt-bg"></div>
+        <div class="rt-bg"></div>
+        <div class="footer clear">
+            <div class="lt">
+                <div class="top">
+                    <a target="_blank" href="http://www.wanfangdata.com.cn/NewGuide">帮助</a>
+                    <a target="_blank" href="http://www.wanfangdata.com.cn/CustomerService/Services">客户服务</a>
+                    <a target="_blank" href="http://www.sojump.com/jq/4550749.aspx">问卷调查</a>
+                    <a target="_blank" href="http://www.wanfangdata.com.cn/AboutUs/index">关于我们</a>
+                    <a target="_blank" href="http://www.wanfang.com.cn/">公司首页</a>
+                    <a target="_blank" href="http://weibo.com/wanfangdata">平台微博</a>
+                    <a target="_blank" href="http://wanfangdata.zhiye.com/">加入我们</a>
+                    <a target="_blank" href="http://www.wanfangdata.com.cn/Sitemap">网站地图</a>
+                    <a id="langCN" data-lang="zn-CN" class="lang">简</a>
+                    <a id="langTW" data-lang="zn-TW" class="lang">繁</a>
+                    <a id="langEN" data-lang="EN" href="http://www.wanfangdata.com/" target="_blank">ENG</a>
+                </div>
+                <div class="bottom">
+                    <div>
+                        <a target="_blank" href="http://ad.wanfangdata.com.cn/images/hlwcb.jpg">互联网出版许可证：新出网证(京)字042号</a>
+                        <a target="_blank" href="http://ad.wanfangdata.com.cn/images/zhengshu_2.jpg">互联网药品信息服务资格证书号：(京)-经营性-2011-0017</a>
+                        <a target="_blank" href="http://ad.wanfangdata.com.cn/images/stjmxkz2.jpg">信息网络传播视听节目许可证 许可证号：0108284 </a>
+                    </div>
+                    <div>
+                        <a target="_blank" href="http://ad.wanfangdata.com.cn/images/icp.jpg">京ICP证：010071</a>
+                        <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=11010802020237"><img src="./gabeian.png" style="margin-right:2px;">京公网安备11010802020237号</a>
+<a target="_blank" href="http://ad.wanfangdata.com.cn/images/yunicp.jpg">万方数据知识资源云服务系统[简称：知识云服务平台]V1.0 证书号：软著登字第1016589号</a>
+                    </div>
+                    <p>万方数据知识服务平台--国家科技支撑计划资助项目（编号：2006BAH03B01）©北京万方数据股份有限公司  万方数据电子出版社</p>
+                </div>
+            </div>
+            <div class="rt">
+                <div class="top">
+                    <i class="icon icon-service"></i>
+                    <span>联系客服</span>
+                </div>
+                <ul class="contactus">
+                             <li><i class="contactus-online"></i><a onclick="onlineService(&#39;http://www.wanfangdata.com.cn/&#39;)">在线客服</a></li>
+                             <li><i class="contactus-tel"></i>4000115888</li>
+                             <li><i class="contactus-email"></i>service@wanfangdata.com.cn</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+<script type="text/javascript" charset="utf-8" src="./wf.service-1.3.js"></script>
+                            
+                            
+    <!--[if lt IE 9 ]><script src="http://static.wanfangdata.com.cn/wfks/lib/json2.min.js?v=201610091258" type="text/javascript"></script><![endif]-->
+    <script src="./index"></script>
+    <script src="./global.min.js" type="text/javascript"></script><span role="status" aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible"></span>
+    <script type="text/javascript">
+        (function () {
+            wf.header.resource.init({ id: 'xw' });
+            wf.exporter.init();
+            wf.fixbox.init();
+            wf.share.init();
+            wf.related.init();
+            var changeText = function () {
+                this.text(this.text() === '展开' ? '收起' : '展开');
+            }
+            $('.abstract .expend').click(function () {
+                $(this).toggleClass('expended').next('.text').slideToggle(300);
+            });
+            $('.abstract-short .expend-short').click(function () {
+                var $this = $(this),
+                    $text = $this.find('span');
+                changeText.call($text);
+                $this.parent().prev('.row').toggle();
+                $this.toggleClass('expended').prev('.text').toggle();
+            });
+            $('.related .expend').click(function () {
+                var $this = $(this),
+                    $text = $this.find('.text'),
+                    $hd = $this.toggleClass('expended').parent().parent();
+                if (!$hd.hasClass('wrap-expend')) { $hd.addClass('wrap-expend'); }
+                $hd.toggleClass('wrap-expended').next('.bd').slideToggle(300);
+                changeText.call($text);
+            });
+        })();
+    </script><div class="fix-box"><div class="fix-box-item goto-top-box"><i class="icon icon-goto-top"></i><div class="text">回到顶部</div></div><a class="fix-box-item export-box" target="exportWin" href="http://s.wanfangdata.com.cn/Export/Export.aspx" style="display: none;"><div class="count"></div><div class="text">已导出</div></a></div>
+    
+    <script src="./citeRelation.min.js" type="text/javascript"></script>
+        <script>wf.citenotice.init();</script>
+    <!--[if lt IE 8]><script>(function(){var timer=setInterval(function(){var items=$('.citeRelation .refciteMap .map-item');if(items.length>0){clearInterval(timer);$.each(items,function(){var $this=$(this),groupCls=$this.hasClass('ref')?'ref':$this.hasClass('cite')?'cite':'';markCls='clone-'+($this.data('mark')?$this.data('mark').slice(5):'mtext');$newitem=$this.clone().removeClass().addClass(markCls).addClass('clone-map').addClass(groupCls);$(this).html('');$newitem.appendTo('.refciteMap')})}},100)})();</script><![endif]-->
+
+
+    <script src="./userSuggestion.min.js" type="text/javascript"></script>
+
+
+<div id="UserSuggestion"><a id="suggestionTag" style="cursor: pointer;background-image:url(http://static.wanfangdata.com.cn/wfks/module/userSuggestion/eximg.jpg);width: 55px;height: 128px;top: 260px;right: 0;z-index: 300;position: fixed;"></a><iframe name="suggestionForm" id="suggestionForm" allowtransparency="true" src="./Edit.html" style="display:none;width: 485px;height: 350px;top: 200px;right: 40px;position: fixed;background-color: transparent;" frameborder="no" border="0" marginwidth="0" marginheight="0" scrolling="no"></iframe></div></body></html>

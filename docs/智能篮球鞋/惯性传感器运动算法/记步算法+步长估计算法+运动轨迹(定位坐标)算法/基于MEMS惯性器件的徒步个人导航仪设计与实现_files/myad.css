@@ -1,0 +1,234 @@
+@charset "utf-8";
+/* CSS Document */
+
+
+/* 侧栏通用定位 */
+.left-ad{
+    position: fixed;
+    z-index: 9;
+    top: 100px;
+    left: 5px;
+    width: 120px;
+    display:none;
+    _position: absolute;                                       /*IE6 用absolute模拟fixed*/
+    _top: expression(documentElement.scrollTop + 100 + "px"); /*IE6 动态设置top位置*/
+    _left:5px;
+}
+
+
+
+/* 2014年双11淘宝天猫广告 */
+
+
+.double11-2014 .hint{
+    position: relative;
+    margin: 10px 0 0;
+    padding: 5px 0 0;
+    top: 0;
+    left: 0;
+    width: 50px;
+    background: #ec1c43;
+    text-align: center;
+}
+.double11-2014 .hint .rerun{
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    width: 10px;
+    height: 10px;
+    background: url(/assets/images/myad/double11-2014/rerun.png) no-repeat;
+}
+.double11-2014 .hint .close{
+    display: block;
+    height: 16px;
+    padding: 1px 0 0;
+    border: solid 1px #ccc;
+    border-top: none;
+    background: #f9f9f9;
+    text-decoration: none;
+    color: #999;
+}
+
+.double11-2014 .design1{
+    background:url(/assets/images/myad/double11-2014/design-bg1.png) repeat;
+    _background: #4c4c4c;
+    cursor: pointer;
+}
+
+
+.double11-2014 .design1 .myadlogo1{padding: 10px;}
+.double11-2014 .design1 .myadlogo2{
+    padding: 20px 0;
+    background: #ec1c43;
+    text-align: center;
+}
+
+.double11-2014 .design1 .myadlist{
+    position: relative;
+}
+.double11-2014 .design1 .myadlist li{
+    margin-bottom: 1px;
+    padding: 0 10px;
+    background: url(/assets/images/myad/double11-2014/myadlist-li1.png);
+    _background: #707070;
+    line-height: 30px;
+    color: white;
+    cursor: pointer;
+}
+.double11-2014 .design1 .myadlist li:hover{
+    background: url(/assets/images/myad/double11-2014/myadlist-li2.png);
+    _background: #5e5e5e;
+}
+.double11-2014 .design1 .myadlist li a{
+    position: relative;
+    display: block;
+    background: url(/assets/images/myad/double11-2014/moreico.png) no-repeat right center;
+    color: white;
+    zoom:1;
+    text-decoration: none;
+}
+
+.double11-2014 .topic1{
+    height: 30px;
+    background: #ec1c43 url(/assets/images/myad/double11-2014/logo11.png) no-repeat left;
+    color: white;
+}
+.double11-2014 .topic1 .close{
+    float: right;
+    margin: 7.5px 5px 0 0;
+    width: 15px;
+    height: 15px;
+    background: url(/assets/images/myad/double11-2014/close15.png) no-repeat;
+}
+.double11-2014 .topic1 .close:hover{background-position: 0 -15px;}
+
+.double11-2014 .design2{
+    margin-top: 220px;
+    background: #ec1c43;
+    cursor: pointer;
+}
+.double11-2014 .design2 .myadimg{
+    padding: 1px;
+}
+.double11-2014 .design2 .myadlogo2{
+    padding: 10px 0;
+    background: #ec1c43;
+    text-align: center;
+}
+
+
+/* 2015年4月个人、机构认证 */
+
+.vipApril2015{
+    border: solid 1px #f90;
+    background-color: white;
+    background-image: url(/assets/images/myad/VipApril2015/allbg.png);
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.vipApril2015 .hint{
+    height: 30px;
+    padding: 0 0 0 5px;
+    line-height: 28px;
+    background: #f90;
+    color: white;
+    font-size: 14px;
+}
+.vipApril2015 .hint .close{
+    float: right;
+    width: 14px;
+    height: 14px;
+    margin: 8px 5px 0 0;
+    background: url(/assets/images/myad/close.png) no-repeat;
+    opacity: .1;
+    filter: alpha(opacity=10);
+}
+.vipApril2015 .hint .close:hover{
+    opacity: .3;
+    filter: alpha(opacity=30);
+}
+
+.vip-u-dl,
+.vip-o-dl{
+    padding: 15px 5px;
+    text-align: center;
+
+}
+.vip-u-dl{padding-top: 30px;}
+.vip-u-dl dt{
+    font-size: 24px;
+    font-weight: bold;
+    color: #00a0e9;
+}
+.vip-u-dl dd,
+.vip-o-dl dd{
+    font-size: 16px;
+    color: #666;
+}
+
+.vip-o-dl{
+    position: relative;
+    border: solid 1px #f90;
+    border-top-width: 2px;
+    border-bottom: none;
+    margin-top: 20px;
+    margin-bottom: 0;
+}
+.vip-o-dl legend{
+    padding: 0 5px;
+    font-size: 20px;
+    font-weight: bold;
+    line-height: 100%;
+}
+
+.vip-s-dl{
+    padding: 10px 0;
+    border: solid 1px #f90;
+    border-top: none;
+}
+
+.vip-u-btn,
+.vip-o-btn{
+    display: block;
+    margin: 0 5px 15px 5px;
+    height: 30px;
+    border-radius: 4px;
+    color: white !important;
+    line-height: 30px;
+    text-align: center;
+    font-size: 16px;
+}
+.vip-u-btn{background: #f90;}
+.vip-o-btn{background: #00a0e9;}
+.vip-u-btn:hover,
+.vip-o-btn:hover{text-decoration: none;}
+.vip-u-btn:hover{background: #fa0;}
+.vip-o-btn:hover{background: #30acfc;}
+
+
+
+/*2016任务推广*/
+.taskMarket{
+    width: 130px;
+    height: 260px;
+    background: url(/assets/images/myad/taskMarket2016/Left.png) no-repeat;
+    /*border: 1px solid #f60;*/
+    cursor: pointer;
+    display:block;
+}
+.left-ad .close{
+    float: right;
+    width: 14px;
+    height: 14px;
+    background: url(/assets/images/myad/close.png) no-repeat;
+    opacity: .1;
+    filter: alpha(opacity=10);
+    position: absolute;
+    display:block;
+    right:-4px;
+    top:6px;
+}
+.left-ad .close:hover{
+    opacity: .3;
+    filter: alpha(opacity=30);
+}

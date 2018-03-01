@@ -1,0 +1,125 @@
+void stepDetectionAndstepLength(FLT accMod, U32* time)   //accMod is the input of accel absolute value
+{
+    S8 slope; //slope of the accelerometer waveform
+    FLT stride;  // stride length of the step
+    U8 points = 0;
+    stride = 0;
+
+    if ((accMod - step.preMod) > 0)
+    {
+        slope = 1;
+    }
+    else
+    {
+        slope = -1;
+    }
+
+    if (mode_det.mode == WALK)
+    {
+        modeThreshhold = (FLT)0.3 * accel_sample_rate;
+        stepModThresh = (FLT)10.1;
+        initialStep = 0;
+        initialWalkDistance = 0;
+    }
+    else if (mode_det.mode == RUN)
+    {
+        modeThreshhold = (FLT)0.2 * accel_sample_rate;
+        stepModThresh = (FLT)10.8;
+        initialStep = 0;
+        initialWalkDistance = 0;
+    }
+
+    if ((step.preSlope > 0) && (slope < 0) && (step.windowCnt >= modeThreshhold) && (accMod >= stepModThresh))
+    {
+        if ((step.preMod - valley) <= stepAmpThresh)
+        {
+            step.flag = 0;
+            step.windowCnt++;
+        }
+        else
+        {
+            vellay = step.preMod;
+            step.count++;
+            step.flag = 1;
+            points = step.windowCnt;
+            step.windowCnt = 1;
+        }
+
+        if (stepFlag == 0 && step.flag)
+        {
+            step.count = step.count + initialStep;
+            step.walkDistance = step.walkDistance + initialWalkDistance;
+            stepFlag = 1;
+        }
+
+        step.preSlope = slope;
+        step.preMod = accMod;
+    }
+    else
+    {
+        if (valley > accMod)
+        {
+            valley = accMod;
+        }
+
+        step.preSlope = slope;
+        step.windowCnt++;
+        step.preMod = accMod;
+        step.flag = 0;
+    }
+
+    if (step.flag == 1)
+    {
+        step.frequencyCnt++;
+
+        if (step.frequencyCnt >= 10)
+        {
+            step.frequencyCnt = 10;
+        }
+
+        step.frequency = (FLT)50 / points;
+
+        switch (mode_det.mode)
+        {
+        case WALK:
+            if (step.frequency < 2)
+            {
+                stride = (FLT)(0.64);  //default slow step length
+            }
+
+            if (step.frequency >= 2 && step.frequency < 2.8)
+            {
+                stride = (FLT)(0.2802 * step.frequency + 0.09376);  //empirical equation 
+            }
+            else
+            {
+                stride = (FLT)0.878;   //default fast step length
+            }
+
+            break;
+
+        case RUN:
+            if (step.frequency < 3)
+            {
+                stride = (FLT)(0.75);
+            }
+
+            if (step.frequency >= 3 && step.frequency < 3.4)
+            {
+                stride = (FLT)(0.9222 * step.frequency - 1.981);
+            }
+            else
+            {
+                stride = (FLT)1.15;
+            }
+
+            break;
+
+        default:
+            break;
+        }
+
+        step.walkDistance += stride;
+        step.preStepTime = *time;
+    }
+}

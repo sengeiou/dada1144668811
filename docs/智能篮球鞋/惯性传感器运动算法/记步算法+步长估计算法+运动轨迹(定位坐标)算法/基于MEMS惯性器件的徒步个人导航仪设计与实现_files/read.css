@@ -1,0 +1,193 @@
+﻿@charset "utf-8";
+/* CSS Document */
+
+a{color:#146c88;}
+
+/* 阅读页面顶部操作中的样式 Top Shop Css */
+.readshop{
+	position:relative;
+	z-index:1;
+	height:35px;
+	border-top:solid 1px #eee;
+	border-bottom:solid 1px #ccc;
+	background:#eee;
+    box-shadow:0 1px 3px rgba(0,0,0,0.1);
+}
+/* End */
+.readshop .shop1,
+.readshop .shop2,
+.readshop .shop3{
+	float:left;
+	height:35px;
+	border-right:solid 1px #ccc;
+	padding:0 5px;
+}
+.readshop li{float:left; padding: 3px 5px 0;}
+.readshop li a{
+    display: block;
+    height:26px;
+    padding: 0 5px;
+    border: solid 1px #eee;
+    border-radius: 3px;
+    background: #eee;
+    line-height:26px;
+    color:#333;
+    text-decoration: none;
+}
+.readshop li a:hover{
+    border-color: #ccc;
+    background: #f9f9f9;
+    color:#33bbd9;
+}
+.readshop li.disable a,
+.readshop li.disable a:hover{
+    color: #999;
+    border-color: #eee;
+    background: #eee;
+    cursor: default;
+}
+
+.readshop .shop1{padding-left:0;}
+.readshop .shop1 li.nobg{padding: 3px 10px 0 0;}
+
+.readshop .shop3 li.text{
+    padding: 5px 5px 0;
+    font-size: 14px;
+    line-height:24px;
+}
+.readshop .shop3 li.text input{
+	width:34px;
+	height:22px;
+    margin: 0;
+    padding: 0;
+	border:solid 1px #ccc;
+	background:white;
+    line-height: 22px;
+	text-align:center;
+	font-size:14px;
+	vertical-align:top;
+}
+.readshop .shop3 li.text input:focus{border-color:#f39800;}
+
+.readshop .shop4{
+    float:right;
+    height: 35px;
+    padding: 0 0 0 5px;
+}
+.readshop .share{border-right:solid 1px #ccc; padding: 0 8px 0 0;}
+.readshop .share li{padding: 3px 1px 0;}
+
+
+/* End */
+
+/* 文章标题以及内容 */
+.doctopic{position:relative; overflow:auto;}
+.doctopic h1{
+	float:left;
+	padding:6px;
+	font:16px/24px "微软雅黑";
+	color:#666;
+}
+.doctopic h1 img{
+	float:left;
+	width:24px;
+	height:24px;
+	margin:0 10px 0 0;
+}
+.doctopic .score{
+    float: right;
+    margin: 10px 50px 0 0;
+}
+.doctopic .starlevel{
+	padding:10px 0 0;
+}
+.docoutline{
+	display:none;
+	position:relative;
+	clear:left;
+	padding:10px;
+	border-top:dotted 1px #ccc;
+	line-height:2;
+	color:#666;
+}
+.docoutline .outline{text-indent:2em;}
+.docoutline .attribute{padding:10px 0 0; color:#999;}
+.docoutline .attribute span{padding:0 10px;}
+
+.doctopic .switch1{
+	position:absolute;
+	z-index:1;
+	right:5px;
+	top:8px;
+	width:24px;
+	height:24px;
+	cursor:pointer!important;
+}
+.doctopic .switch1{background:url(../images/icons/slideDown.png) no-repeat center;}
+.doctopic .switch2{background:url(../images/icons/slideUp.png) no-repeat center;}
+
+.document{
+	margin:0 auto;
+	width:650px;
+	padding:20px;
+	font-size:14px;
+	line-height:2;
+	color:#666;
+	text-indent:2em;
+}
+
+/* 缩略图模式 */
+.smallimg{overflow:hidden;display:none}
+.imgtxt07 li{
+	position:relative;
+	float:left;
+	background-color:white;
+	box-shadow:0 1px 5px rgba(0,0,0,0.3);
+	width:160px;
+	overflow:hidden;
+}
+.thumb_selected{border:solid 1px #f39800;}
+.thumb_normal{border:solid 1px #ccc;}
+.imgtxt07 em{
+	display:block;
+	position:absolute;
+	right:1px;
+	bottom:1px;
+	border-top-left-radius:5px;
+	background:rgba(0,0,0,0.5);
+	padding:2px 5px;
+	color:white;
+	font-family:Verdana, Geneva, sans-serif;
+	font-style:normal;
+	font-size:12px;
+}
+.imgtxt07 .thumb_over{
+	display:block;
+	position:absolute;
+	left:0px;
+	top:0px;
+	width:100%;
+	height:100%;
+	background:rgba(116,168,232,0.5);
+	
+}
+.imgtxt07 .thumb_out{
+	display:block;
+	position:absolute;
+	left:0px;
+	top:0px;
+	width:100%;
+	height:100%;
+}
+
+.it07w988 li,
+.it07w988 li img{}
+
+.it07w1020 li,
+.it07w1020 li img{}
+
+.it07w1220 li,
+.it07w1220 li img{}
+
+
+/* End*/

@@ -1,0 +1,1330 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0057)http://cdmd.cnki.com.cn/Article/CDMD-10217-1012517156.htm -->
+<html xmlns:user="http://dotnet.aspx.cc/"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <title>基于MEMS惯性器件的徒步个人导航仪设计与实现--《哈尔滨工程大学》2012年硕士论文</title>
+    <meta name="mobile-agent" content="format=html5;url=http://wap.cnki.net/touch/web/Dissertation/Article/10217-1012517156.nh.html">
+    <meta name="mobile-agent" content="format=xhtml; url=http://wap.cnki.net/lunwen-1012517156.nh.html">
+    <meta name="keywords" content="个人导航 MEMS惯性器件 计步器 卡尔曼滤波">
+    <meta name="autoKeywords" content="个人导航 MEMS惯性器件 计步器 卡尔曼滤波">
+    <meta name="description" content="个人导航 MEMS惯性器件 计步器 卡尔曼滤波">
+    <link href="./detail.css" rel="stylesheet" type="text/css">
+    <link href="./header.css" rel="stylesheet" type="text/css">
+    <link href="./footer.css" rel="stylesheet" type="text/css">
+    <link href="./window(1).css" rel="stylesheet" type="text/css">
+    <link href="./mycss.css" rel="stylesheet" type="text/css">
+    <link href="./searchyuanjian.css" rel="stylesheet" type="text/css"><script src="./jquery-1.8.2.min.js"></script></head>
+  <body>
+    <div class="float2"><img src="./ewm3.png" width="137" height="162"><a href="javascript:scroll(0,0)" class="fhdb"></a><a href="javascript:void(0)" class="close"></a></div><script>
+          $(function(){
+          $(window).scroll(function(){
+          var w_s = $(window).scrollTop();
+          if(w_s >1){
+          $('.float2 .fhdb').css({"display":"block"});
+          }else{
+          $('.float2 .fhdb').css({"display":"none"});
+          }
+          });
+          });
+        </script><script>
+          $(".float2 .close").click(
+          function(){
+          $(this).parent(".float2").fadeOut(300)
+          })
+
+        </script><script language="javascript" type="text/javascript" src="./adDetail1124.js"></script><div id="header948">
+      <div id="header948_t"><a href="http://www.cnki.com.cn/" id="logo"><img src="./cnkikjlogo.gif" width="396" height="56" border="0"></a><a id="shoucang" href="javascript:addfavorite();">收藏本站</a><div id="header948_t_link"><a href="http://my.cnki.net/CNKIRecharging/czzx.html" target="_blank" class="link1"><img src="./cnkikjheaderlink1.gif" width="71" height="24" border="0"></a><a href="http://card.cnki.net/" target="_blank" class="link2"><img src="./cnkikjheaderlink2.gif" width="80" height="24" border="0"></a><a href="http://vipcard.cnki.net/ec/service/xszn/xszn.html" target="_blank" class="link1"><img src="./cnkikjheaderlink9.gif" width="71" height="24" border="0"></a><a href="http://vipcard.cnki.net/ec/czzx/czgg/cjwt.html" target="_blank" class="link3"><img src="./cnkikjheaderlink3.gif" width="71" height="24" border="0"></a><div class="cl"></div><a href="http://card.cnki.net/" target="_blank" class="link4"><img src="./cnkikjheaderlink4.gif" width="71" height="24" border="0"></a><a href="http://www.cnki.net/software/xzydq.htm" target="_blank" class="link5"><img src="./cnkikjheaderlink5.gif" width="80" height="24" border="0"></a><a href="http://ad.cnki.net/index.aspx" target="_blank" class="link4"><img src="./cnkikjheaderlink8.gif" width="71" height="24" border="0"></a><a href="http://en.cnki.com.cn/" target="_blank" class="link6"><img src="./cnkikjheaderlink6.gif" width="71" height="24" border="0"></a></div>
+      </div>
+      <div class="cl"></div>
+      <div id="nav948">
+        <div id="nav948_left"></div>
+        <div id="nav948_center">
+          <ul>
+            <li><a href="http://www.cnki.com.cn/" target="_blank" id="nava0" class="nava_1">首页</a></li>
+            <li><img src="./headernavlibg4.gif" width="2" height="37" border="0"></li>
+            <li id="header_cjfd"><a href="http://www.cnki.com.cn/CJFD/CJFD_index.htm" id="nava1" class="nava_2">期刊全文库</a></li>
+            <li><img src="./headernavlibg4.gif" width="2" height="37" border="0"></li>
+            <li id="header_cdmd" class="navon"><a href="http://cdmd.cnki.com.cn/" id="nava2" class="nava_2">学位论文库</a></li>
+            <li><img src="./headernavlibg4.gif" width="2" height="37" border="0"></li>
+            <li id="header_cpfd"><a href="http://cpfd.cnki.com.cn/" id="nava3" class="nava_2">会议论文库</a></li>
+            <li><img src="./headernavlibg4.gif" width="2" height="37" border="0"></li>
+            <li><a href="http://cyfd.cnki.com.cn/" target="_blank" id="nava4" class="nava_2">年鉴全文库</a></li>
+            <li><img src="./headernavlibg4.gif" width="2" height="37" border="0"></li>
+            <li><a href="http://wiki.cnki.com.cn/" target="_blank" id="nava5" class="nava_2">学术百科</a></li>
+            <li><img src="./headernavlibg4.gif" width="2" height="37" border="0"></li>
+            <li><a href="http://mall.cnki.net/reference/" target="_blank" id="nava6" class="nava_2">工具书</a></li>
+            <li><img src="./headernavlibg4.gif" width="2" height="37" border="0"></li>
+            <li><a href="http://xuewen.cnki.net/" target="_blank" id="nava7" class="nava_2">CNKI学问</a></li>
+          </ul>
+          <div class="menuctrl"><span><a href="http://my.cnki.net/elibregister/CommonRegister.aspx" target="_blank">注册</a></span><span>|</span><span><a href="http://my.cnki.net/" target="_blank">登录</a></span><span>|</span><span><a href="http://my.cnki.net/" target="_blank">我的账户</a></span></div>
+        </div>
+        <div id="nav948_right"></div>
+      </div>
+      <div id="nav948_b"><a href="http://www.cnki.com.cn/Navi/A.htm" target="_blank">基础科学</a>|<a href="http://www.cnki.com.cn/Navi/B.htm" target="_blank">工程科技I辑</a>|<a href="http://www.cnki.com.cn/Navi/C.htm" target="_blank">工程科技II辑</a>|<a href="http://www.cnki.com.cn/Navi/E.htm" target="_blank">医药卫生科技</a>|<a href="http://www.cnki.com.cn/Navi/I.htm" target="_blank">信息科技</a>|<a href="http://www.cnki.com.cn/Navi/D.htm" target="_blank">农业科技</a>|<a href="http://www.cnki.com.cn/Navi/F.htm" target="_blank">哲学与人文科学</a>|<a href="http://www.cnki.com.cn/Navi/G.htm" target="_blank">社会科学I辑</a>|<a href="http://www.cnki.com.cn/Navi/H.htm" target="_blank">社会科学II辑</a>|<a href="http://www.cnki.com.cn/Navi/J.htm" target="_blank">经济管理</a></div>
+      <div id="header948_b">
+        <div id="header948_b_c_yj">
+          <div class="headerbot">
+            <div class="head-wrap"><a href="http://yuanjian.cnki.com.cn/" target="_blank" class="yj-logo"></a><div class="head-fen clearfix" style="float:left;width:556px;overflow:hidden;">
+                <div class="search-item left">
+                  <div class="clearfix choose positionR">
+                    <div class="xiugai clearfix word5">
+                      <div class="selectwrap" id="selectwrap">
+                        <div class="select"><input id="txt_word" class="left" size="100" type="text" value="" onkeydown="if(event.keyCode==13)document.getElementById(&#39;searchbtn&#39;).focus();" onmousedown="if(this.value==&#39;输入关键词&#39;) this.value=&#39;&#39;;"></div>
+                        <div class="searchwrap positionA"><a class="search" href="javascript:void(0)" onclick="YuanJianSearch();" id="searchbtn">远见搜索</a></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="ad-right"><a href="http://bianke.cnki.net/" target="_blank"><img src="./dcbk0913.jpg" width="260" height="58"></a></div>
+          </div>
+          <div style="display:none"><script src="./stat.php" language="javascript" charset="gb2312" type="text/javascript"></script><script src="./core.php" charset="utf-8" type="text/javascript"></script></div>
+        </div>
+      </div>
+    </div><div id="_uuid_im_3029_" style="display: none;"></div><script language="javascript">
+      change_color();
+      function YuanJianSearch()
+      {
+      var kw = document.getElementById('txt_word').value;
+      if (kw == '输入关键词') {
+      window.open('http://yuanjian.cnki.com.cn/Search/Result?content=' + escape(document.getElementById('txt_word').value));
+      }
+      else if (kw == '') {
+      window.open('http://yuanjian.cnki.com.cn/');
+      }
+      else {
+      window.open('http://yuanjian.cnki.com.cn/Search/Result?content=' + escape(document.getElementById('txt_word').value));
+      }
+      }
+      function YuanJianSearch_back()
+      {
+      var kw = document.getElementById('txt_word').value;
+      if (kw == '输入关键词') {
+      window.open('http://search.cnki.com.cn/search.aspx?q=' + escape(document.getElementById('txt_word').value));
+      }
+      else if (kw == '') {
+      window.open('http://search.cnki.com.cn/');
+      }
+      else {
+      window.open('http://search.cnki.com.cn/search.aspx?q=' + escape(document.getElementById('txt_word').value));
+      }
+      }
+    </script><div id="content" style="width: 948px; margin: 0 auto;">
+      <div id="edff"></div>
+      <div style="width:740px; float:left; margin-left:5px;">
+        <div>
+          <div style="float:left;"><a href="http://cdmd.cnki.com.cn/Area/CDMDUnitArticle-10217-2012-1.htm" target="_blank"><b>
+										《哈尔滨工程大学》
+									</b><font color="#0080ff">2012年
+									</font></a></div>
+          <div style="float:right;"><a class="a05" href="http://cdmd.cnki.com.cn/Article/CDMD-10217-1012517156.htm#" onclick="return window.external.AddFavorite(document.location.href,&#39;基于MEMS惯性器件的徒步个人导航仪设计与实现&#39;);">加入收藏</a>  </div>
+        </div>
+        <div style="text-align:center; width:740px; font-size: 28px;color: #0000a0; font-weight:bold; font-family:&#39;宋体&#39;;">
+          <h1 class="xx_title">基于MEMS惯性器件的徒步个人导航仪设计与实现</h1>
+        </div>
+        <div style="text-align:center; width:740px; height:30px;"><a href="http://yuanjian.cnki.com.cn/Search/Result?author=%E5%BA%9E%E6%99%97" target="_blank">庞晗</a>  &nbsp;</div>
+        <div style="text-align:left;word-break:break-all" class="xx_font">
+          <font color="#000"><strong>【摘要】：</strong></font>在现代生活中，各种便携式个人导航设备已经成为人们日常生活的不可或缺的一部分。作为美国军方专用的卫星导航定位系统，GPS已经被广泛应用于个人导航装置，在其信号状况良好时具有全方位实时定位功能，能提供准确的个人导航定位服务。但是，在浓密的深林、高楼林立的城市以及封闭的室内环境中，GPS接收机不能正常接收卫星信号，定位精度大大降低。为克服这些缺点，达到个人导航的连续性和可靠性，基于各种传感器（惯性传感器、超声波以及红外线传感器等）的组合导航系统应运而生。
+
+	本文研究开发一种由测向定位装置、计步器、液晶显示终端组合构成的个人导航仪，以体积小，成本低的MEMS器件为核心测量传感器，构造自治系统并实现连续的个人导航。测向定位装置捆绑于腰部，采用MEMS IMU及磁阻传感器实现高精度定向，结合计步器相关信息完成定位推算。计步器安装于脚部，利用三轴MEMS加速度计测量行人行进的加速度信号，估计行人步态的站立期、迈步期以及步数和步长。在站立期，测向定位装置根据计步器的输出采用零速校正算法(ZUPT)和零角速率校正算法(ZARU)以提高定向精度。在GPS信号正常时，测向定位装置接收GPS信息，并采用卡尔曼滤波算法估计系统误差，以提高定位精度。手持液晶显示终端采用CAN总线与测向定位装置通信，用于显示导航参数。
+
+	测向定位装置还设计了SD卡、语音输入输出、键盘等电路。SD卡用于存储导航数据便于用户在计算机上查看和复现自己的行走轨迹；语音输入输出电路用于提高导航仪的操作效率和丰富工作的人机接口；键盘电路用于控制计步器工作和语音播放。
+
+	为验证个人导航仪的定位性能，在室内环境下以正常的行走速度，进行了行走试验。通过对试验数据结果的分析，得出了个人导航仪设计方案具有较好准确性和可行性的结论。</div>
+        <div style="text-align:left;" class="xx_font">
+          <font color="#000"><strong>【关键词】：</strong></font><a href="http://yuanjian.cnki.com.cn/Search/Result?keyword=%E4%B8%AA%E4%BA%BA%E5%AF%BC%E8%88%AA" target="_blank"><strong>个人导航</strong></a>  <a href="http://yuanjian.cnki.com.cn/Search/Result?keyword=MEMS%E6%83%AF%E6%80%A7%E5%99%A8%E4%BB%B6" target="_blank"><strong>MEMS惯性器件</strong></a>  <a href="http://yuanjian.cnki.com.cn/Search/Result?keyword=%E8%AE%A1%E6%AD%A5%E5%99%A8" target="_blank"><strong>计步器</strong></a>  <a href="http://yuanjian.cnki.com.cn/Search/Result?keyword=%E5%8D%A1%E5%B0%94%E6%9B%BC%E6%BB%A4%E6%B3%A2" target="_blank"><strong>卡尔曼滤波</strong></a>  <br><font color="#000"><strong>【学位授予单位】：</strong></font>哈尔滨工程大学<br><font color="#000"><strong>【学位级别】：</strong></font>硕士<br><font color="#000"><strong>【学位授予年份】：</strong></font>2012<br><font color="#000"><strong>【分类号】：</strong></font>TN966;TP211.4<br><font color="#000"><strong>【目录】：</strong></font>
+          <div style="width:740px;_width:650px;float:left;margin-left:5px;">
+            <div id="catalog">
+              <ul>
+                <li><span>摘要</span><span id="rightwhite">5-6</span></li><li><span>Abstract</span><span id="rightwhite">6-11</span></li><li><span>第1章 绪论</span><span id="rightwhite">11-15</span></li><li><span>	1.1 课题背景与意义</span><span id="rightwhite">11-12</span></li><li><span>	1.2 国内外研究现状</span><span id="rightwhite">12-13</span></li><li><span>		1.2.1 国外研究现状</span><span id="rightwhite">12</span></li><li><span>		1.2.2 国内研究现状</span><span id="rightwhite">12-13</span></li><li><span>	1.3 论文主要内容及结构安排</span><span id="rightwhite">13-15</span></li><li><span>第2章 个人导航仪工作原理</span><span id="rightwhite">15-29</span></li><li><span>	2.1 坐标系统及坐标转换</span><span id="rightwhite">15-17</span></li><li><span>		2.1.1 坐标系统定义</span><span id="rightwhite">15-16</span></li><li><span>		2.1.2 坐标系转换</span><span id="rightwhite">16-17</span></li><li><span>	2.2 个人导航系统工作原理</span><span id="rightwhite">17</span></li><li><span>	2.3 计步器工作原理</span><span id="rightwhite">17-23</span></li><li><span>		2.3.1 行走步态特征分析</span><span id="rightwhite">17-19</span></li><li><span>		2.3.2 基于加速度计步算法</span><span id="rightwhite">19-20</span></li><li><span>		2.3.3 综合计步算法</span><span id="rightwhite">20-22</span></li><li><span>		2.3.4 步长估计算法</span><span id="rightwhite">22-23</span></li><li><span>	2.4 方向角算法原理</span><span id="rightwhite">23-25</span></li><li><span>		2.4.1 磁方向角解算原理</span><span id="rightwhite">23-24</span></li><li><span>		2.4.2 MEMS IMU 辅助磁方向角解算算法</span><span id="rightwhite">24-25</span></li><li><span>	2.5 数据优化及融合算法</span><span id="rightwhite">25-27</span></li><li><span>		2.5.1 徒步个人导航推算方程</span><span id="rightwhite">25</span></li><li><span>		2.5.2 导航数据融合算法</span><span id="rightwhite">25-27</span></li><li><span>	2.6 本章小结</span><span id="rightwhite">27-29</span></li><li><span>第3章 系统硬件电路设计</span><span id="rightwhite">29-51</span></li><li><span>	3.1 总体方案设计</span><span id="rightwhite">29-30</span></li><li><span>	3.2 测向定位装置设计与实现</span><span id="rightwhite">30-43</span></li><li><span>		3.2.1 主处理器</span><span id="rightwhite">30-31</span></li><li><span>		3.2.2 逻辑控制电路</span><span id="rightwhite">31-32</span></li><li><span>		3.2.3 姿态测量电路</span><span id="rightwhite">32-33</span></li><li><span>		3.2.4 磁阻传感器信号调理与采集电路</span><span id="rightwhite">33-35</span></li><li><span>		3.2.5 GPS 接收模块电路</span><span id="rightwhite">35-36</span></li><li><span>		3.2.6 程序存储器</span><span id="rightwhite">36-37</span></li><li><span>		3.2.7 数据存储器</span><span id="rightwhite">37-38</span></li><li><span>		3.2.8 液晶显示终端通信接口</span><span id="rightwhite">38</span></li><li><span>		3.2.9 异步通信接口</span><span id="rightwhite">38-39</span></li><li><span>		3.2.10 辅助功能扩展电路</span><span id="rightwhite">39-42</span></li><li><span>		3.2.11 电源电路</span><span id="rightwhite">42-43</span></li><li><span>	3.3 计步器设计与实现</span><span id="rightwhite">43-47</span></li><li><span>		3.3.1 主处理器</span><span id="rightwhite">43-44</span></li><li><span>		3.3.2 加速度信号采集与调理电路</span><span id="rightwhite">44-45</span></li><li><span>		3.3.3 计步器通信接口</span><span id="rightwhite">45-46</span></li><li><span>		3.3.4 数据存储电路</span><span id="rightwhite">46</span></li><li><span>		3.3.5 电源电路</span><span id="rightwhite">46-47</span></li><li><span>	3.4 液晶显示终端设计与实现</span><span id="rightwhite">47-50</span></li><li><span>		3.4.1 主处理器</span><span id="rightwhite">47-48</span></li><li><span>		3.4.2 液晶屏接口电路</span><span id="rightwhite">48-49</span></li><li><span>		3.4.3 电源电路</span><span id="rightwhite">49-50</span></li><li><span>	3.5 本章小结</span><span id="rightwhite">50-51</span></li><li><span>第4章 系统软件设计</span><span id="rightwhite">51-73</span></li><li><span>	4.1 测向定位装置软件</span><span id="rightwhite">51-67</span></li><li><span>		4.1.1 引导程序设计</span><span id="rightwhite">51-54</span></li><li><span>		4.1.2 主程序</span><span id="rightwhite">54-56</span></li><li><span>		4.1.3 MEMS IMU 通信程序</span><span id="rightwhite">56-57</span></li><li><span>		4.1.4 方向角解算程序</span><span id="rightwhite">57-59</span></li><li><span>		4.1.5 组合导航程序</span><span id="rightwhite">59-60</span></li><li><span>		4.1.6 液晶显示终端通信程序</span><span id="rightwhite">60-61</span></li><li><span>		4.1.7 异步通信程序</span><span id="rightwhite">61-63</span></li><li><span>		4.1.8 键盘程序</span><span id="rightwhite">63-64</span></li><li><span>		4.1.9 SD 卡存储数据程序</span><span id="rightwhite">64-67</span></li><li><span>	4.2 计步器软件</span><span id="rightwhite">67-70</span></li><li><span>		4.2.1 主程序程序</span><span id="rightwhite">68-69</span></li><li><span>		4.2.2 计步器算法程序</span><span id="rightwhite">69-70</span></li><li><span>		4.2.3 计步器通信程序</span><span id="rightwhite">70</span></li><li><span>	4.3 液晶显示终端软件</span><span id="rightwhite">70-72</span></li><li><span>		4.3.1 接收导航数据通信程序</span><span id="rightwhite">70-71</span></li><li><span>		4.3.2 液晶显示程序</span><span id="rightwhite">71-72</span></li><li><span>	4.4 本章小结</span><span id="rightwhite">72-73</span></li><li><span>第5章 系统测试与试验</span><span id="rightwhite">73-79</span></li><li><span>	5.1 计步器测试</span><span id="rightwhite">73-74</span></li><li><span>	5.2 系统场地试验</span><span id="rightwhite">74-77</span></li><li><span>	5.3 本章小结</span><span id="rightwhite">77-79</span></li><li><span>结论</span><span id="rightwhite">79-81</span></li><li><span>参考文献</span><span id="rightwhite">81-85</span></li><li><span>攻读硕士学位期间发表的论文和取得的科研成果</span><span id="rightwhite">85-87</span></li><li><span>致谢</span><span id="rightwhite">87</span></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div style="float:left;">
+          <div class="down" id="down_3" style="margin-left:165px;margin-top:20px;margin-bottom:5px;+margin-left:130px;">
+            <div id="down_tit"><a class="downon">下载全文</a><a href="http://epub.cnki.net/kns/default.aspx?code=cdmd&amp;f=%E5%85%A8%E6%96%87&amp;kw=%E4%B8%AA%E4%BA%BA%E5%AF%BC%E8%88%AA%20MEMS%E6%83%AF%E6%80%A7%E5%99%A8%E4%BB%B6" target="_blank" class="more">
+                  更多同类文献
+                </a></div>
+            <div class="cl"></div>
+            <div class="down_button" id="ty_caj"><a onclick="downArticle(this)" href="javascript:void(0)" data-fn="1012517156.nh" data-dbcode="CMFD" data-year="2012" data-dflag="cajdown">                  
+                  CAJ全文下载
+                </a></div>
+            <div class="cl"></div>
+            <p class="sp_1">
+                (<a href="http://cdmd.cnki.com.cn/hqqw.html" target="_blank">如何获取全文？</a><span style="color:red;"></span>  欢迎：<a href="http://vipcard.cnki.net/ec/sksm/CNKIApplyForm.aspx" target="_blank">购买知网充值卡</a>、<a href="http://my.cnki.net/CNKIRecharging/czzx.html" target="_blank">在线充值</a>、<a href="http://vipcard.cnki.net/ec/czzx/czgg/cjwt.html" id="online" target="_blank">在线咨询</a>)
+              </p>
+            <p class="sp_2"><a href="http://www.cnki.net/software/xzydq.htm" target="_blank">CAJViewer阅读器</a>支持CAJ、PDF文件格式
+              </p>
+          </div>
+        </div><br><div id="adtest" style="float:left;">
+          <div class="adList" style="width:740px;border-bottom:0px solid #427fc0"><script type="text/javascript" src="./GetADInfo.ashx"></script><div><div><a href="http://bianke.cnki.net/" target="_blank"><img src="./636185372935407500.jpg" border="0" width="740" height="90" alt="知网空间知网节页下载按钮下方广告位"></a><input id="G0010" type="hidden" value="CNKI"></div></div></div>
+        </div>
+        <div style="text-align:left;float:left;">
+          <div id="div_Ref">
+            <table width="740" border="0" cellspacing="0" cellpadding="0">
+              <tbody><tr>
+                <td width="2%" valign="bottom"></td>
+                <td rowspan="2" align="left" valign="bottom" class="b14" nowrap="">【参考文献】</td>
+                <td width="85%" height="38" align="right" valign="bottom" class="b21"></td>
+              </tr>
+              <tr>
+                <td width="2%" height="12" background="./zwj-xxxxx.gif"></td>
+                <td height="12" align="center" valign="middle" background="./zwj-xxxxx.gif" class="b14"></td>
+              </tr>
+            </tbody></table>
+            <table cellspacing="0" cellpadding="0" width="740" border="0">
+              <tbody>
+                <tr>
+                  <td colspan="2" height="10"></td>
+                </tr>
+                <tr>
+                  <td height="5"></td>
+                  <td height="5">
+                    <table cellspacing="0" cellpadding="0" width="100%" bgcolor="#427fc0" border="0">
+                      <tbody>
+                        <tr>
+                          <td width="73%" class="ban_list_l"><span class="b15"></span><span class="b16">中国期刊全文数据库</span></td>
+                          <td class="b17" align="right" width="27%"><span class="ban_list_l02">前10条
+                    </span></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td width="16" rowspan="2"></td>
+                  <td width="720">
+                    <table cellspacing="1" cellpadding="3" width="100%" bgcolor="#ffffff" border="0">
+                      <tbody>
+                        <tr>
+                          <td align="center" width="30">1</td>
+                          <td width="676">王建东;刘云辉;宋宝泉;蔡宣平;;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-DCYQ200611005.htm" target="_blank">行人导航系统设计与IMU模块数据预处理</a>[J];电测与仪表;2006年11期</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">2</td>
+                          <td width="676">欧阳骞,徐宏炳;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-DNXJ200405011.htm" target="_blank">基于嵌入式设备的个人导航系统的设计与实现</a>[J];电脑与信息技术;2004年05期</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">3</td>
+                          <td width="676">邵婷婷;马建仓;张永波;;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-DZCL200806038.htm" target="_blank">具有倾斜补偿功能的三轴磁阻电子罗盘研制</a>[J];电子测量技术;2008年06期</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">4</td>
+                          <td width="676">刘伟;闫玉华;;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-DZJY200810036.htm" target="_blank">基于CPLD译码的DSP二次Bootloader方法</a>[J];电子技术应用;2008年10期</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">5</td>
+                          <td width="676">田增山;朝磊;邢培基;苟举;;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-DZJY200912047.htm" target="_blank">行人导航系统中航迹推算参数估计方法的研究</a>[J];电子技术应用;2009年12期</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">6</td>
+                          <td width="676">郑利龙,曹志刚;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-DZXU200209033.htm" target="_blank">GPS组合导航系统的数据融合</a>[J];电子学报;2002年09期</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">7</td>
+                          <td width="676">吕晓明;段发阶;贾建禄;何梓宾;严海领;张聪;;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-GWDZ200706006.htm" target="_blank">TMS320VC55x系列DSP的Flash引导方法研究</a>[J];国外电子元器件;2007年06期</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">8</td>
+                          <td width="676">刘晓明;邵敏;万艳华;;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-GYKJ200806043.htm" target="_blank">基于TMS320VC5509A的SD卡文件系统的开发应用</a>[J];工业控制计算机;2008年06期</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">9</td>
+                          <td width="676">陈明义;王冠星;;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-HDZJ200808042.htm" target="_blank">TMS320VC55x系列DSP的程序串行引导和加密研究</a>[J];信息技术;2008年08期</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">10</td>
+                          <td width="676">于洁;王新龙;;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-HKBQ200806003.htm" target="_blank">SINS/GPS紧密组合导航系统仿真研究</a>[J];航空兵器;2008年06期</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <table cellspacing="0" cellpadding="0" width="740" border="0">
+              <tbody>
+                <tr>
+                  <td colspan="2" height="10"></td>
+                </tr>
+                <tr>
+                  <td height="5"></td>
+                  <td height="5">
+                    <table cellspacing="0" cellpadding="0" width="100%" bgcolor="#427fc0" border="0">
+                      <tbody>
+                        <tr>
+                          <td width="73%" class="ban_list_l"><span class="b15"></span><span class="b16">中国博士学位论文全文数据库</span></td>
+                          <td class="b17" align="right" width="27%"><span class="ban_list_l02">前2条</span></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td width="16" rowspan="2"></td>
+                  <td width="720">
+                    <table cellspacing="1" cellpadding="3" width="100%" bgcolor="#ffffff" border="0">
+                      <tbody>
+                        <tr>
+                          <td align="center" width="30">1</td>
+                          <td width="676">尚捷;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10003-2006066638.htm" target="_blank">MIMU及其与GPS组合系统设计与实验研究</a>[D];清华大学;2005年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">2</td>
+                          <td width="676">马云峰;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10286-2007031849.htm" target="_blank">MSINS/GPS组合导航系统及其数据融合技术研究</a>[D];东南大学;2006年</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <table cellspacing="0" cellpadding="0" width="740" border="0">
+              <tbody>
+                <tr>
+                  <td colspan="2" height="10"></td>
+                </tr>
+                <tr>
+                  <td height="5"></td>
+                  <td height="5">
+                    <table cellspacing="0" cellpadding="0" width="100%" bgcolor="#427fc0" border="0">
+                      <tbody>
+                        <tr>
+                          <td width="73%" class="ban_list_l"><span class="b15"></span><span class="b16">中国硕士学位论文全文数据库</span></td>
+                          <td class="b17" align="right" width="27%"><span class="ban_list_l02">前8条</span></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td width="16" rowspan="2"></td>
+                  <td width="720">
+                    <table cellspacing="1" cellpadding="3" width="100%" bgcolor="#ffffff" border="0">
+                      <tbody>
+                        <tr>
+                          <td align="center" width="30">1</td>
+                          <td width="676">金阿鑫;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10217-1011020099.htm" target="_blank">微小型车载惯性/GPS组合导航系统技术研究</a>[D];哈尔滨工程大学;2010年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">2</td>
+                          <td width="676">栗瑞江;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10699-2001007817.htm" target="_blank">低成本SINS/GPS组合导航系统研究</a>[D];西北工业大学;2001年</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">3</td>
+                          <td width="676">刘安鹏;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10699-2005064303.htm" target="_blank">基于MEMS技术的微型组合导航系统建模</a>[D];西北工业大学;2005年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">4</td>
+                          <td width="676">董济洲;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10004-2008078302.htm" target="_blank">基于个人的GPS定位和惯性辅助导航技术研究</a>[D];北京交通大学;2008年</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">5</td>
+                          <td width="676">蔡风华;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10487-2009037748.htm" target="_blank">基于FAT32文件系统的文件隐藏研究与实现</a>[D];华中科技大学;2007年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">6</td>
+                          <td width="676">曹文;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10487-2009037792.htm" target="_blank">基于磁阻传感器的地磁信号检测</a>[D];华中科技大学;2007年</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">7</td>
+                          <td width="676">许睿;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10287-2009054036.htm" target="_blank">行人导航系统算法研究与应用实现</a>[D];南京航空航天大学;2008年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">8</td>
+                          <td width="676">刘慧慧;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10422-2009246035.htm" target="_blank">基于ARM的嵌入式车载导航系统的研究与开发</a>[D];山东大学;2009年</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="div_Ref">
+            <table width="740" border="0" cellspacing="0" cellpadding="0">
+              <tbody><tr>
+                <td width="2%" valign="bottom"></td>
+                <td rowspan="2" align="left" valign="bottom" class="b14" nowrap="">【共引文献】</td>
+                <td width="85%" height="38" align="right" valign="bottom" class="b21"></td>
+              </tr>
+              <tr>
+                <td width="2%" height="12" background="./zwj-xxxxx.gif"></td>
+                <td height="12" align="center" valign="middle" background="./zwj-xxxxx.gif" class="b14"></td>
+              </tr>
+            </tbody></table>
+            <table cellspacing="0" cellpadding="0" width="740" border="0">
+              <tbody>
+                <tr>
+                  <td colspan="2" height="10"></td>
+                </tr>
+                <tr>
+                  <td height="5"></td>
+                  <td height="5">
+                    <table cellspacing="0" cellpadding="0" width="100%" bgcolor="#427fc0" border="0">
+                      <tbody>
+                        <tr>
+                          <td width="73%" class="ban_list_l"><span class="b15"></span><span class="b16">中国期刊全文数据库</span></td>
+                          <td class="b17" align="right" width="27%"><span class="ban_list_l02">前10条
+                    </span></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td width="16" rowspan="2"></td>
+                  <td width="720">
+                    <table cellspacing="1" cellpadding="3" width="100%" bgcolor="#ffffff" border="0">
+                      <tbody>
+                        <tr>
+                          <td align="center" width="30">1</td>
+                          <td width="676">李长森;郭海雷;谷岩;肖龙;;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-BDTQ201201014.htm" target="_blank">MEMS微惯性组合静态误差建模与补偿</a>[J];微纳电子技术;2012年01期</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">2</td>
+                          <td width="676">蔡伯根;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-BFJT200005001.htm" target="_blank">利用GPS和惯性传感器的融合和集成实现车辆定位</a>[J];北方交通大学学报;2000年05期</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">3</td>
+                          <td width="676">张李方;程锦房;何希盈;;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-BGZD200812002.htm" target="_blank">矢量水听器与Kalman滤波在水雷引信中的应用</a>[J];兵工自动化;2008年12期</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">4</td>
+                          <td width="676">钱辉;丁永忠;;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-BGZD201002018.htm" target="_blank">大航程AUV SINS/DVL组合导航定位精度研究</a>[J];兵工自动化;2010年02期</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">5</td>
+                          <td width="676">黄雪妮;赵忠;杨利兰;;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-BGZD201105010.htm" target="_blank">游移方位激光捷联惯导系统传递对准方法</a>[J];兵工自动化;2011年05期</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">6</td>
+                          <td width="676">林雪原;;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-BGZD201106011.htm" target="_blank">基于交互式多模型的多传感器组合导航系统</a>[J];兵工自动化;2011年06期</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">7</td>
+                          <td width="676">徐金华;许江宁;朱涛;边少锋;;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-BIGO200604018.htm" target="_blank">降阶扩展卡尔曼滤波在INS/GPS导航系统中的应用</a>[J];兵工学报;2006年04期</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">8</td>
+                          <td width="676">徐仕会;冯培德;马红日;;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-BIGO200807022.htm" target="_blank">惯导系统在动基座上的对准研究</a>[J];兵工学报;2008年07期</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">9</td>
+                          <td width="676">刘明雍;胡俊伟;李闻白;;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-BIGO201102025.htm" target="_blank">一种基于改进无迹卡尔曼滤波的自主水下航行器组合导航方法研究</a>[J];兵工学报;2011年02期</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">10</td>
+                          <td width="676">徐烨烽;仇海涛;何孟珂;孟庆季;;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-BIGO201106010.htm" target="_blank">MEMS旋转调制式航姿参考系统设计及误差补偿</a>[J];兵工学报;2011年06期</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <table cellspacing="0" cellpadding="0" width="740" border="0">
+              <tbody>
+                <tr>
+                  <td colspan="2" height="10"></td>
+                </tr>
+                <tr>
+                  <td height="5"></td>
+                  <td height="5">
+                    <table cellspacing="0" cellpadding="0" width="100%" bgcolor="#427fc0" border="0">
+                      <tbody>
+                        <tr>
+                          <td width="73%" class="ban_list_l"><span class="b15"></span><span class="b16">中国重要会议论文全文数据库</span></td>
+                          <td class="b17" align="right" width="27%"><span class="ban_list_l02">前10条</span></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td width="16" rowspan="2"></td>
+                  <td width="720">
+                    <table cellspacing="1" cellpadding="3" width="100%" bgcolor="#ffffff" border="0">
+                      <tbody>
+                        <tr>
+                          <td align="center" width="30">1</td>
+                          <td width="676">李春进;李明峰;常小林;;<a href="http://cpfd.cnki.com.cn/Article/CPFDTOTAL-JCHX201111001024.htm" target="_blank">基于卡尔曼滤波的公路施工控制点稳定性分析</a>[A];江苏省测绘学会2011年学术年会论文集[C];2011年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">2</td>
+                          <td width="676">何晓峰;胡小平;吴美平;秦海力;;<a href="http://cpfd.cnki.com.cn/Article/CPFDTOTAL-KZLL200707001627.htm" target="_blank">车载SINS/GPS紧组合导航算法研究与实现</a>[A];第二十六届中国控制会议论文集[C];2007年</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">3</td>
+                          <td width="676">杨晓霞;黄一;;<a href="http://cpfd.cnki.com.cn/Article/CPFDTOTAL-KZLL200807002054.htm" target="_blank">外场标定条件下捷联惯导系统误差状态可观测性分析</a>[A];第二十七届中国控制会议论文集[C];2008年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">4</td>
+                          <td width="676">章大勇;吴文启;吴美平;;<a href="http://cpfd.cnki.com.cn/Article/CPFDTOTAL-KZLL200807002664.htm" target="_blank">低成本MEMS-IMU/GPS组合导航的自适应滤波器设计</a>[A];第二十七届中国控制会议论文集[C];2008年</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">5</td>
+                          <td width="676">张亚崇;;<a href="http://cpfd.cnki.com.cn/Article/CPFDTOTAL-KZLL200807002672.htm" target="_blank">容错导航技术及其在INS/GPS/Doppler组合导航系统中的应用研究</a>[A];第二十七届中国控制会议论文集[C];2008年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">6</td>
+                          <td width="676">肖洪兵;郭泽荣;;<a href="http://cpfd.cnki.com.cn/Article/CPFDTOTAL-KZLL201007001640.htm" target="_blank">旋转弹载GPS自动跟踪系统设计</a>[A];第二十九届中国控制会议论文集[C];2010年</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">7</td>
+                          <td width="676">牟玉涛;方海涛;;<a href="http://cpfd.cnki.com.cn/Article/CPFDTOTAL-KZLL201107002309.htm" target="_blank">捷联惯导系统车载环境下的初始对准方法</a>[A];中国自动化学会控制理论专业委员会B卷[C];2011年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">8</td>
+                          <td width="676">王圣洁;康凤举;韩翃;;<a href="http://cpfd.cnki.com.cn/Article/CPFDTOTAL-SXJS201108001004.htm" target="_blank">AUV组合导航半实物仿真系统关键技术研究</a>[A];2011'中国西部声学学术交流会论文集[C];2011年</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">9</td>
+                          <td width="676">郭建军;谢攀;刘娟;崔海英;;<a href="http://cpfd.cnki.com.cn/Article/CPFDTOTAL-SXJS201108001022.htm" target="_blank">基于联邦滤波的远程AUV组合导航方法研究</a>[A];2011'中国西部声学学术交流会论文集[C];2011年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">10</td>
+                          <td width="676">彭东立;马海涛;许伟杰;;<a href="http://cpfd.cnki.com.cn/Article/CPFDTOTAL-SXJS201108002137.htm" target="_blank">DVL在组合导航技术中的发展应用</a>[A];中国声学学会水声学分会2011年全国水声学学术会议论文集[C];2011年</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <table cellspacing="0" cellpadding="0" width="740" border="0">
+              <tbody>
+                <tr>
+                  <td colspan="2" height="10"></td>
+                </tr>
+                <tr>
+                  <td height="5"></td>
+                  <td height="5">
+                    <table cellspacing="0" cellpadding="0" width="100%" bgcolor="#427fc0" border="0">
+                      <tbody>
+                        <tr>
+                          <td width="73%" class="ban_list_l"><span class="b15"></span><span class="b16">中国博士学位论文全文数据库</span></td>
+                          <td class="b17" align="right" width="27%"><span class="ban_list_l02">前10条</span></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td width="16" rowspan="2"></td>
+                  <td width="720">
+                    <table cellspacing="1" cellpadding="3" width="100%" bgcolor="#ffffff" border="0">
+                      <tbody>
+                        <tr>
+                          <td align="center" width="30">1</td>
+                          <td width="676">夏全喜;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10217-1011020350.htm" target="_blank">车载组合导航系统关键技术研究</a>[D];哈尔滨工程大学;2010年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">2</td>
+                          <td width="676">刘凤鸣;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10217-1011020356.htm" target="_blank">重力梯度辅助导航定位技术研究</a>[D];哈尔滨工程大学;2010年</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">3</td>
+                          <td width="676">王小旭;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10217-1011020362.htm" target="_blank">非线性SPKF滤波算法研究及其在组合导航中的应用</a>[D];哈尔滨工程大学;2010年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">4</td>
+                          <td width="676">张涛;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10217-1011020365.htm" target="_blank">GPS/SINS超紧密组合导航系统的关键技术研究</a>[D];哈尔滨工程大学;2010年</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">5</td>
+                          <td width="676">丁继成;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10217-1011021034.htm" target="_blank">弱信号条件下GPS接收机关键技术研究</a>[D];哈尔滨工程大学;2009年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">6</td>
+                          <td width="676">朱怡;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10217-1011021036.htm" target="_blank">潜艇航行训练模拟器模型简化与参数优化研究</a>[D];哈尔滨工程大学;2009年</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">7</td>
+                          <td width="676">杨萌;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10217-1011021312.htm" target="_blank">非线性滤波及在惯导系统传递对准中应用研究</a>[D];哈尔滨工程大学;2010年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">8</td>
+                          <td width="676">陈伟;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10358-1011038369.htm" target="_blank">基于GPS和自包含传感器的行人室内外无缝定位算法研究</a>[D];中国科学技术大学;2010年</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">9</td>
+                          <td width="676">宫轶松;<a href="http://cdmd.cnki.com.cn/Article/CDMD-90008-1011057269.htm" target="_blank">粒子滤波算法研究及其在GPS/DR组合导航中的应用</a>[D];解放军信息工程大学;2010年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">10</td>
+                          <td width="676">吴富梅;<a href="http://cdmd.cnki.com.cn/Article/CDMD-90008-1011057277.htm" target="_blank">GNSS/INS组合导航误差补偿与自适应滤波理论的拓展</a>[D];解放军信息工程大学;2010年</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <table cellspacing="0" cellpadding="0" width="740" border="0">
+              <tbody>
+                <tr>
+                  <td colspan="2" height="10"></td>
+                </tr>
+                <tr>
+                  <td height="5"></td>
+                  <td height="5">
+                    <table cellspacing="0" cellpadding="0" width="100%" bgcolor="#427fc0" border="0">
+                      <tbody>
+                        <tr>
+                          <td width="73%" class="ban_list_l"><span class="b15"></span><span class="b16">中国硕士学位论文全文数据库</span></td>
+                          <td class="b17" align="right" width="27%"><span class="ban_list_l02">前10条</span></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td width="16" rowspan="2"></td>
+                  <td width="720">
+                    <table cellspacing="1" cellpadding="3" width="100%" bgcolor="#ffffff" border="0">
+                      <tbody>
+                        <tr>
+                          <td align="center" width="30">1</td>
+                          <td width="676">岳莎莎;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10424-1010120532.htm" target="_blank">基于TMS320VC5509A的管道有源噪声控制系统研究</a>[D];山东科技大学;2010年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">2</td>
+                          <td width="676">李国伟;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10424-1010120766.htm" target="_blank">基于电力线载波的采煤机监控通信系统的设计</a>[D];山东科技大学;2010年</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">3</td>
+                          <td width="676">郭凤华;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10459-1011016245.htm" target="_blank">基于卡尔曼滤波的高精度磷酸根离子分析仪的设计</a>[D];郑州大学;2010年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">4</td>
+                          <td width="676">王昱丹;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10217-1011019681.htm" target="_blank">空间稳定型惯导系统分析</a>[D];哈尔滨工程大学;2010年</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">5</td>
+                          <td width="676">郭静;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10217-1011019685.htm" target="_blank">光纤陀螺捷联系统运动基座对准方法研究</a>[D];哈尔滨工程大学;2010年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">6</td>
+                          <td width="676">张斌;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10217-1011019693.htm" target="_blank">基于MIMU的捷联惯性导航系统数据采集与处理技术研究</a>[D];哈尔滨工程大学;2010年</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">7</td>
+                          <td width="676">陈乃锋;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10217-1011019737.htm" target="_blank">MFSK水声通信信号处理子系统的设计与实现</a>[D];哈尔滨工程大学;2010年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">8</td>
+                          <td width="676">苑海静;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10217-1011019839.htm" target="_blank">船用MEMS航姿测量系统算法研究与实现</a>[D];哈尔滨工程大学;2010年</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">9</td>
+                          <td width="676">曹唯伟;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10217-1011019863.htm" target="_blank">基于拼音编码的水下语音通信发射端的设计与实现</a>[D];哈尔滨工程大学;2010年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">10</td>
+                          <td width="676">马汉增;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10217-1011019946.htm" target="_blank">微惯性组合惯导系统技术研究</a>[D];哈尔滨工程大学;2010年</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="div_Ref">
+            <table width="740" border="0" cellspacing="0" cellpadding="0">
+              <tbody><tr>
+                <td width="2%" valign="bottom"></td>
+                <td rowspan="2" align="left" valign="bottom" class="b14" nowrap="">【二级参考文献】</td>
+                <td width="85%" height="38" align="right" valign="bottom" class="b21"></td>
+              </tr>
+              <tr>
+                <td width="2%" height="12" background="./zwj-xxxxx.gif"></td>
+                <td height="12" align="center" valign="middle" background="./zwj-xxxxx.gif" class="b14"></td>
+              </tr>
+            </tbody></table>
+            <table cellspacing="0" cellpadding="0" width="740" border="0">
+              <tbody>
+                <tr>
+                  <td colspan="2" height="10"></td>
+                </tr>
+                <tr>
+                  <td height="5"></td>
+                  <td height="5">
+                    <table cellspacing="0" cellpadding="0" width="100%" bgcolor="#427fc0" border="0">
+                      <tbody>
+                        <tr>
+                          <td width="73%" class="ban_list_l"><span class="b15"></span><span class="b16">中国期刊全文数据库</span></td>
+                          <td class="b17" align="right" width="27%"><span class="ban_list_l02">前10条
+                    </span></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td width="16" rowspan="2"></td>
+                  <td width="720">
+                    <table cellspacing="1" cellpadding="3" width="100%" bgcolor="#ffffff" border="0">
+                      <tbody>
+                        <tr>
+                          <td align="center" width="30">1</td>
+                          <td width="676">王艳东,范跃祖;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-BJHK200005005.htm" target="_blank">H_∞滤波在惯导系统地面快速对准中的应用</a>[J];北京航空航天大学学报;2000年05期</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">2</td>
+                          <td width="676">高鹏,富立,范跃祖;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-BJHK200206025.htm" target="_blank">GPS/DRS/DMAP汽车定位导航系统</a>[J];北京航空航天大学学报;2002年06期</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">3</td>
+                          <td width="676">许佩珍,董长虹;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-BJHK704.015.htm" target="_blank">四元数在战斗机飞行仿真中的应用</a>[J];北京航空航天大学学报;1997年04期</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">4</td>
+                          <td width="676">龙腾;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-BJLG606.020.htm" target="_blank">DSP系统多通道数据采集的高效实现</a>[J];北京理工大学学报;1996年06期</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">5</td>
+                          <td width="676">肖乾;;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-CANB200506019.htm" target="_blank">伪距GPS/INS组合导航系统的多模型自适应卡尔曼滤波器设计</a>[J];船舶工程;2005年06期</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">6</td>
+                          <td width="676">吕连学;;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-CCLZ200503013.htm" target="_blank">文件及文件夹的加/解密方法</a>[J];长春理工大学学报(综合版);2005年03期</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">7</td>
+                          <td width="676">李秉玺,赵忠,孙照鑫;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-CGJS200302021.htm" target="_blank">磁阻传感器的捷联式磁航向仪及误差补偿</a>[J];传感技术学报;2003年02期</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">8</td>
+                          <td width="676">田小芳;陆起涌;熊超;;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-CGJS200602021.htm" target="_blank">基于加速度传感器的倾角仪设计</a>[J];传感技术学报;2006年02期</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">9</td>
+                          <td width="676">宋浩然;廖文帅;赵一鸣;;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-CGJS200604019.htm" target="_blank">基于加速度传感器ADXL330的高精度计步器</a>[J];传感技术学报;2006年04期</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">10</td>
+                          <td width="676">史恩秀;黄玉美;;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-CGJS200701051.htm" target="_blank">自主导航小车AGV定位方法的研究</a>[J];传感技术学报;2007年01期</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <table cellspacing="0" cellpadding="0" width="740" border="0">
+              <tbody>
+                <tr>
+                  <td colspan="2" height="10"></td>
+                </tr>
+                <tr>
+                  <td height="5"></td>
+                  <td height="5">
+                    <table cellspacing="0" cellpadding="0" width="100%" bgcolor="#427fc0" border="0">
+                      <tbody>
+                        <tr>
+                          <td width="73%" class="ban_list_l"><span class="b15"></span><span class="b16">中国博士学位论文全文数据库</span></td>
+                          <td class="b17" align="right" width="27%"><span class="ban_list_l02">前4条</span></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td width="16" rowspan="2"></td>
+                  <td width="720">
+                    <table cellspacing="1" cellpadding="3" width="100%" bgcolor="#ffffff" border="0">
+                      <tbody>
+                        <tr>
+                          <td align="center" width="30">1</td>
+                          <td width="676">刘诗斌;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10699-2001007937.htm" target="_blank">微型智能磁航向系统研究</a>[D];西北工业大学;2001年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">2</td>
+                          <td width="676">尚捷;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10003-2006066638.htm" target="_blank">MIMU及其与GPS组合系统设计与实验研究</a>[D];清华大学;2005年</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">3</td>
+                          <td width="676">马云峰;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10286-2007031849.htm" target="_blank">MSINS/GPS组合导航系统及其数据融合技术研究</a>[D];东南大学;2006年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">4</td>
+                          <td width="676">曲铁军;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10213-2007040255.htm" target="_blank">高精度车载惯性导航系统关键技术研究</a>[D];哈尔滨工业大学;2005年</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <table cellspacing="0" cellpadding="0" width="740" border="0">
+              <tbody>
+                <tr>
+                  <td colspan="2" height="10"></td>
+                </tr>
+                <tr>
+                  <td height="5"></td>
+                  <td height="5">
+                    <table cellspacing="0" cellpadding="0" width="100%" bgcolor="#427fc0" border="0">
+                      <tbody>
+                        <tr>
+                          <td width="73%" class="ban_list_l"><span class="b15"></span><span class="b16">中国硕士学位论文全文数据库</span></td>
+                          <td class="b17" align="right" width="27%"><span class="ban_list_l02">前10条</span></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td width="16" rowspan="2"></td>
+                  <td width="720">
+                    <table cellspacing="1" cellpadding="3" width="100%" bgcolor="#ffffff" border="0">
+                      <tbody>
+                        <tr>
+                          <td align="center" width="30">1</td>
+                          <td width="676">顾喜梅;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10287-2002000591.htm" target="_blank">文件系统及磁盘管理实现机制深入研究</a>[D];南京航空航天大学;2002年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">2</td>
+                          <td width="676">刘爱平;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10613-2002128553.htm" target="_blank">安全文件系统的研究与实现</a>[D];西南交通大学;2002年</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">3</td>
+                          <td width="676">刘安鹏;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10699-2005064303.htm" target="_blank">基于MEMS技术的微型组合导航系统建模</a>[D];西北工业大学;2005年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">4</td>
+                          <td width="676">孙晨;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10110-2006054252.htm" target="_blank">微惯性器件辅助GPS导航的工程实现</a>[D];中北大学;2006年</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">5</td>
+                          <td width="676">张晨;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10335-2006081077.htm" target="_blank">MEMS陀螺系统的软件仿真</a>[D];浙江大学;2006年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">6</td>
+                          <td width="676">徐斌;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10183-2007091529.htm" target="_blank">车辆导航系统定位技术的研究</a>[D];吉林大学;2007年</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">7</td>
+                          <td width="676">王海波;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10183-2007093511.htm" target="_blank">车辆导航系统的体系结构与路网模型</a>[D];吉林大学;2007年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">8</td>
+                          <td width="676">许国珍;<a href="http://cdmd.cnki.com.cn/Article/CDMD-90002-2008097892.htm" target="_blank">微惯性/卫星/磁强计组合导航技术研究</a>[D];国防科学技术大学;2007年</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">9</td>
+                          <td width="676">王建敏;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10217-2009060302.htm" target="_blank">列车姿态测量与平稳性评估系统设计与实现</a>[D];哈尔滨工程大学;2008年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">10</td>
+                          <td width="676">陈玲;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10623-2009199912.htm" target="_blank">基于Linux的车载导航系统研究</a>[D];西华大学;2009年</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="div_Ref">
+            <table width="740" border="0" cellspacing="0" cellpadding="0">
+              <tbody><tr>
+                <td width="2%" valign="bottom"></td>
+                <td rowspan="2" align="left" valign="bottom" class="b14" nowrap="">【相似文献】</td>
+                <td width="85%" height="38" align="right" valign="bottom" class="b21"></td>
+              </tr>
+              <tr>
+                <td width="2%" height="12" background="./zwj-xxxxx.gif"></td>
+                <td height="12" align="center" valign="middle" background="./zwj-xxxxx.gif" class="b14"></td>
+              </tr>
+            </tbody></table>
+            <table cellspacing="0" cellpadding="0" width="740" border="0">
+              <tbody>
+                <tr>
+                  <td colspan="2" height="10"></td>
+                </tr>
+                <tr>
+                  <td height="5"></td>
+                  <td height="5">
+                    <table cellspacing="0" cellpadding="0" width="100%" bgcolor="#427fc0" border="0">
+                      <tbody>
+                        <tr>
+                          <td width="73%" class="ban_list_l"><span class="b15"></span><span class="b16">中国期刊全文数据库</span></td>
+                          <td class="b17" align="right" width="27%"><span class="ban_list_l02">前10条
+                    </span></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td width="16" rowspan="2"></td>
+                  <td width="720">
+                    <table cellspacing="1" cellpadding="3" width="100%" bgcolor="#ffffff" border="0">
+                      <tbody>
+                        <tr>
+                          <td align="center" width="30">1</td>
+                          <td width="676">蒋维特;杨露菁;;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-HLYZ200911019.htm" target="_blank">基于蚁群算法的被动目标定位算法</a>[J];火力与指挥控制;2009年11期</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">2</td>
+                          <td width="676">刘嘉佳,龚晓峰,杨建军,都亮;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-XDDJ200404017.htm" target="_blank">基于测向定位的算法研究</a>[J];现代电子技术;2004年04期</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">3</td>
+                          <td width="676">胡国方;曾鹏;;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-JCGC201008034.htm" target="_blank">基于牛顿迭代法的概位修正误差分析</a>[J];舰船电子工程;2010年08期</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">4</td>
+                          <td width="676">金钊;;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-ZWDG200710026.htm" target="_blank">多站测向交汇数据分析处理探讨</a>[J];中国无线电;2007年10期</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">5</td>
+                          <td width="676">王素芬;;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-JXGY200905047.htm" target="_blank">BP神经网络系统用于目标台测向定位的设计与实现</a>[J];制造业自动化;2009年05期</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">6</td>
+                          <td width="676">史伟;刘翠海;;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-DATE201108030.htm" target="_blank">天线正交加权改变天线方向图方法及其应用</a>[J];电讯技术;2011年08期</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">7</td>
+                          <td width="676">陈红;蔡晓霞;曾昭勇;;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-WHDY200705023.htm" target="_blank">一种基于粒子滤波的测向定位跟踪算法</a>[J];武汉大学学报(理学版);2007年05期</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">8</td>
+                          <td width="676">许芬;史双利;朱凯;;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-XTFZ200914081.htm" target="_blank">宽频反辐射导弹的攻击过程建模及Matlab仿真</a>[J];系统仿真学报;2009年14期</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">9</td>
+                          <td width="676">沈利强;张丽;;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-KJCB201104203.htm" target="_blank">广播电视监测车系统</a>[J];科技传播;2011年04期</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">10</td>
+                          <td width="676">龚文斌,谢恺,冯道旺,周一宇;<a href="http://www.cnki.com.cn/Article/CJFDTOTAL-CSDL200402017.htm" target="_blank">星载无源定位系统测向定位方法及精度分析</a>[J];长沙电力学院学报(自然科学版);2004年02期</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <table cellspacing="0" cellpadding="0" width="740" border="0">
+              <tbody>
+                <tr>
+                  <td colspan="2" height="10"></td>
+                </tr>
+                <tr>
+                  <td height="5"></td>
+                  <td height="5">
+                    <table cellspacing="0" cellpadding="0" width="100%" bgcolor="#427fc0" border="0">
+                      <tbody>
+                        <tr>
+                          <td width="73%" class="ban_list_l"><span class="b15"></span><span class="b16">中国重要会议论文全文数据库</span></td>
+                          <td class="b17" align="right" width="27%"><span class="ban_list_l02">前9条</span></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td width="16" rowspan="2"></td>
+                  <td width="720">
+                    <table cellspacing="1" cellpadding="3" width="100%" bgcolor="#ffffff" border="0">
+                      <tbody>
+                        <tr>
+                          <td align="center" width="30">1</td>
+                          <td width="676">孔德强;刘作学;崔灿;;<a href="http://cpfd.cnki.com.cn/Article/CPFDTOTAL-IKJS200911001008.htm" target="_blank">室内单站测向定位算法研究</a>[A];第三届全国嵌入式技术和信息处理联合学术会议论文集[C];2009年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">2</td>
+                          <td width="676">孔德强;刘作学;崔灿;;<a href="http://cpfd.cnki.com.cn/Article/CPFDTOTAL-IKJS200911001048.htm" target="_blank">室内多站测向交叉定位性能分析</a>[A];第三届全国嵌入式技术和信息处理联合学术会议论文集[C];2009年</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">3</td>
+                          <td width="676">孔德强;刘作学;冯树芳;;<a href="http://cpfd.cnki.com.cn/Article/CPFDTOTAL-ZGGC200911001008.htm" target="_blank">室内无源定位算法研究</a>[A];全国第三届信号和智能信息处理与应用学术交流会专刊[C];2009年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">4</td>
+                          <td width="676">杨建;朱桐斌;;<a href="http://cpfd.cnki.com.cn/Article/CPFDTOTAL-ZGHJ200909001031.htm" target="_blank">飞机在飞行中如何确定位置</a>[A];2009年度救捞论文集[C];2009年</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">5</td>
+                          <td width="676">莫世禹;;<a href="http://cpfd.cnki.com.cn/Article/CPFDTOTAL-HBKJ200410010076.htm" target="_blank">现代战争军事通信对抗技术</a>[A];武汉市首届学术年会通信学会2004年学术年会论文集[C];2004年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">6</td>
+                          <td width="676">邓代海;陈良勇;陈文汉;;<a href="http://cpfd.cnki.com.cn/Article/CPFDTOTAL-STXX200612001058.htm" target="_blank">数字化战场通信对抗的发展趋势</a>[A];四川省通信学会2006年学术年会论文集（二）[C];2006年</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">7</td>
+                          <td width="676">李赞;张学平;尹直兵;张倩;李伟;;<a href="http://cpfd.cnki.com.cn/Article/CPFDTOTAL-ZGTH201104002014.htm" target="_blank">新一代电磁频谱监测网的设计与应用</a>[A];频谱管理与监测系统建设研讨会论文集[C];2011年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">8</td>
+                          <td width="676">姬生云;王健;刘毅敏;孙中森;葛云露;;<a href="http://cpfd.cnki.com.cn/Article/CPFDTOTAL-ZGTH201104002055.htm" target="_blank">无线电监测技术研究现状和发展方向</a>[A];频谱管理与监测系统建设研讨会论文集[C];2011年</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">9</td>
+                          <td width="676">;<a href="http://cpfd.cnki.com.cn/Article/CPFDTOTAL-ZGTH201104002017.htm" target="_blank">中华通信系统有限责任公司简介</a>[A];频谱管理与监测系统建设研讨会论文集[C];2011年</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <table cellspacing="0" cellpadding="0" width="740" border="0">
+              <tbody>
+                <tr>
+                  <td colspan="2" height="10"></td>
+                </tr>
+                <tr>
+                  <td height="5"></td>
+                  <td height="5">
+                    <table cellspacing="0" cellpadding="0" width="100%" bgcolor="#427fc0" border="0">
+                      <tbody>
+                        <tr>
+                          <td width="73%" class="ban_list_l"><span class="b15"></span><span class="b16">中国重要报纸全文数据库</span></td>
+                          <td class="b17" align="right" width="27%"><span class="ban_list_l02">前10条</span></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td width="16" rowspan="2"></td>
+                  <td width="720">
+                    <table cellspacing="1" cellpadding="3" width="100%" bgcolor="#ffffff" border="0">
+                      <tbody>
+                        <tr>
+                          <td align="center" width="30">1</td>
+                          <td width="676">本报记者 卢子月;<a href="http://xuewen.cnki.net/CCND-TXCY201009130302.html" target="_blank">监测破解干扰难题</a>[N];通信产业报;2010年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">2</td>
+                          <td width="676">郑宗杰;<a href="http://xuewen.cnki.net/CCND-CJTB20070328A015.html" target="_blank">占用海上求救频道可被快速定位</a>[N];中国交通报;2007年</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">3</td>
+                          <td width="676">记者  马博;<a href="http://xuewen.cnki.net/CCND-CDZB200810100033.html" target="_blank">满腔热情保安全</a>[N];中国电子报;2008年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">4</td>
+                          <td width="676">本版编辑黄俐  安勇龙  邱江勇  马博  杨庆广  樊哲高  冷淑华  母晓洁;<a href="http://xuewen.cnki.net/CCND-CDZB200808190028.html" target="_blank">奥运会无线电管理团队倾力服务北京奥运会</a>[N];中国电子报;2008年</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">5</td>
+                          <td width="676">郭培根;<a href="http://xuewen.cnki.net/CCND-CGFB20040401ZZ34.html" target="_blank">大步走上战争前台</a>[N];中国国防报;2004年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">6</td>
+                          <td width="676">陈学桦;<a href="http://xuewen.cnki.net/CCND-HNRB200808080025.html" target="_blank">我省无线电奥运保障团队首都显身手</a>[N];河南日报;2008年</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">7</td>
+                          <td width="676">记者  杜丽玲;<a href="http://xuewen.cnki.net/CCND-STRB200611240022.html" target="_blank">粤东五市联合无线电监测网开通</a>[N];汕头日报;2006年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">8</td>
+                          <td width="676">于爱民 刘艺发;<a href="http://xuewen.cnki.net/CCND-JSJJ20080314B031.html" target="_blank">扬州无线电管理处  强化服务显成效</a>[N];江苏经济报;2008年</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">9</td>
+                          <td width="676">陈学良;<a href="http://xuewen.cnki.net/CCND-SLRB200809100016.html" target="_blank">我市无线电事业迅猛发展</a>[N];商洛日报;2008年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">10</td>
+                          <td width="676">徐连跃;<a href="http://xuewen.cnki.net/CCND-FZRB20040824ZZ17.html" target="_blank">信息化战争中法律战应把握的几个问题(下)</a>[N];法制日报;2004年</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <table cellspacing="0" cellpadding="0" width="740" border="0">
+              <tbody>
+                <tr>
+                  <td colspan="2" height="10"></td>
+                </tr>
+                <tr>
+                  <td height="5"></td>
+                  <td height="5">
+                    <table cellspacing="0" cellpadding="0" width="100%" bgcolor="#427fc0" border="0">
+                      <tbody>
+                        <tr>
+                          <td width="73%" class="ban_list_l"><span class="b15"></span><span class="b16">中国博士学位论文全文数据库</span></td>
+                          <td class="b17" align="right" width="27%"><span class="ban_list_l02">前1条</span></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td width="16" rowspan="2"></td>
+                  <td width="720">
+                    <table cellspacing="1" cellpadding="3" width="100%" bgcolor="#ffffff" border="0">
+                      <tbody>
+                        <tr>
+                          <td align="center" width="30">1</td>
+                          <td width="676">夏楠;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10141-1013197928.htm" target="_blank">基于粒子滤波的无线电监测若干关键技术研究与应用</a>[D];大连理工大学;2012年</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <table cellspacing="0" cellpadding="0" width="740" border="0">
+              <tbody>
+                <tr>
+                  <td colspan="2" height="10"></td>
+                </tr>
+                <tr>
+                  <td height="5"></td>
+                  <td height="5">
+                    <table cellspacing="0" cellpadding="0" width="100%" bgcolor="#427fc0" border="0">
+                      <tbody>
+                        <tr>
+                          <td width="73%" class="ban_list_l"><span class="b15"></span><span class="b16">中国硕士学位论文全文数据库</span></td>
+                          <td class="b17" align="right" width="27%"><span class="ban_list_l02">前10条</span></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td width="16" rowspan="2"></td>
+                  <td width="720">
+                    <table cellspacing="1" cellpadding="3" width="100%" bgcolor="#ffffff" border="0">
+                      <tbody>
+                        <tr>
+                          <td align="center" width="30">1</td>
+                          <td width="676">王俊入;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10614-1013334255.htm" target="_blank">车载电磁环境监测预警系统测向定位子系统的设计与实现</a>[D];电子科技大学;2013年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">2</td>
+                          <td width="676">刘嘉佳;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10610-2005010989.htm" target="_blank">无线电测向定位算法的研究及其应用</a>[D];四川大学;2004年</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">3</td>
+                          <td width="676">刘伟;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10623-1013365836.htm" target="_blank">无线电监测多站测向定位研究</a>[D];西华大学;2013年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">4</td>
+                          <td width="676">曾钰;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10110-1011156534.htm" target="_blank">机动目标无源测向定位系统的算法分析与仿真研究</a>[D];中北大学;2011年</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">5</td>
+                          <td width="676">张海燕;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10616-2004085970.htm" target="_blank">五通道相位干涉仪测向的研究和实现</a>[D];成都理工大学;2004年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">6</td>
+                          <td width="676">高为;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10248-2009140018.htm" target="_blank">无源定位技术研究</a>[D];上海交通大学;2006年</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">7</td>
+                          <td width="676">张韬;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10295-2009014559.htm" target="_blank">基于多平台协同的辐射源目标定位与跟踪技术研究</a>[D];江南大学;2008年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">8</td>
+                          <td width="676">徐晓东;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10359-2007016840.htm" target="_blank">某型装备占领阵地测向定位系统的设计</a>[D];合肥工业大学;2006年</td>
+                        </tr>
+                        <tr>
+                          <td align="center" width="30">9</td>
+                          <td width="676">杜亚平;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10614-2009166365.htm" target="_blank">星载定位体制及误差分析研究</a>[D];电子科技大学;2009年</td>
+                        </tr>
+                        <tr bgcolor="#eaf4ff">
+                          <td align="center" width="30">10</td>
+                          <td width="676">王玲;<a href="http://cdmd.cnki.com.cn/Article/CDMD-10186-2009198673.htm" target="_blank">无源定位技术研究</a>[D];长春理工大学;2009年</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div style="width:190px; float:right;margin-left:5px;">
+        <div id="div_similar">
+          <div class="adListRight" style="line-height:150%;text-align:left;"><a href="http://ad.cnki.net/index.aspx" target="_blank"><img src="./zhiwangguanggao.jpg" border="0" width="190" height="78" alt="中国知网广告投放"></a></div>
+          <div style="line-height:180%;">
+            <table height="100%" cellspacing="0" cellpadding="0" width="100%" bgcolor="#055CCE" border="0">
+              <tbody>
+                <tr>
+                  <td align="left" height="26" class="ban_list_r"><span class="b15">相关机构</span></td>
+                </tr>
+                <tr>
+                  <td bgcolor="#F4F8FE">
+                    <table cellspacing="0" cellpadding="0" width="100%" style="border:1px solid #7498d6;">
+                      <tbody>
+                        <tr>
+                          <td height="6"></td>
+                        </tr>
+                        <tr>
+                          <td valign="top" align="left" class="ban_list_r02">&gt;<a href="http://yuanjian.cnki.com.cn/Search/Result?unit=%E6%B1%9F%E5%8D%97%E5%A4%A7%E5%AD%A6" target="_blank">江南大学</a><br></td>
+                        </tr>
+                        <tr>
+                          <td valign="top" align="left" class="ban_list_r02">&gt;<a href="http://yuanjian.cnki.com.cn/Search/Result?unit=%E8%A5%BF%E5%AE%89%E7%94%B5%E5%AD%90%E7%A7%91%E6%8A%80%E5%A4%A7%E5%AD%A6" target="_blank">西安电子科技大学</a><br></td>
+                        </tr>
+                        <tr>
+                          <td valign="top" align="left" class="ban_list_r02">&gt;<a href="http://yuanjian.cnki.com.cn/Search/Result?unit=%E5%A4%A7%E8%BF%9E%E7%90%86%E5%B7%A5%E5%A4%A7%E5%AD%A6" target="_blank">大连理工大学</a><br></td>
+                        </tr>
+                        <tr>
+                          <td valign="top" align="left" class="ban_list_r02">&gt;<a href="http://yuanjian.cnki.com.cn/Search/Result?unit=%E5%9B%9B%E5%B7%9D%E5%A4%A7%E5%AD%A6" target="_blank">四川大学</a><br></td>
+                        </tr>
+                        <tr>
+                          <td valign="top" align="left" class="ban_list_r02">&gt;<a href="http://yuanjian.cnki.com.cn/Search/Result?unit=%E5%A4%A7%E8%BF%9E%E6%B5%B7%E4%BA%8B%E5%A4%A7%E5%AD%A6" target="_blank">大连海事大学</a><br></td>
+                        </tr>
+                        <tr>
+                          <td valign="top" align="left" class="ban_list_r02">&gt;<a href="http://yuanjian.cnki.com.cn/Search/Result?unit=%E6%B2%B3%E5%8C%97%E5%B8%88%E8%8C%83%E5%A4%A7%E5%AD%A6" target="_blank">河北师范大学</a><br></td>
+                        </tr>
+                        <tr>
+                          <td valign="top" align="left" class="ban_list_r02">&gt;<a href="http://yuanjian.cnki.com.cn/Search/Result?unit=%E6%88%90%E9%83%BD%E7%90%86%E5%B7%A5%E5%A4%A7%E5%AD%A6" target="_blank">成都理工大学</a><br></td>
+                        </tr>
+                        <tr>
+                          <td valign="top" align="left" class="ban_list_r02">&gt;<a href="http://yuanjian.cnki.com.cn/Search/Result?unit=%E4%B8%8A%E6%B5%B7%E4%BA%A4%E9%80%9A%E5%A4%A7%E5%AD%A6" target="_blank">上海交通大学</a><br></td>
+                        </tr>
+                        <tr>
+                          <td valign="top" align="left" class="ban_list_r02">&gt;<a href="http://yuanjian.cnki.com.cn/Search/Result?unit=%E4%B8%AD%E5%9B%BD%E4%BA%BA%E6%B0%91%E8%A7%A3%E6%94%BE%E5%86%9B%E4%BF%A1%E6%81%AF%E5%B7%A5%E7%A8%8B%E5%A4%A7%E5%AD%A6" target="_blank">中国人民解放军信息工程大...
+																			</a><br></td>
+                        </tr>
+                        <tr>
+                          <td valign="top" align="left" class="ban_list_r02">&gt;<a href="http://yuanjian.cnki.com.cn/Search/Result?unit=%E4%B8%AD%E5%8C%97%E5%A4%A7%E5%AD%A6" target="_blank">中北大学</a><br></td>
+                        </tr>
+                        <tr>
+                          <td height="6"></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="left" height="26" class="ban_list_r"><span class="b15">相关作者</span></td>
+                </tr>
+                <tr>
+                  <td bgcolor="#F4F8FE">
+                    <table cellspacing="0" cellpadding="0" width="100%" style="border:1px solid #7498d6;">
+                      <tbody>
+                        <tr>
+                          <td height="6"></td>
+                          <td height="6"></td>
+                        </tr><tr><td valign="top" align="left" width="50%" class="ban_list_r02">&gt;<a href="http://yuanjian.cnki.com.cn/Search/Result?author=%E5%88%98%E5%98%89%E4%BD%B3" target="_blank">刘嘉佳</a></td>
+                        <td valign="top" align="left" width="50%" class="ban_list_r02">&gt;<a href="http://yuanjian.cnki.com.cn/Search/Result?author=%E5%BC%A0%E6%95%8F" target="_blank">张敏</a></td></tr><tr><td valign="top" align="left" width="50%" class="ban_list_r02">&gt;<a href="http://yuanjian.cnki.com.cn/Search/Result?author=%E9%99%88%E7%9E%BB" target="_blank">陈瞻</a></td>
+                        <td valign="top" align="left" width="50%" class="ban_list_r02">&gt;<a href="http://yuanjian.cnki.com.cn/Search/Result?author=%E5%BC%A0%E9%9F%AC" target="_blank">张韬</a></td></tr><tr><td valign="top" align="left" width="50%" class="ban_list_r02">&gt;<a href="http://yuanjian.cnki.com.cn/Search/Result?author=%E7%8E%8B%E7%8E%B2" target="_blank">王玲</a></td>
+                        <td valign="top" align="left" width="50%" class="ban_list_r02">&gt;<a href="http://yuanjian.cnki.com.cn/Search/Result?author=%E5%BC%A0%E6%B5%B7%E7%87%95" target="_blank">张海燕</a></td></tr><tr><td valign="top" align="left" width="50%" class="ban_list_r02">&gt;<a href="http://yuanjian.cnki.com.cn/Search/Result?author=%E9%82%A2%E4%BB%81%E8%B6%85" target="_blank">邢仁超</a></td>
+                        <td valign="top" align="left" width="50%" class="ban_list_r02">&gt;<a href="http://yuanjian.cnki.com.cn/Search/Result?author=%E5%A4%8F%E6%A5%A0" target="_blank">夏楠</a></td></tr><tr><td valign="top" align="left" width="50%" class="ban_list_r02">&gt;<a href="http://yuanjian.cnki.com.cn/Search/Result?author=%E5%90%B4%E9%9B%AA%E8%BE%89" target="_blank">吴雪辉</a></td>
+                        <td valign="top" align="left" width="50%" class="ban_list_r02">&gt;<a href="http://yuanjian.cnki.com.cn/Search/Result?author=%E6%9D%A8%E6%96%B0%E5%88%9A" target="_blank">杨新刚</a></td></tr><tr><td valign="top" align="left" width="50%" class="ban_list_r02">&gt;<a href="http://yuanjian.cnki.com.cn/Search/Result?author=%E6%9D%8E%E8%83%9C" target="_blank">李胜</a></td>
+                        <td valign="top" align="left" width="50%" class="ban_list_r02">&gt;<a href="http://yuanjian.cnki.com.cn/Search/Result?author=%E5%BB%96%E6%B5%B7%E5%86%9B" target="_blank">廖海军</a></td></tr><tr><td valign="top" align="left" width="50%" class="ban_list_r02">&gt;<a href="http://yuanjian.cnki.com.cn/Search/Result?author=%E9%AB%98%E4%B8%BA" target="_blank">高为</a></td>
+                        <td valign="top" align="left" width="50%" class="ban_list_r02">&gt;<a href="http://yuanjian.cnki.com.cn/Search/Result?author=%E4%BB%98%E5%BF%A0" target="_blank">付忠</a></td></tr><tr><td valign="top" align="left" width="50%" class="ban_list_r02">&gt;<a href="http://yuanjian.cnki.com.cn/Search/Result?author=%E6%9D%9C%E4%BA%9A%E5%B9%B3" target="_blank">杜亚平</a></td>
+                        <td valign="top" align="left" width="50%" class="ban_list_r02">&gt;<a href="http://yuanjian.cnki.com.cn/Search/Result?author=%E4%BB%98%E7%BF%94" target="_blank">付翔</a></td></tr><tr><td valign="top" align="left" width="50%" class="ban_list_r02">&gt;<a href="http://yuanjian.cnki.com.cn/Search/Result?author=%E5%BE%90%E6%99%93%E4%B8%9C" target="_blank">徐晓东</a></td>
+                        <td valign="top" align="left" width="50%" class="ban_list_r02">&gt;<a href="http://yuanjian.cnki.com.cn/Search/Result?author=%E5%88%98%E5%AE%8F%E9%B9%A4" target="_blank">刘宏鹤</a></td></tr><tr><td valign="top" align="left" width="50%" class="ban_list_r02">&gt;<a href="http://yuanjian.cnki.com.cn/Search/Result?author=%E5%BC%A0%E6%B4%81%E7%90%A6" target="_blank">张洁琦</a></td>
+                        <td valign="top" align="left" width="50%" class="ban_list_r02">&gt;<a href="http://yuanjian.cnki.com.cn/Search/Result?author=%E5%91%A8%E5%8D%AB%E5%85%B5" target="_blank">周卫兵</a></td></tr><tr>
+                          <td height="6"></td>
+                          <td height="6"></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td id="simblank" bgcolor="#fffcd3"></td>
+                </tr>
+                <tr>
+                  <td bgcolor="white"></td>
+                </tr>
+                <tr>
+                  <td bgcolor="white" height="85px"></td>
+                </tr>
+                <tr>
+                  <td bgcolor="white"></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div style="float:left">
+        <div class="body_div2">
+          <div class="zhinan">
+            <table width="928" border="0" cellspacing="0" cellpadding="0">
+              <tbody><tr>
+                <td width="240" rowspan="2" align="center" valign="top"><img src="./kefupic.gif" width="222" height="91"></td>
+                <td colspan="2" valign="top"><span><img src="./indexkefuicon2.gif" width="19" height="19" align="absbottom">&nbsp;<strong>快捷付款方式</strong></span></td>
+                <td width="160" valign="top"><span><img src="./indexkefuicon4.gif" width="19" height="19" align="absbottom">&nbsp;<strong>订购知网充值卡</strong></span></td>
+                <td valign="top" width="160"><span><img src="./indexkefuicon5.gif" width="19" height="19" align="absbottom">&nbsp;<strong>订购热线</strong></span></td>
+                <td colspan="2" valign="top"><span><img src="./indexkefuicon3.gif" width="19" height="19" align="absbottom">&nbsp;<strong>帮助中心</strong></span></td>
+              </tr>
+              <tr>
+                <td width="72" valign="top">
+                  <ul>
+                    <li><a href="http://vipcard.cnki.net/ec/czzx/czzx_yhk.html" target="_blank" class="grey12">银行卡</a></li>
+                    <li><a href="http://vipcard.cnki.net/ec/czzx/czzx_zfb.html" target="_blank" class="grey12">支付宝</a></li>
+                    <li><a href="http://vipcard.cnki.net/ec/czzx/czzx_szxk.html" target="_blank" class="grey12">神州行</a></li>
+                  </ul>
+                </td>
+                <td width="108" valign="top">
+                  <ul>
+                    <li><a href="http://vipcard.cnki.net/ec/czzx/czzx_zwk.html" target="_blank" class="grey12">知网卡</a></li>
+                    <li><a href="http://vipcard.cnki.net/ec/czzx/czzx_sjdx.html" target="_blank" class="grey12">手机短信</a></li>
+                    <li><a href="http://vipcard.cnki.net/ec/czzx/czzx_more.html" target="_blank" class="grey12">更多&gt;&gt;</a></li>
+                  </ul>
+                </td>
+                <td valign="top">
+                  <ul>
+                    <li><a href="http://vipcard.cnki.net/ec/sksm/CNKIApplyForm.aspx" target="_blank" class="grey12">免费送卡上门</a></li>
+                    <li><a href="http://vipcard.cnki.net/ec/sksm/yhdh.html" target="_blank" class="grey12">银行汇款购卡</a></li>
+                    <li><a href="http://vipcard.cnki.net/ec/sksm/yjhk.html" target="_blank" class="grey12">邮局汇款购卡</a></li>
+                  </ul>
+                </td>
+                <td valign="top">
+                  <ul>
+                    <li>400-819-9993</li>
+                    <li>010-62791813</li>
+                    <li>010-62985026</li>
+                  </ul>
+                </td>
+                <td width="96" valign="top">
+                  <ul>
+                    <li><a href="http://vipcard.cnki.net/ec/czzx/czgg/cjwt.html" target="_blank" class="grey12">常见问题</a></li>
+                    <li><a href="http://help.cnki.net/" target="_blank" class="grey12">在线咨询</a></li>
+                    <li><a href="http://www.cnki.net/software/xzydq.htm" target="_blank" class="grey12">阅读器下载</a></li>
+                  </ul>
+                </td>
+                <td width="120" valign="top">
+                  <ul>
+                    <li><a href="http://ad.cnki.net/Index.aspx" target="_blank" class="grey12">广告服务</a></li>
+                    <li><a href="http://vipcard.cnki.net/ec/cardinfo.html" target="_blank" class="grey12">知网卡  </a></li>
+                    <li><a href="http://vipcard.cnki.net/ec/cardintroduce.html#userconsent#" target="_blank" class="grey12">新手指南</a></li>
+                  </ul>
+                </td>
+              </tr>
+            </tbody></table>
+          </div>
+          <div class="clear"></div>
+          <div class="footer"><a href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=11010802020475" target="_blank"><div class="beian"></div></a><a href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=11010802020475" target="_blank"><div class="beian2"></div></a><p>
+          《中国学术期刊（光盘版）》电子杂志社有限公司<br>
+          同方知网数字出版技术股份有限公司<br>
+          地址：北京清华大学 84-48信箱 大众知识服务<br><a style="text-decoration:none;">京ICP证040441号</a><br><a style="text-decoration:none;">互联网出版许可证 新出网证（京）字008号</a><br>
+          出版物经营许可证 新出发京批字第直0595号<br></p>
+            <p>
+          订购热线：400-819-9993 010-62982499<br>
+          服务热线：010-62985026 010-62791813<br>
+          在线咨询：<a href="http://help.cnki.net/" target="_blank">http://help.cnki.net</a><br>
+          传真：010-62780361<br>
+          京公网安备11010802020475号
+        </p>
+          </div>
+          <div class="clear"></div>
+          <p><br></p>
+        </div>
+      </div>
+    </div>
+  
+</body></html>

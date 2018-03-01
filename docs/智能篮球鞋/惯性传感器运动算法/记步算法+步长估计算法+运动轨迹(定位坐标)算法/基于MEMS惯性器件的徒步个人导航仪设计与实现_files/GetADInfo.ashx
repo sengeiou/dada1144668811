@@ -1,0 +1,1 @@
+document.write("<div>");document.write("<div><a href='http://bianke.cnki.net/' target='_blank'><img src='http://adp.cnki.net/adfiles/ad/2016/1228/636185372935407500.jpg' border='0' width='740' height='90' alt='知网空间知网节页下载按钮下方广告位' /></a><input id='G0010' type='hidden' value='CNKI' /></div>");document.write("</div>");

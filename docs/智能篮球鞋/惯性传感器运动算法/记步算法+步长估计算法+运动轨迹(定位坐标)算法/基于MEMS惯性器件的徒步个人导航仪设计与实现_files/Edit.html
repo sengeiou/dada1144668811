@@ -1,0 +1,204 @@
+
+<!-- saved from url=(0058)http://www.wanfangdata.com.cn/UserSuggestion/Edit?type=box -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script type="text/javascript" src="./jquery-1.7.1.min.js"></script>
+<script src="./jquery.validate.min.js" type="text/javascript"></script>
+<script src="./jquery.validate.unobtrusive.min.js" type="text/javascript"></script>
+<script src="./jquery.unobtrusive-ajax.min.js" type="text/javascript"></script>
+<script src="./jquery.simplyCountable.js" type="text/javascript"></script>
+<script type="text/javascript" src="./jquery.watermark-3.1.3.min.js"></script>
+<style type="text/css">
+	* { margin: 0; padding: 0;}
+	body { background-color: transparent; font-family: "microsoft yahei"; font-size: 12px; padding: 20px 0 0 5px;}
+	button, input { font-family: "microsoft yahei"; font-size: 100%;}
+	em { font-style: normal;}
+	.suggestion { box-shadow: 0 0 5px #505050; border-radius: 3px; height: 327px; width: 460px; position: relative;}
+	.suggestion .hd { background-color: #fff; border: 4px #fff solid; border-bottom: 0; border-radius: 3px 3px 0 0; overflow: hidden;zoom: 1;}
+	.suggestion .hd h3 { background-color: #358dc5; border-bottom: 4px #fff solid; height: 30px; line-height: 30px; width: 224px; font-size: 14px; color: #fff;}
+	.suggestion .hd h3.tabs-nav-1 { float: left; cursor: pointer;}
+	.suggestion .hd h3.tabs-nav-2 { float: right; cursor: pointer;}
+	.suggestion .hd h3 span { float: left; padding: 0 5px 0 80px;}
+	.suggestion .hd h3 i { float: left; height: 30px; width: 30px; background: url(/images/tabs.png) no-repeat;}
+	.suggestion .hd h3.current { background-color: #f9f9f9; border-bottom-color: #f9f9f9; border-left: 0; color: #358dc5; cursor: default;}
+	.suggestion .bd { background-color: #f9f9f9; border: 4px #fff solid; border-top: 0; border-radius: 0 0 3px 3px; height: 270px; padding-top: 15px;}
+	.suggestion .bd .msg { border: 1px #ddd solid; background-color: #fff; border-radius: 3px; margin: 0 15px; padding: 5px 5px 0 5px;}
+	.suggestion .bd .msg textarea { background: none; float: left; border: 0; height: 90px; width: 410px; resize: none; overflow-y: auto; outline: 0;}
+	.suggestion .bd .msg .count { clear: both; color: #999; text-align: right; padding: 5px;}
+	.suggestion .bd .msg-bg { background: #fff url(/images/text.png) no-repeat 20px 30px;}
+	.suggestion .bd .info { color: #358dc5; padding: 15px;}
+	.suggestion .bd .form-group { overflow: hidden; padding: 0 0 10px 15px; zoom: 1;}
+	.suggestion .bd .form-group label { color: #666; float: left; padding: 2px 10px 0 0;}
+	.suggestion .bd .form-group label em { color: #f00;}
+	.suggestion .bd .form-group input { border: 1px #ddd solid; border-radius: 3px; color: #666; float: left; padding: 2px 5px; outline: 0; width: 180px;}
+	.suggestion .bd .btnpane { text-align: center;}
+	.suggestion .bd .btnpane .btn-help { margin: 0 10px;}
+	.suggestion .bd .btnpane .btn-help img { vertical-align: top; border: 0;}
+	.suggestion .bd .btnpane button { background: url(/images/button.png) no-repeat left top; height: 24px; width: 90px; border: 0; cursor: pointer; font-size: 12px; color: #fff; outline: none;}
+	.suggestion .field-validation-error { float: left; line-height: 23px; padding-left: 10px; color: #f00;}
+	.suggestion .count .field-validation-error { padding-left: 0; line-height: normal;}
+	.suggestion .state-box { position: absolute; top: 59px; left: 25px; height: 112px; width: 410px; text-align: center; font-weight: 700;}
+	.suggestion .state-box h4 { font-size: 12px;}
+	.suggestion .state-success { background: #e1ffdc url(/images/icon-success.png) no-repeat 100px 45px;}
+	.suggestion .state-success h4 { padding-top: 50px;}
+	.suggestion .state-highlight { background: #fff5dc url(/images/icon-highlight.png) no-repeat 100px 45px;}
+	.suggestion .state-highlight h4 { padding-top: 50px;}
+	.suggestion .state-highlight .btnpane { padding-top: 10px;}
+	.suggestion .state-highlight .btnpane button { display: inline-block; border: 1px #9a9a9a solid; padding: 5px 10px; background-color: #dfdfdf; margin: 0 5px;}
+
+	.suggestion .tabs-con-1 { padding: 0 15px;}
+	.suggestion .tabs-con-1 .cont { background-color: #fff; padding-top: 10px;}
+	.suggestion .tabs-con-1 .cont p { color: #358dc5; padding: 0 0 10px 20px;}
+	.suggestion .tabs-con-1 .cont p span { color: #febe34;}
+	.suggestion .tabs-con-1 .cont p.icon-contact-email { color: #666; background: url(/images/icon-contact.png) no-repeat 0 -25px; margin-left: 20px;}
+	.suggestion .tabs-con-1 .cont p.icon-contact-call { color: #666; background: url(/images/icon-contact.png) no-repeat 0 0; margin-left: 20px;}
+	.suggestion .tabs-con-1 .cont .btnpane { padding-bottom: 10px;}
+
+	.suggestion .hd .tabs-nav-1 i { background-position: 0 0;}
+	.suggestion .hd .tabs-nav-2 i { background-position: 0 -60px;}
+	.suggestion .hd .current i.s1 { background-position: 0 -90px;}
+	.suggestion .hd .current i.s2 { background-position: 0 -30px;}
+
+	.suggestion .btn-close { position: absolute; right: -20px; top: -20px; height: 38px; width: 38px; background: url(/images/btn-close.png) no-repeat 0 0;}
+
+	.contactus-online { display: block; color: #666; background: url(/images/icon-contactus.png) no-repeat 0 0; margin-left: 20px; margin-bottom: 10px; padding-left: 24px; height: 20px; line-height: 20px; cursor: pointer; }
+</style>
+<!--[if lt ie 9]>
+<style>
+	.suggestion { border: 2px #ccc solid;}
+	.suggestion .bd { height: 285px; width: 455px; overflow: hidden;}
+</style>
+<![endif]-->
+</head><body marginwidth="0" marginheight="0"><div class="suggestion" id="suggest">
+	<div id="sugClose" class="btn-close"></div>
+	<div class="hd" id="tabs-nav">
+		<h3 class="tabs-nav-1 current"><span>求帮助</span><i class="s1"></i></h3>
+		<h3 class="tabs-nav-2"><span>提建议</span><i class="s2"></i></h3>
+	</div>
+	<div class="bd" id="tabs-con">
+		<div class="tabs-con-1" style="display:block;">
+			<div class="cont">
+				<p>选择问题类型，自助解决<span>（推荐）</span></p>
+				<div class="btnpane">
+					<a href="http://www.wanfangdata.com.cn/NewGuide?helpitem=pay" target="_blank" class="btn-help"><img src="./btn-help-pay.jpg"></a>
+					<a href="http://www.wanfangdata.com.cn/NewGuide?helpitem=downloadpaper" target="_blank" class="btn-help"><img src="./btn-help-download.jpg"></a>
+					<a href="http://www.wanfangdata.com.cn/NewGuide?helpitem=problem" target="_blank" class="btn-help"><img src="./btn-help-docs.jpg"></a>
+				</div>
+				<p>其他帮助途径：</p>
+				<a class="contactus-online" onclick="window.parent.onlineService(&#39;http://www.wanfangdata.com.cn/&#39;);">在线客服</a>
+				<p class="icon-contact-email">service@wanfangdata.com.cn</p>
+				<p class="icon-contact-call">4000-115-888</p>
+			</div>
+		</div>
+		<div class="tabs-con-2" style="display:none;">
+<form action="http://www.wanfangdata.com.cn/UserSuggestion/Edit" data-ajax="true" data-ajax-failure="OnFailure" data-ajax-method="Post" data-ajax-success="OnSuccess" id="form0" method="post" novalidate="novalidate">				<div class="msg msg-bg" id="msg">
+					<textarea cols="20" data-val="true" data-val-length="建议内容必须在20到300个字之间" data-val-length-max="300" data-val-length-min="20" data-val-required="建议内容不能为空。" id="Suggestion" name="Suggestion" rows="2"></textarea>
+					<div class="count"><span class="field-validation-valid clRed" data-valmsg-for="Suggestion" data-valmsg-replace="true"></span>您还可以输入<span id="counter" class="safe">300</span>字</div>
+				</div>
+				<div class="info">请留下有效的联系方式，以便与您联系。</div>
+				<div class="form-group">
+					<label for="inputUsername"><em>*</em> 姓名</label>
+					<input class="text-box single-line" data-val="true" data-val-length="姓名必须在2到10个字之间" data-val-length-max="10" data-val-length-min="2" data-val-required="姓名不能为空。" id="UserName" name="UserName" type="text" value="">
+					<span class="field-validation-valid clRed" data-valmsg-for="UserName" data-valmsg-replace="true"></span>
+				</div>
+				<div class="form-group">
+					<label for="inputEmail"><em>*</em> 邮箱</label>
+					<input class="text-box single-line" data-val="true" data-val-regex="请正确填写邮箱地址。" data-val-regex-pattern="\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*" data-val-required="邮箱地址不能为空。" id="Email" name="Email" type="text" value="">
+					<span class="field-validation-valid clRed" data-valmsg-for="Email" data-valmsg-replace="true"></span>
+				</div>
+				<div class="btnpane">
+					<button type="submit" class="btn">提交建议</button>
+				</div>
+</form>		</div>
+	</div>
+	<div class="state-box state-success" id="successMessage" style="display:none;">
+		<h4>您的建议已提交成功！</h4>
+	</div>
+	<div class="state-box state-highlight" id="repeateMessage" style="display:none;">
+		<h4>无需重复提交，谢谢！</h4>
+	</div>
+	<div class="state-box state-highlight" id="failMessage" style="display:none;">
+		<h4>提交失败</h4>
+	</div>
+	<div class="state-box state-highlight" id="decideMessage" style="display:none;">
+		<h4>是否清除所输入内容</h4>
+		<div class="btnpane">
+			<button id="sugClear">是</button><button id="sugKeep">否</button>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	document.domain = "wanfangdata.com.cn";
+	var iframeForm = $(window.parent.document).find("#suggestionForm");
+	$(function() {
+		$("#Suggestion").simplyCountable({
+			maxCount: 300,
+			strictMax: true
+		});
+		$("#Suggestion").focus(function() {
+			$("#msg").removeClass("msg-bg");
+		});
+		$("#Suggestion").blur(function() {
+			if ($(this).val() == "")
+				$("#msg").addClass("msg-bg");
+		});
+		$(".tabs-nav-1").click(function() {
+			$(".tabs-nav-2").removeClass("current");
+			$(this).addClass("current");
+			$(".tabs-con-2").hide();
+			$(".tabs-con-1").show();
+		})
+		$(".tabs-nav-2").click(function() {
+			$(".tabs-nav-1").removeClass("current");
+			$(this).addClass("current");
+			$(".tabs-con-1").hide();
+			$(".tabs-con-2").show();
+		})
+		$("#sugClose").click(function() {
+			if ($("#Suggestion").val() != "" || $("#UserName").val() != "" || $("#Email").val() != "")
+				$("#decideMessage").show();
+			else {
+				SugInit();
+				iframeForm.hide();
+			}
+		});
+		$("#sugClear").click(function() {
+			$("#decideMessage").hide();
+			SugInit();
+			iframeForm.hide();
+		});
+		$("#sugKeep").click(function() {
+			$("#decideMessage").hide();
+			$(".suggestion .field-validation-error").text("");
+			iframeForm.hide();
+		});
+	});
+
+	function SugInit() {
+		$("#Suggestion, #UserName, #Email").val("");
+		$("#counter").html(300);
+		$(".suggestion .field-validation-error").text("");
+	}
+
+	function OnSuccess(result) {
+		if (result.IsDuplicate) {
+			$("#repeateMessage").show();
+			setTimeout(function() {
+				$("#repeateMessage").hide();
+			}, 3000);
+		} else {
+			$("#successMessage").show();
+			setTimeout(function() {
+				$("#successMessage").hide();
+				iframeForm.hide();
+			}, 3000);
+			SugInit();
+		}
+	}
+
+	function OnFailure() {
+		$("#failMessage").show();
+		setTimeout(function() {
+			$("#failMessage").hide();
+		}, 3000);
+	}
+</script>
+</body></html>
